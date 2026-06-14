@@ -1,14 +1,40 @@
-import { revalidatePath, refresh } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
-import { requireAdminRequest } from "@/lib/auth/request";
+import { ADMIN_COOKIE_NAME, verifyAdminSessionToken } from "@/lib/auth";
+import { createFormToken, verifyFormToken } from "@/lib/auth/form-token";
 import { upsertSettings } from "@/lib/db/queries";
 
-export const runtime = "nodejs";
+function getCookieToken(request: Request) {
+  const cookieHeader = request.headers.get("cookie");
+  if (!cookieHeader) return null;
+
+  for (const part of cookieHeader.split(";")) {
+    const trimmed = part.trim();
+    if (!trimmed.startsWith(`${ADMIN_COOKIE_NAME}=`)) continue;
+    return trimmed.slice(ADMIN_COOKIE_NAME.length + 1);
+  }
+
+  return null;
+}
+
+async function isAuthorized(
+  request: Request,
+  formToken: string | null | undefined,
+  purpose: "settings" | "password",
+) {
+  if (await verifyFormToken(formToken, purpose)) {
+    return true;
+  }
+
+  const cookieToken = getCookieToken(request);
+  return verifyAdminSessionToken(cookieToken);
+}
 
 type SettingsInput = {
   whatsappNumber?: string;
   storeName?: string;
   welcomeMessage?: string;
+  _token?: string;
 };
 
 function normalizeSettings(body: SettingsInput) {
@@ -24,61 +50,24 @@ function normalizeSettings(body: SettingsInput) {
   };
 }
 
-export async function POST(request: Request) {
-  try {
-    await requireAdminRequest(request);
-  } catch {
-    return NextResponse.redirect(
-      new URL("/admin/login?next=/admin/configuracion", request.url),
-    );
+export async function GET(request: Request) {
+  if (!(await isAuthorized(request, null, "settings"))) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-  try {
-    const formData = await request.formData();
-    const payload = normalizeSettings({
-      whatsappNumber: String(formData.get("whatsappNumber") ?? ""),
-      storeName: String(formData.get("storeName") ?? ""),
-      welcomeMessage: String(formData.get("welcomeMessage") ?? ""),
-    });
-
-    if (!payload) {
-      const redirectUrl = new URL("/admin/configuracion", request.url);
-      redirectUrl.searchParams.set("error", "missing-fields");
-      return NextResponse.redirect(redirectUrl);
-    }
-
-    await upsertSettings(payload);
-
-    revalidatePath("/");
-    revalidatePath("/admin/configuracion");
-    revalidatePath("/carrito");
-    refresh();
-
-    const redirectUrl = new URL("/admin/configuracion", request.url);
-    redirectUrl.searchParams.set("saved", "1");
-    return NextResponse.redirect(redirectUrl);
-  } catch (error) {
-    console.error("Failed to save settings", error);
-    const redirectUrl = new URL("/admin/configuracion", request.url);
-    redirectUrl.searchParams.set(
-      "error",
-      error instanceof Error ? error.message : "save-failed",
-    );
-    return NextResponse.redirect(redirectUrl);
-  }
+  const token = await createFormToken("settings");
+  return NextResponse.json({ token });
 }
 
 export async function PUT(request: Request) {
   try {
-    await requireAdminRequest(request);
-  } catch {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
-
-  try {
     const body = (await request.json()) as SettingsInput;
-    const payload = normalizeSettings(body);
 
+    if (!(await isAuthorized(request, body._token, "settings"))) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
+
+    const payload = normalizeSettings(body);
     if (!payload) {
       return NextResponse.json(
         { error: "WhatsApp y nombre de tienda son obligatorios" },
@@ -87,16 +76,51 @@ export async function PUT(request: Request) {
     }
 
     const settings = await upsertSettings(payload);
+    revalidatePath("/");
+    revalidatePath("/admin/configuracion");
+    revalidatePath("/carrito");
+
     return NextResponse.json({ success: true, settings });
   } catch (error) {
     console.error("Failed to save settings", error);
     return NextResponse.json(
-      {
-        error:
-          error instanceof Error
-            ? error.message
-            : "No se pudo guardar la configuración",
-      },
+      { error: "No se pudo guardar la configuración" },
+      { status: 500 },
+    );
+  }
+}
+
+export async function POST(request: Request) {
+  const formData = await request.formData();
+  const formToken = String(formData.get("_token") ?? "");
+
+  if (!(await isAuthorized(request, formToken, "settings"))) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
+  const payload = normalizeSettings({
+    whatsappNumber: String(formData.get("whatsappNumber") ?? ""),
+    storeName: String(formData.get("storeName") ?? ""),
+    welcomeMessage: String(formData.get("welcomeMessage") ?? ""),
+  });
+
+  if (!payload) {
+    return NextResponse.json(
+      { error: "WhatsApp y nombre de tienda son obligatorios" },
+      { status: 400 },
+    );
+  }
+
+  try {
+    const settings = await upsertSettings(payload);
+    revalidatePath("/");
+    revalidatePath("/admin/configuracion");
+    revalidatePath("/carrito");
+    return NextResponse.json({ success: true, settings });
+  } catch (error) {
+    console.error("Failed to save settings", error);
+    return NextResponse.json(
+      { error: "No se pudo guardar la configuración" },
       { status: 500 },
     );
   }

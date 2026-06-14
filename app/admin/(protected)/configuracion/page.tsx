@@ -1,25 +1,17 @@
+import { createFormToken } from "@/lib/auth/form-token";
 import { getSettings } from "@/lib/db/queries";
-import SettingsPageWrapper from "@/components/admin/settings-form";
+import { SettingsFormClient } from "@/components/admin/settings-form-client";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export default async function AdminSettingsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{
-    saved?: string;
-    error?: string;
-  }>;
-}) {
-  const params = await searchParams;
-  const settings = await getSettings();
+export default async function AdminSettingsPage() {
+  const [settings, saveToken] = await Promise.all([
+    getSettings(),
+    createFormToken("settings"),
+  ]);
 
   return (
-    <SettingsPageWrapper
-      settings={settings}
-      saved={params.saved === "1"}
-      error={params.error ?? null}
-    />
+    <SettingsFormClient initialSettings={settings} saveToken={saveToken} />
   );
 }
