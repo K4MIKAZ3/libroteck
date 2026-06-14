@@ -111,6 +111,7 @@ export function ProductForm({
         {
           method: product ? "PUT" : "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify(payload),
         },
       );

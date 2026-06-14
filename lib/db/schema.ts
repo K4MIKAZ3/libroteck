@@ -42,6 +42,7 @@ export const settings = pgTable("settings", {
   welcomeMessage: text("welcome_message")
     .notNull()
     .default("Elige tu país y ordena por WhatsApp"),
+  adminPasswordHash: text("admin_password_hash"),
 });
 
 export const productsRelations = relations(products, ({ many }) => ({

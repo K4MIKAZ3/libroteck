@@ -1,5 +1,7 @@
+import bcrypt from "bcryptjs";
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import { getAdminPasswordHash } from "@/lib/db/queries";
 
 export const ADMIN_COOKIE_NAME = "libroteck_admin";
 const SESSION_DURATION = 60 * 60 * 24 * 7;
@@ -21,6 +23,11 @@ export function getAdminCookieOptions() {
 }
 
 export async function verifyAdminPassword(password: string) {
+  const hash = await getAdminPasswordHash();
+  if (hash) {
+    return bcrypt.compare(password, hash);
+  }
+
   const expected = process.env.ADMIN_PASSWORD ?? "admin123";
   return password === expected;
 }

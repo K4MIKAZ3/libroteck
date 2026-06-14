@@ -1,4 +1,4 @@
-import { revalidatePath } from "next/cache";
+import { revalidatePath, refresh } from "next/cache";
 import { NextResponse } from "next/server";
 import { requireAdminRequest } from "@/lib/auth/request";
 import { upsertSettings } from "@/lib/db/queries";
@@ -52,6 +52,7 @@ export async function POST(request: Request) {
     revalidatePath("/");
     revalidatePath("/admin/configuracion");
     revalidatePath("/carrito");
+    refresh();
 
     const redirectUrl = new URL("/admin/configuracion", request.url);
     redirectUrl.searchParams.set("saved", "1");

@@ -1,4 +1,6 @@
-import { eq } from "drizzle-orm";
+import bcrypt from "bcryptjs";
+import { asc, eq } from "drizzle-orm";
+import { unstable_noStore as noStore } from "next/cache";
 import type { CountryCode, ProductType } from "@/lib/pricing/countries";
 import { getPriceForCountry as resolvePriceForCountry } from "@/lib/pricing/product-price";
 import { getDb } from "./index";
@@ -16,13 +18,30 @@ function defaultSettings(): Omit<Settings, "id"> & { id: number } {
     whatsappNumber: process.env.WHATSAPP_NUMBER ?? "5212345678900",
     storeName: "LibroTeck",
     welcomeMessage: "Elige tu país y ordena por WhatsApp",
+    adminPasswordHash: null,
   };
 }
 
-export async function getSettings() {
+async function getSettingsRow() {
   const db = await getDb();
-  const rows = await db.select().from(settings).limit(1);
-  return rows[0] ?? defaultSettings();
+  const rows = await db
+    .select()
+    .from(settings)
+    .orderBy(asc(settings.id))
+    .limit(1);
+  return rows[0] ?? null;
+}
+
+export async function getSettings() {
+  noStore();
+  const row = await getSettingsRow();
+  return row ?? defaultSettings();
+}
+
+export async function getAdminPasswordHash() {
+  noStore();
+  const row = await getSettingsRow();
+  return row?.adminPasswordHash ?? null;
 }
 
 export async function upsertSettings(data: {
@@ -30,19 +49,45 @@ export async function upsertSettings(data: {
   storeName: string;
   welcomeMessage: string;
 }) {
+  noStore();
   const db = await getDb();
-  const existing = await db.select().from(settings).limit(1);
+  const existing = await getSettingsRow();
 
-  if (existing[0]) {
+  if (existing) {
     const [updated] = await db
       .update(settings)
       .set(data)
-      .where(eq(settings.id, existing[0].id))
+      .where(eq(settings.id, existing.id))
       .returning();
     return updated;
   }
 
   const [created] = await db.insert(settings).values(data).returning();
+  return created;
+}
+
+export async function updateAdminPassword(newPassword: string) {
+  noStore();
+  const db = await getDb();
+  const hash = await bcrypt.hash(newPassword, 10);
+  const existing = await getSettingsRow();
+
+  if (existing) {
+    const [updated] = await db
+      .update(settings)
+      .set({ adminPasswordHash: hash })
+      .where(eq(settings.id, existing.id))
+      .returning();
+    return updated;
+  }
+
+  const [created] = await db
+    .insert(settings)
+    .values({
+      ...defaultSettings(),
+      adminPasswordHash: hash,
+    })
+    .returning();
   return created;
 }
 
