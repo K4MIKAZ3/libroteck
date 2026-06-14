@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 533" fill="none">
+  <rect width="400" height="533" fill="#1E3A5F"/>
+  <rect x="0" y="0" width="400" height="8" fill="#C8956C"/>
+  <rect x="130" y="60" width="140" height="32" rx="16" fill="#C8956C"/>
+  <text x="200" y="82" text-anchor="middle" fill="#1E3A5F" font-family="Arial,sans-serif" font-size="14" font-weight="bold">CURSO</text>
+  <circle cx="200" cy="165" r="48" fill="#2D5A8A"/>
+  <path d="M175 155h50v35h-50z" fill="#FAF7F2" opacity="0.9"/>
+  <path d="M185 165h30v15h-30z" fill="#1E3A5F"/>
+  <text x="200" y="222" text-anchor="middle" fill="#FAF7F2" font-family="Arial,sans-serif" font-size="16" font-weight="bold">Curso de Diagnóstico</text>
+<text x="200" y="252" text-anchor="middle" fill="#FAF7F2" font-family="Arial,sans-serif" font-size="16" font-weight="bold">Electrónico en Ford Escape</text>
+  <rect x="50" y="360" width="300" height="1" fill="#C8956C" opacity="0.5"/>
+  <text x="200" y="380" text-anchor="middle" fill="#FAF7F2" font-family="Arial,sans-serif" font-size="12" opacity="0.85">4 h 45 min</text>
+<text x="200" y="406" text-anchor="middle" fill="#FAF7F2" font-family="Arial,sans-serif" font-size="12" opacity="0.85">Redes de comunicación</text>
+<text x="200" y="432" text-anchor="middle" fill="#FAF7F2" font-family="Arial,sans-serif" font-size="12" opacity="0.85">Alternador digital</text>
+  <text x="200" y="500" text-anchor="middle" fill="#C8956C" font-family="Arial,sans-serif" font-size="14" font-weight="bold" letter-spacing="2">LIBROTECK</text>
+</svg>
