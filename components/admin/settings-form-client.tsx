@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { Settings } from "@/lib/db/schema";
+import { AD_NETWORK_GUIDE, AD_SIZE_GUIDE } from "@/lib/ads/config";
 
 type SettingsFormClientProps = {
   initialSettings: Settings;
@@ -33,6 +34,13 @@ export function SettingsFormClient({
   const [promoButtonLabel, setPromoButtonLabel] = useState(
     initialSettings.promoButtonLabel,
   );
+  const [adsEnabled, setAdsEnabled] = useState(initialSettings.adsEnabled);
+  const [adsenseClientId, setAdsenseClientId] = useState(
+    initialSettings.adsenseClientId,
+  );
+  const [adSlotTop, setAdSlotTop] = useState(initialSettings.adSlotTop);
+  const [adSlotLeft, setAdSlotLeft] = useState(initialSettings.adSlotLeft);
+  const [adSlotRight, setAdSlotRight] = useState(initialSettings.adSlotRight);
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState<{
     type: "success" | "error";
@@ -58,6 +66,11 @@ export function SettingsFormClient({
           promoMessage,
           promoLink,
           promoButtonLabel,
+          adsEnabled,
+          adsenseClientId,
+          adSlotTop,
+          adSlotLeft,
+          adSlotRight,
           _token: saveToken,
         }),
       });
@@ -81,6 +94,11 @@ export function SettingsFormClient({
         setPromoMessage(data.settings.promoMessage);
         setPromoLink(data.settings.promoLink);
         setPromoButtonLabel(data.settings.promoButtonLabel);
+        setAdsEnabled(data.settings.adsEnabled);
+        setAdsenseClientId(data.settings.adsenseClientId);
+        setAdSlotTop(data.settings.adSlotTop);
+        setAdSlotLeft(data.settings.adSlotLeft);
+        setAdSlotRight(data.settings.adSlotRight);
       }
 
       setFeedback({
@@ -212,6 +230,98 @@ export function SettingsFormClient({
                   placeholder="Ver promoción"
                   disabled={!promoEnabled}
                 />
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-[#E8E0D5] bg-[#FAF7F2]/60 p-4 space-y-4">
+              <div>
+                <p className="font-medium text-[#1E3A5F]">Espacios publicitarios</p>
+                <p className="mt-1 text-xs text-[#1A1A2E]/60">
+                  Barra superior + columnas laterales en pantallas grandes. En móvil
+                  solo se muestra la barra de arriba.
+                </p>
+              </div>
+
+              <label className="flex cursor-pointer items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={adsEnabled}
+                  onChange={(event) => setAdsEnabled(event.target.checked)}
+                  className="size-4 rounded border-[#E8E0D5]"
+                />
+                <span className="text-sm font-medium">Activar anuncios AdSense</span>
+              </label>
+
+              <div className="space-y-2">
+                <Label htmlFor="adsenseClientId">ID de cliente AdSense</Label>
+                <Input
+                  id="adsenseClientId"
+                  value={adsenseClientId}
+                  onChange={(event) => setAdsenseClientId(event.target.value)}
+                  placeholder="ca-pub-XXXXXXXXXXXXXXXX"
+                  disabled={!adsEnabled}
+                />
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="space-y-2">
+                  <Label htmlFor="adSlotTop">Unidad superior</Label>
+                  <Input
+                    id="adSlotTop"
+                    value={adSlotTop}
+                    onChange={(event) => setAdSlotTop(event.target.value)}
+                    placeholder="1234567890"
+                    disabled={!adsEnabled}
+                  />
+                  <p className="text-xs text-[#1A1A2E]/50">{AD_SIZE_GUIDE.top}</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="adSlotLeft">Unidad izquierda</Label>
+                  <Input
+                    id="adSlotLeft"
+                    value={adSlotLeft}
+                    onChange={(event) => setAdSlotLeft(event.target.value)}
+                    placeholder="1234567891"
+                    disabled={!adsEnabled}
+                  />
+                  <p className="text-xs text-[#1A1A2E]/50">{AD_SIZE_GUIDE.left}</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="adSlotRight">Unidad derecha</Label>
+                  <Input
+                    id="adSlotRight"
+                    value={adSlotRight}
+                    onChange={(event) => setAdSlotRight(event.target.value)}
+                    placeholder="1234567892"
+                    disabled={!adsEnabled}
+                  />
+                  <p className="text-xs text-[#1A1A2E]/50">{AD_SIZE_GUIDE.right}</p>
+                </div>
+              </div>
+
+              <div className="rounded-lg border border-[#E8E0D5] bg-white p-3 text-xs text-[#1A1A2E]/70">
+                <p className="font-semibold text-[#1E3A5F]">Redes recomendadas</p>
+                <ul className="mt-2 space-y-2">
+                  {AD_NETWORK_GUIDE.map((network) => (
+                    <li key={network.name}>
+                      <a
+                        href={network.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium text-[#1E3A5F] underline-offset-2 hover:underline"
+                      >
+                        {network.name}
+                        {network.recommended ? " (recomendado)" : ""}
+                      </a>
+                      {" — "}
+                      {network.note}
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-3 text-[#1A1A2E]/55">
+                  En AdSense crea 3 unidades: una horizontal (arriba) y dos
+                  verticales (laterales). Copia el ca-pub y cada data-ad-slot aquí.
+                </p>
               </div>
             </div>
 

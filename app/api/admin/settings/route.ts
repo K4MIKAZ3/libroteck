@@ -39,6 +39,11 @@ type SettingsInput = {
   promoMessage?: string;
   promoLink?: string;
   promoButtonLabel?: string;
+  adsEnabled?: boolean;
+  adsenseClientId?: string;
+  adSlotTop?: string;
+  adSlotLeft?: string;
+  adSlotRight?: string;
   _token?: string;
 };
 
@@ -57,6 +62,11 @@ function normalizeSettings(body: SettingsInput) {
     promoMessage: body.promoMessage?.trim() ?? "",
     promoLink: body.promoLink?.trim() ?? "",
     promoButtonLabel: body.promoButtonLabel?.trim() || "Ver promoción",
+    adsEnabled: Boolean(body.adsEnabled),
+    adsenseClientId: body.adsenseClientId?.trim() ?? "",
+    adSlotTop: body.adSlotTop?.trim() ?? "",
+    adSlotLeft: body.adSlotLeft?.trim() ?? "",
+    adSlotRight: body.adSlotRight?.trim() ?? "",
   };
 }
 
@@ -89,6 +99,7 @@ export async function PUT(request: Request) {
     revalidatePath("/");
     revalidatePath("/admin/configuracion");
     revalidatePath("/carrito");
+    revalidatePath("/producto/[slug]", "layout");
 
     return NextResponse.json({ success: true, settings });
   } catch (error) {
@@ -117,6 +128,11 @@ export async function POST(request: Request) {
     promoMessage: String(formData.get("promoMessage") ?? ""),
     promoLink: String(formData.get("promoLink") ?? ""),
     promoButtonLabel: String(formData.get("promoButtonLabel") ?? ""),
+    adsEnabled: formData.get("adsEnabled") === "true",
+    adsenseClientId: String(formData.get("adsenseClientId") ?? ""),
+    adSlotTop: String(formData.get("adSlotTop") ?? ""),
+    adSlotLeft: String(formData.get("adSlotLeft") ?? ""),
+    adSlotRight: String(formData.get("adSlotRight") ?? ""),
   });
 
   if (!payload) {
@@ -131,6 +147,7 @@ export async function POST(request: Request) {
     revalidatePath("/");
     revalidatePath("/admin/configuracion");
     revalidatePath("/carrito");
+    revalidatePath("/producto/[slug]", "layout");
     return NextResponse.json({ success: true, settings });
   } catch (error) {
     console.error("Failed to save settings", error);

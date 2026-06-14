@@ -25,6 +25,11 @@ function defaultSettings(): Omit<Settings, "id"> & { id: number } {
     promoMessage: "",
     promoLink: "",
     promoButtonLabel: "Ver promoción",
+    adsEnabled: false,
+    adsenseClientId: "",
+    adSlotTop: "",
+    adSlotLeft: "",
+    adSlotRight: "",
   };
 }
 
@@ -59,6 +64,11 @@ export async function upsertSettings(data: {
   promoMessage?: string;
   promoLink?: string;
   promoButtonLabel?: string;
+  adsEnabled?: boolean;
+  adsenseClientId?: string;
+  adSlotTop?: string;
+  adSlotLeft?: string;
+  adSlotRight?: string;
 }) {
   noStore();
   const db = await getDb();

@@ -29,6 +29,13 @@
       "when": 1781673600000,
       "tag": "0004_promo_banner",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1781760000000,
+      "tag": "0005_ad_slots",
+      "breakpoints": true
     }
   ]
 }

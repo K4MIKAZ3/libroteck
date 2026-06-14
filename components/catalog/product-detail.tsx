@@ -5,8 +5,6 @@ import { ProductPriceDisplay } from "@/components/catalog/product-price-display"
 import { CoverImage } from "@/components/catalog/cover-image";
 import Link from "next/link";
 import { ArrowLeft, ShoppingCart } from "lucide-react";
-import { SiteFooter } from "@/components/layout/site-footer";
-import { SiteHeader } from "@/components/layout/site-header";
 import { useCart } from "@/components/providers/cart-provider";
 import { useCountry } from "@/components/providers/country-provider";
 import { Badge } from "@/components/ui/badge";
@@ -30,10 +28,8 @@ export function ProductDetail({
   const price = getPriceForCountry(product.prices, country);
 
   return (
-    <div className="min-h-screen">
-      <SiteHeader />
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-        <Button asChild variant="ghost" className="mb-6">
+    <>
+      <Button asChild variant="ghost" className="mb-6">
           <Link href="/">
             <ArrowLeft className="size-4" />
             Volver al catálogo
@@ -121,8 +117,6 @@ export function ProductDetail({
             </Card>
           </div>
         </div>
-      </main>
-      <SiteFooter />
-    </div>
+    </>
   );
 }

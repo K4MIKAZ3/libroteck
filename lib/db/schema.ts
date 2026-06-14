@@ -53,6 +53,11 @@ export const settings = pgTable("settings", {
   promoButtonLabel: text("promo_button_label")
     .notNull()
     .default("Ver promoción"),
+  adsEnabled: boolean("ads_enabled").notNull().default(false),
+  adsenseClientId: text("adsense_client_id").notNull().default(""),
+  adSlotTop: text("ad_slot_top").notNull().default(""),
+  adSlotLeft: text("ad_slot_left").notNull().default(""),
+  adSlotRight: text("ad_slot_right").notNull().default(""),
 });
 
 export const productsRelations = relations(products, ({ many }) => ({
