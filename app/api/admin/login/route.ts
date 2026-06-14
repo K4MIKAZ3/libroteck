@@ -3,8 +3,8 @@ import {
   ADMIN_COOKIE_NAME,
   createAdminSessionToken,
   getAdminCookieOptions,
-  verifyAdminPassword,
-} from "@/lib/auth";
+} from "@/lib/auth/session";
+import { verifyAdminPassword } from "@/lib/auth";
 
 async function createLoginResponse(request: Request, password: string, nextPath: string) {
   if (!(await verifyAdminPassword(password))) {

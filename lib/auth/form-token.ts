@@ -1,5 +1,5 @@
 import { SignJWT, jwtVerify } from "jose";
-import { getAdminSecret } from "@/lib/auth";
+import { getAdminSecret } from "@/lib/auth/session";
 
 export type FormTokenPurpose = "settings" | "password" | "products";
 

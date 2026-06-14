@@ -126,8 +126,7 @@ export function ProductForm({
         throw new Error(data.error ?? "No se pudo guardar el producto");
       }
 
-      router.push("/admin/productos");
-      router.refresh();
+      router.replace("/admin/productos");
     } catch (submitError) {
       setError(
         submitError instanceof Error

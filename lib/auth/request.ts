@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import {
   ADMIN_COOKIE_NAME,
   verifyAdminSessionToken,
-} from "@/lib/auth";
+} from "@/lib/auth/session";
 import {
   verifyFormToken,
   type FormTokenPurpose,

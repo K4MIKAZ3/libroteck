@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ADMIN_COOKIE_NAME, getAdminCookieOptions } from "@/lib/auth";
+import { ADMIN_COOKIE_NAME, getAdminCookieOptions } from "@/lib/auth/session";
 
 function logoutResponse(request: Request) {
   const response = NextResponse.redirect(new URL("/admin/login", request.url));

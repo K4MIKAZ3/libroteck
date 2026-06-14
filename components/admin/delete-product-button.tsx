@@ -42,7 +42,7 @@ export function DeleteProductButton({
         throw new Error(data.error ?? "No se pudo eliminar el producto");
       }
 
-      router.refresh();
+      router.replace("/admin/productos");
     } catch (deleteError) {
       setError(
         deleteError instanceof Error
