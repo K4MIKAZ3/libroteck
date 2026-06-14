@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { CoverImage } from "@/components/catalog/cover-image";
 import Link from "next/link";
 import { Pencil, Trash2 } from "lucide-react";
 import { AdminNav } from "@/components/admin/admin-nav";
@@ -20,12 +20,7 @@ export default async function AdminProductsPage() {
             <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center">
               <div className="relative size-20 shrink-0 overflow-hidden rounded-lg bg-[#FAF7F2]">
                 {product.coverUrl && (
-                  <Image
-                    src={product.coverUrl}
-                    alt={product.name}
-                    fill
-                    className="object-cover"
-                  />
+                  <CoverImage src={product.coverUrl} alt={product.name} sizes="80px" />
                 )}
               </div>
               <div className="flex-1">

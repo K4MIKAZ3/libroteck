@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { CoverImage } from "@/components/catalog/cover-image";
 import Link from "next/link";
 import { ShoppingCart, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -39,12 +39,10 @@ export function ProductCard({ product }: { product: ProductWithPrices }) {
       <Link href={`/producto/${product.slug}`} className="block">
         <div className="relative aspect-[3/4] overflow-hidden bg-[#FAF7F2]">
           {product.coverUrl ? (
-            <Image
+            <CoverImage
               src={product.coverUrl}
               alt={product.name}
-              fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
-              sizes="(max-width: 768px) 50vw, 25vw"
+              className="transition-transform duration-300 group-hover:scale-105"
             />
           ) : (
             <div className="flex h-full items-center justify-center text-[#1A1A2E]/30">

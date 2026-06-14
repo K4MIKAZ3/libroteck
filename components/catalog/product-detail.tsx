@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import { CoverImage } from "@/components/catalog/cover-image";
 import Link from "next/link";
 import { ArrowLeft, ShoppingCart } from "lucide-react";
 import { SiteHeader } from "@/components/layout/site-header";
@@ -43,11 +43,9 @@ export function ProductDetail({
           <Card className="overflow-hidden">
             <div className="relative aspect-[3/4] bg-[#FAF7F2]">
               {product.coverUrl && (
-                <Image
+                <CoverImage
                   src={product.coverUrl}
                   alt={product.name}
-                  fill
-                  className="object-cover"
                   priority
                   sizes="(max-width: 1024px) 100vw, 50vw"
                 />

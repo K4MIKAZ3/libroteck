@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { CoverImage } from "@/components/catalog/cover-image";
 import Link from "next/link";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -53,11 +53,9 @@ export function CartView({ whatsappNumber }: { whatsappNumber: string }) {
             <CardContent className="flex gap-4 p-4">
               <div className="relative size-24 shrink-0 overflow-hidden rounded-lg bg-[#FAF7F2]">
                 {item.coverUrl && (
-                  <Image
+                  <CoverImage
                     src={item.coverUrl}
                     alt={item.name}
-                    fill
-                    className="object-cover"
                     sizes="96px"
                   />
                 )}
