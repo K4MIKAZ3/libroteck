@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { Loader2 } from "lucide-react";
 import { AdminNav } from "@/components/admin/admin-nav";
 import { Button } from "@/components/ui/button";
@@ -10,53 +11,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { Settings } from "@/lib/db/schema";
 
-export function SettingsForm({ settings }: { settings: Settings | null }) {
-  const [whatsappNumber, setWhatsappNumber] = useState(
-    settings?.whatsappNumber ?? "5212345678900",
-  );
-  const [storeName, setStoreName] = useState(settings?.storeName ?? "LibroTeck");
-  const [welcomeMessage, setWelcomeMessage] = useState(
-    settings?.welcomeMessage ?? "Cursos y libros digitales",
-  );
-  const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [isError, setIsError] = useState(false);
-
-  async function handleSubmit(event: React.FormEvent) {
-    event.preventDefault();
-    setSaving(true);
-    setMessage(null);
-    setIsError(false);
-
-    try {
-      const response = await fetch("/api/admin/settings", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ whatsappNumber, storeName, welcomeMessage }),
-      });
-
-      let data: { error?: string } = {};
-      try {
-        data = (await response.json()) as { error?: string };
-      } catch {
-        throw new Error("Respuesta inválida del servidor");
-      }
-
-      if (!response.ok) {
-        throw new Error(data.error ?? "No se pudo guardar la configuración");
-      }
-
-      setMessage("Configuración guardada correctamente.");
-    } catch (error) {
-      setMessage(
-        error instanceof Error ? error.message : "Error al guardar",
-      );
-      setIsError(true);
-    } finally {
-      setSaving(false);
-    }
-  }
+function SettingsFormInner({ settings }: { settings: Settings | null }) {
+  const searchParams = useSearchParams();
+  const saved = searchParams.get("saved") === "1";
+  const error = searchParams.get("error");
 
   return (
     <Card className="max-w-2xl">
@@ -64,13 +22,30 @@ export function SettingsForm({ settings }: { settings: Settings | null }) {
         <CardTitle>Configuración de la tienda</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {saved && (
+          <p className="mb-4 text-sm text-green-700">
+            Configuración guardada correctamente.
+          </p>
+        )}
+        {error && (
+          <p className="mb-4 text-sm text-red-600">
+            {error === "missing-fields"
+              ? "WhatsApp y nombre de tienda son obligatorios."
+              : "No se pudo guardar la configuración. Intenta de nuevo."}
+          </p>
+        )}
+
+        <form
+          action="/api/admin/settings"
+          method="POST"
+          className="space-y-4"
+        >
           <div className="space-y-2">
             <Label htmlFor="whatsapp">Número de WhatsApp</Label>
             <Input
               id="whatsapp"
-              value={whatsappNumber}
-              onChange={(event) => setWhatsappNumber(event.target.value)}
+              name="whatsappNumber"
+              defaultValue={settings?.whatsappNumber ?? "5212345678900"}
               placeholder="5212345678900"
               required
             />
@@ -82,8 +57,8 @@ export function SettingsForm({ settings }: { settings: Settings | null }) {
             <Label htmlFor="storeName">Nombre de la tienda</Label>
             <Input
               id="storeName"
-              value={storeName}
-              onChange={(event) => setStoreName(event.target.value)}
+              name="storeName"
+              defaultValue={settings?.storeName ?? "LibroTeck"}
               required
             />
           </div>
@@ -91,24 +66,32 @@ export function SettingsForm({ settings }: { settings: Settings | null }) {
             <Label htmlFor="welcomeMessage">Mensaje principal</Label>
             <Textarea
               id="welcomeMessage"
-              value={welcomeMessage}
-              onChange={(event) => setWelcomeMessage(event.target.value)}
+              name="welcomeMessage"
+              defaultValue={
+                settings?.welcomeMessage ?? "Cursos y libros digitales"
+              }
               rows={3}
               required
             />
           </div>
-          {message && (
-            <p className={`text-sm ${isError ? "text-red-600" : "text-green-700"}`}>
-              {message}
-            </p>
-          )}
-          <Button type="submit" disabled={saving}>
-            {saving && <Loader2 className="size-4 animate-spin" />}
-            Guardar configuración
-          </Button>
+          <Button type="submit">Guardar configuración</Button>
         </form>
       </CardContent>
     </Card>
+  );
+}
+
+export function SettingsForm({ settings }: { settings: Settings | null }) {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-40 items-center justify-center">
+          <Loader2 className="size-6 animate-spin text-[#1E3A5F]" />
+        </div>
+      }
+    >
+      <SettingsFormInner settings={settings} />
+    </Suspense>
   );
 }
 
