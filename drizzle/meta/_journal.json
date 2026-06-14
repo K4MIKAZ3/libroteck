@@ -15,6 +15,13 @@
       "when": 1781500800000,
       "tag": "0002_compare_at_and_bolivia",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1781587200000,
+      "tag": "0003_featured_sort",
+      "breakpoints": true
     }
   ]
 }

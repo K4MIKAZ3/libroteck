@@ -49,6 +49,12 @@ export function ProductCard({ product }: { product: ProductWithPrices }) {
               Sin portada
             </div>
           )}
+          {product.isFeatured && (
+            <Badge variant="secondary" className="absolute right-3 top-3 gap-1 bg-[#C8956C] text-white">
+              <Star className="size-3 fill-current" />
+              Top
+            </Badge>
+          )}
           {product.isNew && (
             <Badge variant="new" className="absolute left-3 top-3 gap-1">
               <Star className="size-3 fill-current" />

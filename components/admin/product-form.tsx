@@ -74,6 +74,8 @@ export function ProductForm({
     coverUrl,
     isActive,
     isNew,
+    isFeatured: product?.isFeatured ?? false,
+    sortOrder: product?.sortOrder ?? 0,
     createdAt: product?.createdAt ?? new Date(),
     prices: (Object.entries(prices) as [CountryCode, string][])
       .filter(([, amount]) => amount.trim() !== "")

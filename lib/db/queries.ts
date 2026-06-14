@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
-import { asc, eq } from "drizzle-orm";
+import { asc, desc, eq, max } from "drizzle-orm";
 import { unstable_noStore as noStore } from "next/cache";
+import { sortProductsForDisplay } from "@/lib/catalog/product-list";
 import type { CountryCode, ProductType } from "@/lib/pricing/countries";
 import { getPriceForCountry as resolvePriceForCountry } from "@/lib/pricing/product-price";
 import { getDb } from "./index";
@@ -96,17 +97,16 @@ export async function getActiveProducts(): Promise<ProductWithPrices[]> {
   const rows = await db.query.products.findMany({
     where: eq(products.isActive, true),
     with: { prices: true },
-    orderBy: (table, { desc }) => [desc(table.createdAt)],
   });
-  return rows;
+  return sortProductsForDisplay(rows);
 }
 
 export async function getAllProducts(): Promise<ProductWithPrices[]> {
   const db = await getDb();
-  return db.query.products.findMany({
+  const rows = await db.query.products.findMany({
     with: { prices: true },
-    orderBy: (table, { desc }) => [desc(table.createdAt)],
   });
+  return sortProductsForDisplay(rows);
 }
 
 export async function getProductBySlug(
@@ -228,4 +228,50 @@ export async function updateProduct(
 export async function deleteProduct(id: number) {
   const db = await getDb();
   await db.delete(products).where(eq(products.id, id));
+}
+
+export async function setProductFeatured(
+  id: number,
+  isFeatured: boolean,
+) {
+  noStore();
+  const db = await getDb();
+
+  let sortOrder = 0;
+  if (isFeatured) {
+    const [row] = await db
+      .select({ value: max(products.sortOrder) })
+      .from(products)
+      .where(eq(products.isFeatured, true));
+    sortOrder = (row?.value ?? 0) + 1;
+  }
+
+  const [updated] = await db
+    .update(products)
+    .set({ isFeatured, sortOrder })
+    .where(eq(products.id, id))
+    .returning();
+
+  return updated ?? null;
+}
+
+export async function featureAllBundles() {
+  noStore();
+  const db = await getDb();
+  const bundles = await db
+    .select()
+    .from(products)
+    .where(eq(products.type, "bundle"))
+    .orderBy(desc(products.createdAt));
+
+  let order = bundles.length;
+  for (const bundle of bundles) {
+    await db
+      .update(products)
+      .set({ isFeatured: true, sortOrder: order })
+      .where(eq(products.id, bundle.id));
+    order--;
+  }
+
+  return bundles.length;
 }
