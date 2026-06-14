@@ -40,8 +40,10 @@ const emptyPrices = (): PriceForm => ({
 
 export function ProductForm({
   product,
+  saveToken,
 }: {
   product?: ProductWithPrices;
+  saveToken: string;
 }) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
@@ -105,6 +107,7 @@ export function ProductForm({
           currency: COUNTRIES[countryCode].currency,
           amount: Number(amount),
         })),
+      _token: saveToken,
     };
 
     try {
@@ -113,7 +116,7 @@ export function ProductForm({
         {
           method: product ? "PUT" : "POST",
           headers: { "Content-Type": "application/json" },
-          credentials: "include",
+          credentials: "same-origin",
           body: JSON.stringify(payload),
         },
       );
@@ -224,7 +227,7 @@ export function ProductForm({
             />
           </div>
 
-          <ImageUpload value={coverUrl} onChange={setCoverUrl} />
+          <ImageUpload value={coverUrl} onChange={setCoverUrl} uploadToken={saveToken} />
 
           <div className="space-y-3">
             <Label>Precios por país</Label>

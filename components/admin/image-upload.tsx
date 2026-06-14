@@ -10,9 +10,11 @@ import { Label } from "@/components/ui/label";
 export function ImageUpload({
   value,
   onChange,
+  uploadToken,
 }: {
   value: string;
   onChange: (url: string) => void;
+  uploadToken?: string;
 }) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,9 +29,13 @@ export function ImageUpload({
     try {
       const formData = new FormData();
       formData.append("file", file);
+      if (uploadToken) {
+        formData.append("_token", uploadToken);
+      }
 
       const response = await fetch("/api/upload", {
         method: "POST",
+        credentials: "same-origin",
         body: formData,
       });
 

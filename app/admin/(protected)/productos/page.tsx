@@ -1,15 +1,23 @@
 import { CoverImage } from "@/components/catalog/cover-image";
 import Link from "next/link";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { AdminNav } from "@/components/admin/admin-nav";
+import { DeleteProductButton } from "@/components/admin/delete-product-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { createFormToken } from "@/lib/auth/form-token";
 import { getAllProducts } from "@/lib/db/queries";
 import { PRODUCT_TYPE_LABELS, type ProductType } from "@/lib/pricing/countries";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function AdminProductsPage() {
-  const products = await getAllProducts();
+  const [products, deleteToken] = await Promise.all([
+    getAllProducts(),
+    createFormToken("products"),
+  ]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
@@ -40,18 +48,10 @@ export default async function AdminProductsPage() {
                     Editar
                   </Link>
                 </Button>
-                <form action={`/api/admin/products/${product.id}`} method="post">
-                  <input type="hidden" name="_method" value="DELETE" />
-                  <Button
-                    type="submit"
-                    variant="destructive"
-                    size="sm"
-                    formAction={`/api/admin/products/${product.id}/delete`}
-                  >
-                    <Trash2 className="size-4" />
-                    Eliminar
-                  </Button>
-                </form>
+                <DeleteProductButton
+                  productId={product.id}
+                  deleteToken={deleteToken}
+                />
               </div>
             </CardContent>
           </Card>

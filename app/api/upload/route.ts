@@ -5,13 +5,15 @@ import { NextResponse } from "next/server";
 import { requireAdminRequest } from "@/lib/auth/request";
 
 export async function POST(request: Request) {
+  const formData = await request.formData();
+  const formToken = String(formData.get("_token") ?? "");
+
   try {
-    await requireAdminRequest(request);
+    await requireAdminRequest(request, formToken, "products");
   } catch {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-  const formData = await request.formData();
   const file = formData.get("file");
 
   if (!(file instanceof File)) {

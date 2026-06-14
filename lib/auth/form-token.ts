@@ -1,7 +1,7 @@
 import { SignJWT, jwtVerify } from "jose";
 import { getAdminSecret } from "@/lib/auth";
 
-export type FormTokenPurpose = "settings" | "password";
+export type FormTokenPurpose = "settings" | "password" | "products";
 
 export async function createFormToken(purpose: FormTokenPurpose) {
   return new SignJWT({ purpose })

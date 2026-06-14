@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { requireAdminRequest } from "@/lib/auth/request";
 import { deleteProduct } from "@/lib/db/queries";
@@ -6,13 +7,27 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const formData = await request.formData();
+  const formToken = String(formData.get("_token") ?? "");
+
   try {
-    await requireAdminRequest(request);
+    await requireAdminRequest(request, formToken, "products");
   } catch {
-    return NextResponse.redirect(new URL("/admin/login", request.url));
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
   const { id } = await params;
-  await deleteProduct(Number(id));
-  return NextResponse.redirect(new URL("/admin/productos", request.url));
+
+  try {
+    await deleteProduct(Number(id));
+    revalidatePath("/");
+    revalidatePath("/admin/productos");
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Failed to delete product", error);
+    return NextResponse.json(
+      { error: "No se pudo eliminar el producto" },
+      { status: 500 },
+    );
+  }
 }

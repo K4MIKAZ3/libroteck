@@ -3,38 +3,52 @@ import {
   ADMIN_COOKIE_NAME,
   verifyAdminSessionToken,
 } from "@/lib/auth";
+import {
+  verifyFormToken,
+  type FormTokenPurpose,
+} from "@/lib/auth/form-token";
 
-function getCookieValue(
-  cookieHeader: string | null,
-  name: string,
-): string | undefined {
+export function getCookieTokenFromRequest(request: Request) {
+  const cookieHeader = request.headers.get("cookie");
   if (!cookieHeader) return undefined;
 
   for (const part of cookieHeader.split(";")) {
     const trimmed = part.trim();
-    if (!trimmed.startsWith(`${name}=`)) continue;
-    return trimmed.slice(name.length + 1);
+    if (!trimmed.startsWith(`${ADMIN_COOKIE_NAME}=`)) continue;
+    return trimmed.slice(ADMIN_COOKIE_NAME.length + 1);
   }
 
   return undefined;
 }
 
-export async function requireAdminRequest(request: Request) {
+export async function authorizeAdminRequest(
+  request: Request,
+  formToken?: string | null,
+  purpose?: FormTokenPurpose,
+) {
+  if (purpose && (await verifyFormToken(formToken, purpose))) {
+    return true;
+  }
+
   const cookieStore = await cookies();
-  const tokenFromStore = cookieStore.get(ADMIN_COOKIE_NAME)?.value;
-
-  if (await verifyAdminSessionToken(tokenFromStore)) {
-    return;
+  if (await verifyAdminSessionToken(cookieStore.get(ADMIN_COOKIE_NAME)?.value)) {
+    return true;
   }
 
-  const tokenFromHeader = getCookieValue(
-    request.headers.get("cookie"),
-    ADMIN_COOKIE_NAME,
-  );
-
+  const tokenFromHeader = getCookieTokenFromRequest(request);
   if (await verifyAdminSessionToken(tokenFromHeader)) {
-    return;
+    return true;
   }
 
-  throw new Error("UNAUTHORIZED");
+  return false;
+}
+
+export async function requireAdminRequest(
+  request: Request,
+  formToken?: string | null,
+  purpose?: FormTokenPurpose,
+) {
+  if (!(await authorizeAdminRequest(request, formToken, purpose))) {
+    throw new Error("UNAUTHORIZED");
+  }
 }
