@@ -19,13 +19,11 @@ function defaultSettings(): StoreSettings {
   };
 }
 
-function canUseBlob() {
+function useBlobStorage() {
   return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 }
 
 async function loadSettingsFromBlob(): Promise<StoreSettings | null> {
-  if (!canUseBlob()) return null;
-
   try {
     const blob = await head(BLOB_PATHNAME);
     const response = await fetch(blob.url, { cache: "no-store" });
@@ -37,11 +35,10 @@ async function loadSettingsFromBlob(): Promise<StoreSettings | null> {
 }
 
 async function saveSettingsToBlob(data: StoreSettings) {
-  if (!canUseBlob()) return;
-
   await put(BLOB_PATHNAME, JSON.stringify(data, null, 2), {
     access: "public",
     addRandomSuffix: false,
+    allowOverwrite: true,
     contentType: "application/json",
   });
 }
@@ -64,9 +61,12 @@ function saveSettingsToDb(data: StoreSettings) {
 }
 
 export async function loadStoreSettings() {
-  const blobSettings = await loadSettingsFromBlob();
-  if (blobSettings) {
-    return blobSettings;
+  if (useBlobStorage()) {
+    const blobSettings = await loadSettingsFromBlob();
+    if (blobSettings) {
+      return blobSettings;
+    }
+    return defaultSettings();
   }
 
   const dbSettings = loadSettingsFromDb();
@@ -82,13 +82,11 @@ export async function loadStoreSettings() {
 }
 
 export async function saveStoreSettings(data: StoreSettings) {
-  const saved = saveSettingsToDb(data);
-
-  try {
+  if (useBlobStorage()) {
     await saveSettingsToBlob(data);
-  } catch (error) {
-    console.error("Failed to save settings to blob", error);
+    return data;
   }
 
+  const saved = saveSettingsToDb(data);
   return saved ?? data;
 }
