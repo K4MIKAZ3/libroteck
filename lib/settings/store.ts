@@ -1,4 +1,4 @@
-import { head, put } from "@vercel/blob";
+import { get, head, put } from "@vercel/blob";
 import { eq } from "drizzle-orm";
 import { getDb } from "@/lib/db/index";
 import { settings } from "@/lib/db/schema";
@@ -23,12 +23,37 @@ function useBlobStorage() {
   return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 }
 
+async function readBlobStream(
+  result: Awaited<ReturnType<typeof get>>,
+): Promise<StoreSettings | null> {
+  if (!result || result.statusCode !== 200 || !result.stream) {
+    return null;
+  }
+
+  const text = await new Response(result.stream).text();
+  return JSON.parse(text) as StoreSettings;
+}
+
 async function loadSettingsFromBlob(): Promise<StoreSettings | null> {
   try {
-    const blob = await head(BLOB_PATHNAME);
-    const response = await fetch(blob.url, { cache: "no-store" });
-    if (!response.ok) return null;
-    return (await response.json()) as StoreSettings;
+    const privateResult = await get(BLOB_PATHNAME, {
+      access: "private",
+      useCache: false,
+    });
+    const privateSettings = await readBlobStream(privateResult);
+    if (privateSettings) {
+      return privateSettings;
+    }
+
+    const legacyBlob = await head(BLOB_PATHNAME);
+    const legacyResponse = await fetch(legacyBlob.url, { cache: "no-store" });
+    if (!legacyResponse.ok) {
+      return null;
+    }
+
+    const legacySettings = (await legacyResponse.json()) as StoreSettings;
+    await saveSettingsToBlob(legacySettings);
+    return legacySettings;
   } catch {
     return null;
   }
@@ -36,7 +61,7 @@ async function loadSettingsFromBlob(): Promise<StoreSettings | null> {
 
 async function saveSettingsToBlob(data: StoreSettings) {
   await put(BLOB_PATHNAME, JSON.stringify(data, null, 2), {
-    access: "public",
+    access: "private",
     addRandomSuffix: false,
     allowOverwrite: true,
     contentType: "application/json",

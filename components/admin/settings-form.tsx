@@ -36,6 +36,7 @@ function SettingsFormInner({ settings }: { settings: Settings | null }) {
         )}
 
         <form
+          key={`${settings?.whatsappNumber ?? ""}-${settings?.storeName ?? ""}-${settings?.welcomeMessage ?? ""}`}
           action="/api/admin/settings"
           method="POST"
           className="space-y-4"
