@@ -4,6 +4,7 @@ Catálogo de cursos y libros con precios por país y checkout por WhatsApp.
 
 ## Demo en vivo
 
+- **Repositorio:** https://github.com/K4MIKAZ3/libroteck
 - **Tienda:** https://libroteck.vercel.app
 - **Admin:** https://libroteck.vercel.app/admin/login
 - **Contraseña:** `admin123`
