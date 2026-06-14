@@ -1,38 +1,63 @@
 import Link from "next/link";
-import { Plus, Settings } from "lucide-react";
+import { Lock, Plus, Settings, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-export function AdminNav() {
+type AdminNavProps = {
+  active?: "productos" | "configuracion" | "seguridad";
+};
+
+const links = [
+  { href: "/admin/productos", label: "Productos", icon: ShoppingBag, key: "productos" as const },
+  { href: "/admin/configuracion", label: "Configuración", icon: Settings, key: "configuracion" as const },
+  { href: "/admin/seguridad", label: "Seguridad", icon: Lock, key: "seguridad" as const },
+];
+
+export function AdminNav({ active = "productos" }: AdminNavProps) {
   return (
-    <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-      <div>
-        <Link href="/admin" className="text-2xl font-bold text-[#1E3A5F]">
-          LibroTeck Admin
-        </Link>
-        <p className="text-sm text-[#1A1A2E]/60">
-          Gestiona tu catálogo y configuración
-        </p>
-      </div>
-      <div className="flex flex-wrap gap-2">
-        <Button asChild variant="outline">
-          <Link href="/">Ver tienda</Link>
-        </Button>
-        <Button asChild variant="outline">
-          <Link href="/admin/configuracion">
-            <Settings className="size-4" />
-            Configuración
+    <div className="mb-8 space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <Link href="/admin/productos" className="text-2xl font-bold text-[#1E3A5F]">
+            LibroTeck Admin
           </Link>
-        </Button>
-        <Button asChild>
-          <Link href="/admin/productos/nuevo">
-            <Plus className="size-4" />
-            Nuevo producto
-          </Link>
-        </Button>
-        <Button asChild variant="secondary">
-          <Link href="/api/admin/logout">Salir</Link>
-        </Button>
+          <p className="text-sm text-[#1A1A2E]/60">
+            Panel de administración
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button asChild variant="outline">
+            <Link href="/">Ver tienda</Link>
+          </Button>
+          <Button asChild>
+            <Link href="/admin/productos/nuevo">
+              <Plus className="size-4" />
+              Nuevo producto
+            </Link>
+          </Button>
+          <Button asChild variant="secondary">
+            <Link href="/api/admin/logout">Salir</Link>
+          </Button>
+        </div>
       </div>
+
+      <nav className="flex flex-wrap gap-2 border-b border-[#E8E0D5] pb-3">
+        {links.map(({ href, label, icon: Icon, key }) => (
+          <Link
+            key={key}
+            href={href}
+            className={cn(
+              "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
+              active === key
+                ? "bg-[#1E3A5F] text-white"
+                : "text-[#1A1A2E]/70 hover:bg-[#FAF7F2] hover:text-[#1E3A5F]",
+            )}
+          >
+            <Icon className="size-4" />
+            {label}
+          </Link>
+        ))}
+      </nav>
     </div>
   );
 }

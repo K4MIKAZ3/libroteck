@@ -1,10 +1,9 @@
-import { getSettings } from "@/lib/db/queries";
-import SettingsPageWrapper from "@/components/admin/settings-form";
+import SecurityPageWrapper from "@/components/admin/security-form";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export default async function AdminSettingsPage({
+export default async function AdminSecurityPage({
   searchParams,
 }: {
   searchParams: Promise<{
@@ -13,11 +12,9 @@ export default async function AdminSettingsPage({
   }>;
 }) {
   const params = await searchParams;
-  const settings = await getSettings();
 
   return (
-    <SettingsPageWrapper
-      settings={settings}
+    <SecurityPageWrapper
       saved={params.saved === "1"}
       error={params.error ?? null}
     />
