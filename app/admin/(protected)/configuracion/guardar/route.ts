@@ -1,8 +1,6 @@
-"use server";
-
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
-import { requireAdmin } from "@/lib/auth";
+import { NextResponse } from "next/server";
+import { requireAdminRequest } from "@/lib/auth/request";
 import { upsertSettings } from "@/lib/db/queries";
 
 function normalizeSettings(formData: FormData) {
@@ -21,16 +19,24 @@ function normalizeSettings(formData: FormData) {
   };
 }
 
-export async function saveSettingsAction(formData: FormData) {
+export async function POST(request: Request) {
+  const redirectBase = new URL("/admin/configuracion", request.url);
+
   try {
-    await requireAdmin();
+    await requireAdminRequest(request);
   } catch {
-    redirect("/admin/login?next=/admin/configuracion");
+    return NextResponse.redirect(
+      new URL("/admin/login?next=/admin/configuracion", request.url),
+      303,
+    );
   }
 
+  const formData = await request.formData();
   const payload = normalizeSettings(formData);
+
   if (!payload) {
-    redirect("/admin/configuracion?error=missing-fields");
+    redirectBase.searchParams.set("error", "missing-fields");
+    return NextResponse.redirect(redirectBase, 303);
   }
 
   try {
@@ -38,9 +44,11 @@ export async function saveSettingsAction(formData: FormData) {
     revalidatePath("/");
     revalidatePath("/admin/configuracion");
     revalidatePath("/carrito");
-    redirect("/admin/configuracion?saved=1");
+    redirectBase.searchParams.set("saved", "1");
+    return NextResponse.redirect(redirectBase, 303);
   } catch (error) {
     console.error("Failed to save settings", error);
-    redirect("/admin/configuracion?error=save-failed");
+    redirectBase.searchParams.set("error", "save-failed");
+    return NextResponse.redirect(redirectBase, 303);
   }
 }

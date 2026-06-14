@@ -66,7 +66,7 @@ export async function clearAdminSession() {
 export async function isAdminAuthenticated() {
   const cookieStore = await cookies();
   const token = cookieStore.get(ADMIN_COOKIE_NAME)?.value;
-  return verifyAdminSessionToken(token);
+  return await verifyAdminSessionToken(token);
 }
 
 export async function requireAdmin() {

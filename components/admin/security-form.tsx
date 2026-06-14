@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { changePasswordAction } from "@/app/admin/(protected)/seguridad/actions";
 
 type SecurityPageProps = {
   saved?: boolean;
@@ -49,7 +48,7 @@ export default function SecurityPageWrapper({
             <p className="mb-4 text-sm text-red-600">{passwordError}</p>
           )}
 
-          <form action={changePasswordAction} className="space-y-4">
+          <form action="/admin/seguridad/cambiar" method="POST" className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="currentPassword">Contraseña actual</Label>
               <Input
