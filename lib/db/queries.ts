@@ -20,6 +20,11 @@ function defaultSettings(): Omit<Settings, "id"> & { id: number } {
     storeName: "LibroTeck",
     welcomeMessage: "Elige tu país y ordena por WhatsApp",
     adminPasswordHash: null,
+    promoEnabled: false,
+    promoTitle: "",
+    promoMessage: "",
+    promoLink: "",
+    promoButtonLabel: "Ver promoción",
   };
 }
 
@@ -49,6 +54,11 @@ export async function upsertSettings(data: {
   whatsappNumber: string;
   storeName: string;
   welcomeMessage: string;
+  promoEnabled?: boolean;
+  promoTitle?: string;
+  promoMessage?: string;
+  promoLink?: string;
+  promoButtonLabel?: string;
 }) {
   noStore();
   const db = await getDb();

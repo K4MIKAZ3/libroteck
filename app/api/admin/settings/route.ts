@@ -34,6 +34,11 @@ type SettingsInput = {
   whatsappNumber?: string;
   storeName?: string;
   welcomeMessage?: string;
+  promoEnabled?: boolean;
+  promoTitle?: string;
+  promoMessage?: string;
+  promoLink?: string;
+  promoButtonLabel?: string;
   _token?: string;
 };
 
@@ -47,6 +52,11 @@ function normalizeSettings(body: SettingsInput) {
     storeName: body.storeName.trim(),
     welcomeMessage:
       body.welcomeMessage?.trim() || "Elige tu país y ordena por WhatsApp",
+    promoEnabled: Boolean(body.promoEnabled),
+    promoTitle: body.promoTitle?.trim() ?? "",
+    promoMessage: body.promoMessage?.trim() ?? "",
+    promoLink: body.promoLink?.trim() ?? "",
+    promoButtonLabel: body.promoButtonLabel?.trim() || "Ver promoción",
   };
 }
 
@@ -102,6 +112,11 @@ export async function POST(request: Request) {
     whatsappNumber: String(formData.get("whatsappNumber") ?? ""),
     storeName: String(formData.get("storeName") ?? ""),
     welcomeMessage: String(formData.get("welcomeMessage") ?? ""),
+    promoEnabled: formData.get("promoEnabled") === "true",
+    promoTitle: String(formData.get("promoTitle") ?? ""),
+    promoMessage: String(formData.get("promoMessage") ?? ""),
+    promoLink: String(formData.get("promoLink") ?? ""),
+    promoButtonLabel: String(formData.get("promoButtonLabel") ?? ""),
   });
 
   if (!payload) {

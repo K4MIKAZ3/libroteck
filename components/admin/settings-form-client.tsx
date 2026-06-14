@@ -26,6 +26,13 @@ export function SettingsFormClient({
   const [welcomeMessage, setWelcomeMessage] = useState(
     initialSettings.welcomeMessage,
   );
+  const [promoEnabled, setPromoEnabled] = useState(initialSettings.promoEnabled);
+  const [promoTitle, setPromoTitle] = useState(initialSettings.promoTitle);
+  const [promoMessage, setPromoMessage] = useState(initialSettings.promoMessage);
+  const [promoLink, setPromoLink] = useState(initialSettings.promoLink);
+  const [promoButtonLabel, setPromoButtonLabel] = useState(
+    initialSettings.promoButtonLabel,
+  );
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState<{
     type: "success" | "error";
@@ -46,6 +53,11 @@ export function SettingsFormClient({
           whatsappNumber,
           storeName,
           welcomeMessage,
+          promoEnabled,
+          promoTitle,
+          promoMessage,
+          promoLink,
+          promoButtonLabel,
           _token: saveToken,
         }),
       });
@@ -64,6 +76,11 @@ export function SettingsFormClient({
         setWhatsappNumber(data.settings.whatsappNumber);
         setStoreName(data.settings.storeName);
         setWelcomeMessage(data.settings.welcomeMessage);
+        setPromoEnabled(data.settings.promoEnabled);
+        setPromoTitle(data.settings.promoTitle);
+        setPromoMessage(data.settings.promoMessage);
+        setPromoLink(data.settings.promoLink);
+        setPromoButtonLabel(data.settings.promoButtonLabel);
       }
 
       setFeedback({
@@ -135,6 +152,69 @@ export function SettingsFormClient({
                 required
               />
             </div>
+
+            <div className="rounded-xl border border-[#E8E0D5] bg-[#FAF7F2]/60 p-4 space-y-4">
+              <div>
+                <p className="font-medium text-[#1E3A5F]">Publicidad suave</p>
+                <p className="mt-1 text-xs text-[#1A1A2E]/60">
+                  Banner opcional debajo del hero. El usuario puede cerrarlo. No
+                  interrumpe la compra.
+                </p>
+              </div>
+
+              <label className="flex cursor-pointer items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={promoEnabled}
+                  onChange={(event) => setPromoEnabled(event.target.checked)}
+                  className="size-4 rounded border-[#E8E0D5]"
+                />
+                <span className="text-sm font-medium">Mostrar banner promocional</span>
+              </label>
+
+              <div className="space-y-2">
+                <Label htmlFor="promoTitle">Etiqueta (ej. Oferta del mes)</Label>
+                <Input
+                  id="promoTitle"
+                  value={promoTitle}
+                  onChange={(event) => setPromoTitle(event.target.value)}
+                  placeholder="Oferta especial"
+                  disabled={!promoEnabled}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="promoMessage">Mensaje</Label>
+                <Textarea
+                  id="promoMessage"
+                  value={promoMessage}
+                  onChange={(event) => setPromoMessage(event.target.value)}
+                  rows={2}
+                  placeholder="Packs TF VICTOR con descuento esta semana"
+                  disabled={!promoEnabled}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="promoLink">Enlace (opcional)</Label>
+                <Input
+                  id="promoLink"
+                  value={promoLink}
+                  onChange={(event) => setPromoLink(event.target.value)}
+                  placeholder="/producto/tf-victor-tomos-18-19-y-20"
+                  disabled={!promoEnabled}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="promoButtonLabel">Texto del botón</Label>
+                <Input
+                  id="promoButtonLabel"
+                  value={promoButtonLabel}
+                  onChange={(event) => setPromoButtonLabel(event.target.value)}
+                  placeholder="Ver promoción"
+                  disabled={!promoEnabled}
+                />
+              </div>
+            </div>
+
             <Button type="submit" disabled={saving}>
               {saving ? (
                 <>

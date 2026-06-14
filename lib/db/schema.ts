@@ -46,6 +46,13 @@ export const settings = pgTable("settings", {
     .notNull()
     .default("Elige tu país y ordena por WhatsApp"),
   adminPasswordHash: text("admin_password_hash"),
+  promoEnabled: boolean("promo_enabled").notNull().default(false),
+  promoTitle: text("promo_title").notNull().default(""),
+  promoMessage: text("promo_message").notNull().default(""),
+  promoLink: text("promo_link").notNull().default(""),
+  promoButtonLabel: text("promo_button_label")
+    .notNull()
+    .default("Ver promoción"),
 });
 
 export const productsRelations = relations(products, ({ many }) => ({

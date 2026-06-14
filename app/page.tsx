@@ -1,4 +1,5 @@
 import { CatalogGrid } from "@/components/catalog/catalog-grid";
+import { PromoBannerFromSettings } from "@/components/marketing/promo-banner";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { getActiveProducts, getSettings } from "@/lib/db/queries";
@@ -27,6 +28,14 @@ export default async function HomePage() {
             un solo clic.
           </p>
         </section>
+
+        <PromoBannerFromSettings
+          enabled={settings.promoEnabled}
+          title={settings.promoTitle}
+          message={settings.promoMessage}
+          link={settings.promoLink}
+          buttonLabel={settings.promoButtonLabel}
+        />
 
         <CatalogGrid products={products} />
       </main>
