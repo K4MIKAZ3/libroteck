@@ -321,6 +321,15 @@ export function SettingsFormClient({
                 <p className="mt-3 text-[#1A1A2E]/55">
                   En AdSense crea 3 unidades: una horizontal (arriba) y dos
                   verticales (laterales). Copia el ca-pub y cada data-ad-slot aquí.
+                  También necesitas la pagina{" "}
+                  <a href="/privacidad" className="text-[#1E3A5F] underline">
+                    /privacidad
+                  </a>{" "}
+                  y el archivo{" "}
+                  <a href="/ads.txt" className="text-[#1E3A5F] underline">
+                    /ads.txt
+                  </a>
+                  .
                 </p>
               </div>
             </div>

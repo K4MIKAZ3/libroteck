@@ -64,6 +64,10 @@ export function SiteFooter() {
 
         <p className="mt-10 text-center text-xs text-[#1A1A2E]/45">
           © {new Date().getFullYear()} LibroTeck — Cursos y libros digitales
+          {" · "}
+          <a href="/privacidad" className="underline-offset-2 hover:underline">
+            Privacidad
+          </a>
         </p>
       </div>
     </footer>

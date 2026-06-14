@@ -1,4 +1,8 @@
 import type { Settings } from "@/lib/db/schema";
+import {
+  isValidAdsenseClientId,
+  resolveAdsenseClientId,
+} from "@/lib/ads/client-id";
 
 export type AdSlotConfig = {
   enabled: boolean;
@@ -11,7 +15,7 @@ export type AdSlotConfig = {
 export function getAdConfig(settings: Settings): AdSlotConfig {
   return {
     enabled: settings.adsEnabled,
-    clientId: settings.adsenseClientId.trim(),
+    clientId: resolveAdsenseClientId(settings),
     top: settings.adSlotTop.trim(),
     left: settings.adSlotLeft.trim(),
     right: settings.adSlotRight.trim(),
@@ -19,7 +23,7 @@ export function getAdConfig(settings: Settings): AdSlotConfig {
 }
 
 export function isAdSenseReady(config: AdSlotConfig) {
-  return config.enabled && config.clientId.startsWith("ca-pub-");
+  return config.enabled && isValidAdsenseClientId(config.clientId);
 }
 
 export const AD_NETWORK_GUIDE = [
