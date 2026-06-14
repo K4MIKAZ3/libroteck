@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import {
-  createAdminSession,
+  ADMIN_COOKIE_NAME,
+  createAdminSessionToken,
+  getAdminCookieOptions,
   verifyAdminPassword,
 } from "@/lib/auth";
 
@@ -11,6 +13,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Contraseña incorrecta" }, { status: 401 });
   }
 
-  await createAdminSession();
-  return NextResponse.json({ success: true });
+  const token = await createAdminSessionToken();
+  const response = NextResponse.json({ success: true });
+  response.cookies.set(ADMIN_COOKIE_NAME, token, getAdminCookieOptions());
+
+  return response;
 }

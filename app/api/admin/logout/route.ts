@@ -1,12 +1,19 @@
 import { NextResponse } from "next/server";
-import { clearAdminSession } from "@/lib/auth";
+import { ADMIN_COOKIE_NAME, getAdminCookieOptions } from "@/lib/auth";
+
+function logoutResponse(request: Request) {
+  const response = NextResponse.redirect(new URL("/admin/login", request.url));
+  response.cookies.set(ADMIN_COOKIE_NAME, "", {
+    ...getAdminCookieOptions(),
+    maxAge: 0,
+  });
+  return response;
+}
 
 export async function GET(request: Request) {
-  await clearAdminSession();
-  return NextResponse.redirect(new URL("/admin/login", request.url));
+  return logoutResponse(request);
 }
 
 export async function POST(request: Request) {
-  await clearAdminSession();
-  return NextResponse.redirect(new URL("/admin/login", request.url));
+  return logoutResponse(request);
 }
