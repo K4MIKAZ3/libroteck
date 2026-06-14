@@ -1,20 +1,46 @@
 import { NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth";
+import { requireAdminRequest } from "@/lib/auth/request";
 import { upsertSettings } from "@/lib/db/queries";
 
 export async function PUT(request: Request) {
   try {
-    await requireAdmin();
+    await requireAdminRequest(request);
   } catch {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-  const body = (await request.json()) as {
-    whatsappNumber: string;
-    storeName: string;
-    welcomeMessage: string;
-  };
+  try {
+    const body = (await request.json()) as {
+      whatsappNumber?: string;
+      storeName?: string;
+      welcomeMessage?: string;
+    };
 
-  const settings = await upsertSettings(body);
-  return NextResponse.json(settings);
+    if (!body.whatsappNumber?.trim() || !body.storeName?.trim()) {
+      return NextResponse.json(
+        { error: "WhatsApp y nombre de tienda son obligatorios" },
+        { status: 400 },
+      );
+    }
+
+    const settings = await upsertSettings({
+      whatsappNumber: body.whatsappNumber.trim().replace(/\D/g, ""),
+      storeName: body.storeName.trim(),
+      welcomeMessage:
+        body.welcomeMessage?.trim() || "Elige tu país y ordena por WhatsApp",
+    });
+
+    return NextResponse.json(settings);
+  } catch (error) {
+    console.error("Failed to save settings", error);
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "No se pudo guardar la configuración",
+      },
+      { status: 500 },
+    );
+  }
 }

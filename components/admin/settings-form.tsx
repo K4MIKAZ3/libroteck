@@ -20,28 +20,35 @@ export function SettingsForm({ settings }: { settings: Settings | null }) {
   );
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [isError, setIsError] = useState(false);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setSaving(true);
     setMessage(null);
+    setIsError(false);
 
     try {
       const response = await fetch("/api/admin/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
         body: JSON.stringify({ whatsappNumber, storeName, welcomeMessage }),
       });
 
+      const data = (await response.json()) as { error?: string };
+
       if (!response.ok) {
-        throw new Error("No se pudo guardar la configuración");
+        throw new Error(data.error ?? "No se pudo guardar la configuración");
       }
 
       setMessage("Configuración guardada correctamente.");
+      setIsError(false);
     } catch (error) {
       setMessage(
         error instanceof Error ? error.message : "Error al guardar",
       );
+      setIsError(true);
     } finally {
       setSaving(false);
     }
@@ -87,7 +94,7 @@ export function SettingsForm({ settings }: { settings: Settings | null }) {
             />
           </div>
           {message && (
-            <p className={`text-sm ${message.includes("Error") ? "text-red-600" : "text-green-700"}`}>
+            <p className={`text-sm ${isError ? "text-red-600" : "text-green-700"}`}>
               {message}
             </p>
           )}

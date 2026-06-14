@@ -1,18 +1,18 @@
 import { NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth";
+import { requireAdminRequest } from "@/lib/auth/request";
 import { deleteProduct } from "@/lib/db/queries";
 
 export async function POST(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    await requireAdmin();
+    await requireAdminRequest(request);
   } catch {
-    return NextResponse.redirect(new URL("/admin/login", process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"));
+    return NextResponse.redirect(new URL("/admin/login", request.url));
   }
 
   const { id } = await params;
   await deleteProduct(Number(id));
-  return NextResponse.redirect(new URL("/admin/productos", process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"));
+  return NextResponse.redirect(new URL("/admin/productos", request.url));
 }

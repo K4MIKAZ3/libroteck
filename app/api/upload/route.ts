@@ -2,11 +2,11 @@ import { put } from "@vercel/blob";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth";
+import { requireAdminRequest } from "@/lib/auth/request";
 
 export async function POST(request: Request) {
   try {
-    await requireAdmin();
+    await requireAdminRequest(request);
   } catch {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }

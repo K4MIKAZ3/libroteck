@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import type { CountryCode, ProductType } from "@/lib/pricing/countries";
 import { getPriceForCountry as resolvePriceForCountry } from "@/lib/pricing/product-price";
+import { loadStoreSettings, saveStoreSettings } from "@/lib/settings/store";
 import { getDb } from "./index";
 import {
   productPrices,
@@ -10,9 +11,13 @@ import {
 } from "./schema";
 
 export async function getSettings() {
-  const db = getDb();
-  const rows = await db.select().from(settings).limit(1);
-  return rows[0] ?? null;
+  const settingsData = await loadStoreSettings();
+  return {
+    id: 1,
+    whatsappNumber: settingsData.whatsappNumber,
+    storeName: settingsData.storeName,
+    welcomeMessage: settingsData.welcomeMessage,
+  };
 }
 
 export async function upsertSettings(data: {
@@ -20,19 +25,7 @@ export async function upsertSettings(data: {
   storeName: string;
   welcomeMessage: string;
 }) {
-  const db = getDb();
-  const existing = await getSettings();
-
-  if (existing) {
-    await db
-      .update(settings)
-      .set(data)
-      .where(eq(settings.id, existing.id));
-    return { ...existing, ...data };
-  }
-
-  const [created] = await db.insert(settings).values(data).returning();
-  return created;
+  return saveStoreSettings(data);
 }
 
 export async function getActiveProducts(): Promise<ProductWithPrices[]> {

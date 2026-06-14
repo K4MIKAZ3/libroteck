@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth";
+import { requireAdminRequest } from "@/lib/auth/request";
 import { createProduct } from "@/lib/db/queries";
 import type { CountryCode, ProductType } from "@/lib/pricing/countries";
 import { slugify } from "@/lib/utils";
 
 export async function POST(request: Request) {
   try {
-    await requireAdmin();
+    await requireAdminRequest(request);
   } catch {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth";
+import { requireAdminRequest } from "@/lib/auth/request";
 import { deleteProduct, getProductById, updateProduct } from "@/lib/db/queries";
 import type { CountryCode, ProductType } from "@/lib/pricing/countries";
 import { slugify } from "@/lib/utils";
@@ -9,7 +9,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    await requireAdmin();
+    await requireAdminRequest(request);
   } catch {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
@@ -52,11 +52,11 @@ export async function PUT(
 }
 
 export async function DELETE(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    await requireAdmin();
+    await requireAdminRequest(request);
   } catch {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
