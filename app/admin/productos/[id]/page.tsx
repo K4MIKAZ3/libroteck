@@ -1,0 +1,24 @@
+import { notFound } from "next/navigation";
+import { AdminNav } from "@/components/admin/admin-nav";
+import { ProductForm } from "@/components/admin/product-form";
+import { getProductById } from "@/lib/db/queries";
+
+export default async function EditProductPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const product = await getProductById(Number(id));
+
+  if (!product) {
+    notFound();
+  }
+
+  return (
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+      <AdminNav />
+      <ProductForm product={product} />
+    </div>
+  );
+}

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 533" fill="none">
+  <defs>
+    <linearGradient id="grad" x1="0" y1="0" x2="400" y2="533">
+      <stop offset="0%" stop-color="#1E3A5F"/>
+      <stop offset="100%" stop-color="#C8956C"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="533" fill="url(#grad)"/>
+  <text x="200" y="200" text-anchor="middle" fill="#FAF7F2" font-family="Arial" font-size="26" font-weight="bold">MARKETING</text>
+  <text x="200" y="240" text-anchor="middle" fill="#FAF7F2" font-family="Arial" font-size="22">DIGITAL</text>
+  <text x="200" y="290" text-anchor="middle" fill="#FAF7F2" font-family="Arial" font-size="16" opacity="0.8">PAQUETE COMPLETO</text>
+  <circle cx="120" cy="380" r="40" fill="#FAF7F2" opacity="0.2"/>
+  <circle cx="200" cy="380" r="40" fill="#FAF7F2" opacity="0.3"/>
+  <circle cx="280" cy="380" r="40" fill="#FAF7F2" opacity="0.2"/>
+</svg>

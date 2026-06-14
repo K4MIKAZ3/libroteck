@@ -1,0 +1,175 @@
+import { eq } from "drizzle-orm";
+import type { CountryCode, ProductType } from "@/lib/pricing/countries";
+import { getPriceForCountry as resolvePriceForCountry } from "@/lib/pricing/product-price";
+import { getDb } from "./index";
+import {
+  productPrices,
+  products,
+  settings,
+  type ProductWithPrices,
+} from "./schema";
+
+export async function getSettings() {
+  const db = getDb();
+  const rows = await db.select().from(settings).limit(1);
+  return rows[0] ?? null;
+}
+
+export async function upsertSettings(data: {
+  whatsappNumber: string;
+  storeName: string;
+  welcomeMessage: string;
+}) {
+  const db = getDb();
+  const existing = await getSettings();
+
+  if (existing) {
+    await db
+      .update(settings)
+      .set(data)
+      .where(eq(settings.id, existing.id));
+    return { ...existing, ...data };
+  }
+
+  const [created] = await db.insert(settings).values(data).returning();
+  return created;
+}
+
+export async function getActiveProducts(): Promise<ProductWithPrices[]> {
+  const db = getDb();
+  const rows = await db.query.products.findMany({
+    where: eq(products.isActive, true),
+    with: { prices: true },
+    orderBy: (table, { desc }) => [desc(table.createdAt)],
+  });
+  return rows;
+}
+
+export async function getAllProducts(): Promise<ProductWithPrices[]> {
+  const db = getDb();
+  return db.query.products.findMany({
+    with: { prices: true },
+    orderBy: (table, { desc }) => [desc(table.createdAt)],
+  });
+}
+
+export async function getProductBySlug(
+  slug: string,
+): Promise<ProductWithPrices | undefined> {
+  const db = getDb();
+  return db.query.products.findFirst({
+    where: eq(products.slug, slug),
+    with: { prices: true },
+  });
+}
+
+export async function getProductById(
+  id: number,
+): Promise<ProductWithPrices | undefined> {
+  const db = getDb();
+  return db.query.products.findFirst({
+    where: eq(products.id, id),
+    with: { prices: true },
+  });
+}
+
+export function getPriceForCountry(
+  product: ProductWithPrices,
+  countryCode: CountryCode,
+) {
+  return resolvePriceForCountry(product.prices, countryCode);
+}
+
+export async function createProduct(input: {
+  name: string;
+  slug: string;
+  type: ProductType;
+  description: string;
+  coverUrl: string;
+  isActive: boolean;
+  isNew: boolean;
+  prices: Array<{
+    countryCode: CountryCode;
+    currency: string;
+    amount: number;
+  }>;
+}) {
+  const db = getDb();
+  const [product] = await db
+    .insert(products)
+    .values({
+      name: input.name,
+      slug: input.slug,
+      type: input.type,
+      description: input.description,
+      coverUrl: input.coverUrl,
+      isActive: input.isActive,
+      isNew: input.isNew,
+    })
+    .returning();
+
+  if (input.prices.length > 0) {
+    await db.insert(productPrices).values(
+      input.prices.map((price) => ({
+        productId: product.id,
+        countryCode: price.countryCode,
+        currency: price.currency,
+        amount: price.amount,
+      })),
+    );
+  }
+
+  return getProductById(product.id);
+}
+
+export async function updateProduct(
+  id: number,
+  input: {
+    name: string;
+    slug: string;
+    type: ProductType;
+    description: string;
+    coverUrl: string;
+    isActive: boolean;
+    isNew: boolean;
+    prices: Array<{
+      countryCode: CountryCode;
+      currency: string;
+      amount: number;
+    }>;
+  },
+) {
+  const db = getDb();
+  await db
+    .update(products)
+    .set({
+      name: input.name,
+      slug: input.slug,
+      type: input.type,
+      description: input.description,
+      coverUrl: input.coverUrl,
+      isActive: input.isActive,
+      isNew: input.isNew,
+    })
+    .where(eq(products.id, id));
+
+  await db.delete(productPrices).where(eq(productPrices.productId, id));
+
+  if (input.prices.length > 0) {
+    await db.insert(productPrices).values(
+      input.prices.map((price) => ({
+        productId: id,
+        countryCode: price.countryCode,
+        currency: price.currency,
+        amount: price.amount,
+      })),
+    );
+  }
+
+  return getProductById(id);
+}
+
+export async function deleteProduct(id: number) {
+  const db = getDb();
+  await db.delete(products).where(eq(products.id, id));
+}

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 533" fill="none">
+  <rect width="400" height="533" fill="#E8E0D5"/>
+  <rect x="80" y="120" width="240" height="280" rx="8" fill="#FAF7F2" stroke="#1E3A5F" stroke-width="2"/>
+  <text x="200" y="280" text-anchor="middle" fill="#1E3A5F" font-family="Arial" font-size="24">LibroTeck</text>
+</svg>
