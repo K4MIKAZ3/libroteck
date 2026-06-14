@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { saveSettingsAction } from "@/app/admin/(protected)/configuracion/actions";
 import type { Settings } from "@/lib/db/schema";
 
 export function SettingsForm({ settings }: { settings: Settings | null }) {
@@ -29,17 +30,14 @@ export function SettingsForm({ settings }: { settings: Settings | null }) {
     setIsError(false);
 
     try {
-      const response = await fetch("/api/admin/settings", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "same-origin",
-        body: JSON.stringify({ whatsappNumber, storeName, welcomeMessage }),
+      const result = await saveSettingsAction({
+        whatsappNumber,
+        storeName,
+        welcomeMessage,
       });
 
-      const data = (await response.json()) as { error?: string };
-
-      if (!response.ok) {
-        throw new Error(data.error ?? "No se pudo guardar la configuración");
+      if (!result.success) {
+        throw new Error(result.error);
       }
 
       setMessage("Configuración guardada correctamente.");

@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 function AdminLoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const nextPath = searchParams.get("next") ?? "/admin/productos";
   const [password, setPassword] = useState("");
@@ -33,8 +32,9 @@ function AdminLoginForm() {
         throw new Error("Contraseña incorrecta");
       }
 
-      router.push(nextPath.startsWith("/admin") ? nextPath : "/admin/productos");
-      router.refresh();
+      window.location.href = nextPath.startsWith("/admin")
+        ? nextPath
+        : "/admin/productos";
     } catch (loginError) {
       setError(
         loginError instanceof Error ? loginError.message : "Error al iniciar sesión",

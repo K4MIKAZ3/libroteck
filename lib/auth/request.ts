@@ -1,6 +1,6 @@
+import { cookies } from "next/headers";
 import {
   ADMIN_COOKIE_NAME,
-  isAdminAuthenticated,
   verifyAdminSessionToken,
 } from "@/lib/auth";
 
@@ -11,26 +11,28 @@ function getCookieValue(
   if (!cookieHeader) return undefined;
 
   for (const part of cookieHeader.split(";")) {
-    const [rawName, ...rawValue] = part.trim().split("=");
-    if (rawName === name) {
-      return decodeURIComponent(rawValue.join("="));
-    }
+    const trimmed = part.trim();
+    if (!trimmed.startsWith(`${name}=`)) continue;
+    return trimmed.slice(name.length + 1);
   }
 
   return undefined;
 }
 
 export async function requireAdminRequest(request: Request) {
-  const token = getCookieValue(
+  const cookieStore = await cookies();
+  const tokenFromStore = cookieStore.get(ADMIN_COOKIE_NAME)?.value;
+
+  if (await verifyAdminSessionToken(tokenFromStore)) {
+    return;
+  }
+
+  const tokenFromHeader = getCookieValue(
     request.headers.get("cookie"),
     ADMIN_COOKIE_NAME,
   );
 
-  if (await verifyAdminSessionToken(token)) {
-    return;
-  }
-
-  if (await isAdminAuthenticated()) {
+  if (await verifyAdminSessionToken(tokenFromHeader)) {
     return;
   }
 
