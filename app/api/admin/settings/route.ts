@@ -2,6 +2,10 @@ import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { requireAdminRequest } from "@/lib/auth/request";
 import { upsertSettings } from "@/lib/db/queries";
+import {
+  encodeSettingsFlash,
+  SETTINGS_FLASH_COOKIE,
+} from "@/lib/settings/flash-cookie";
 
 export const runtime = "nodejs";
 
@@ -55,7 +59,15 @@ export async function POST(request: Request) {
 
     const redirectUrl = new URL("/admin/configuracion", request.url);
     redirectUrl.searchParams.set("saved", "1");
-    return NextResponse.redirect(redirectUrl);
+    const response = NextResponse.redirect(redirectUrl);
+    response.cookies.set(SETTINGS_FLASH_COOKIE, encodeSettingsFlash(payload), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60,
+      path: "/admin/configuracion",
+    });
+    return response;
   } catch (error) {
     console.error("Failed to save settings", error);
     const redirectUrl = new URL("/admin/configuracion", request.url);

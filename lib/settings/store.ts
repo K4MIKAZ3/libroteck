@@ -1,4 +1,4 @@
-import { get, put } from "@vercel/blob";
+import { head, put } from "@vercel/blob";
 import { eq } from "drizzle-orm";
 import { getDb } from "@/lib/db/index";
 import { settings } from "@/lib/db/schema";
@@ -23,24 +23,24 @@ function useBlobStorage() {
   return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 }
 
-async function readBlobStream(
-  result: Awaited<ReturnType<typeof get>>,
-): Promise<StoreSettings | null> {
-  if (!result || result.statusCode !== 200 || !result.stream) {
-    return null;
-  }
-
-  const text = await new Response(result.stream).text();
-  return JSON.parse(text) as StoreSettings;
-}
-
 async function loadSettingsFromBlob(): Promise<StoreSettings | null> {
   try {
-    const result = await get(BLOB_PATHNAME, {
-      access: "public",
-      useCache: false,
+    const blob = await head(BLOB_PATHNAME);
+    const url = new URL(blob.url);
+    url.searchParams.set("_", String(Date.now()));
+
+    const response = await fetch(url.toString(), {
+      cache: "no-store",
+      headers: {
+        "Cache-Control": "no-cache",
+      },
     });
-    return await readBlobStream(result);
+
+    if (!response.ok) {
+      return null;
+    }
+
+    return (await response.json()) as StoreSettings;
   } catch {
     return null;
   }
