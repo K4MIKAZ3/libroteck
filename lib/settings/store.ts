@@ -1,4 +1,4 @@
-import { get, head, put } from "@vercel/blob";
+import { get, put } from "@vercel/blob";
 import { eq } from "drizzle-orm";
 import { getDb } from "@/lib/db/index";
 import { settings } from "@/lib/db/schema";
@@ -36,24 +36,11 @@ async function readBlobStream(
 
 async function loadSettingsFromBlob(): Promise<StoreSettings | null> {
   try {
-    const privateResult = await get(BLOB_PATHNAME, {
-      access: "private",
+    const result = await get(BLOB_PATHNAME, {
+      access: "public",
       useCache: false,
     });
-    const privateSettings = await readBlobStream(privateResult);
-    if (privateSettings) {
-      return privateSettings;
-    }
-
-    const legacyBlob = await head(BLOB_PATHNAME);
-    const legacyResponse = await fetch(legacyBlob.url, { cache: "no-store" });
-    if (!legacyResponse.ok) {
-      return null;
-    }
-
-    const legacySettings = (await legacyResponse.json()) as StoreSettings;
-    await saveSettingsToBlob(legacySettings);
-    return legacySettings;
+    return await readBlobStream(result);
   } catch {
     return null;
   }
@@ -61,10 +48,11 @@ async function loadSettingsFromBlob(): Promise<StoreSettings | null> {
 
 async function saveSettingsToBlob(data: StoreSettings) {
   await put(BLOB_PATHNAME, JSON.stringify(data, null, 2), {
-    access: "private",
+    access: "public",
     addRandomSuffix: false,
     allowOverwrite: true,
     contentType: "application/json",
+    cacheControlMaxAge: 60,
   });
 }
 
