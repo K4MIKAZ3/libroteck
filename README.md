@@ -11,6 +11,10 @@ Catálogo de cursos y libros con precios por país y checkout por WhatsApp.
 
 ## Inicio rápido
 
+1. Conecta una base de datos Neon Postgres (ver abajo).
+2. Copia `.env.example` a `.env.local` y define `DATABASE_URL`.
+3. Ejecuta:
+
 ```bash
 npm install
 npm run db:setup
@@ -29,25 +33,34 @@ Desde el panel puedes:
 - Crear y editar productos
 - Subir portadas
 - Configurar precios por país (MXN, COP, ARS, PEN, USD)
-- Cambiar el número de WhatsApp
+- Cambiar el número de WhatsApp y mensaje de la tienda
 
 ## Variables de entorno
-
-Copia `.env.example` a `.env.local`:
 
 ```env
 ADMIN_PASSWORD=admin123
 ADMIN_SECRET=una-clave-secreta-larga
 WHATSAPP_NUMBER=5212345678900
+DATABASE_URL=postgresql://...
 BLOB_READ_WRITE_TOKEN=
 ```
 
+- `DATABASE_URL`: **obligatoria**. Neon Postgres (local y producción).
 - `BLOB_READ_WRITE_TOKEN`: opcional. Si no está, las imágenes se guardan en `public/uploads/`.
-- Para producción en Vercel con Neon Postgres, define `DATABASE_URL`.
+
+## Base de datos (Neon Postgres)
+
+En Vercel:
+
+```bash
+npx vercel integration add neon -m region=iad1 -m auth=false --plan free_v3
+```
+
+Eso crea la base y configura `DATABASE_URL` automáticamente.
 
 ## Scripts
 
-- `npm run db:migrate` — aplica migraciones SQLite
+- `npm run db:migrate` — aplica migraciones Postgres
 - `npm run db:seed` — carga productos demo
 - `npm run db:setup` — migrate + seed
 - `npm run build` — build de producción
@@ -56,9 +69,9 @@ BLOB_READ_WRITE_TOKEN=
 
 1. Sube el repo a GitHub
 2. Importa en Vercel
-3. Configura variables de entorno
-4. Para imágenes en producción, activa Vercel Blob
-5. Para base de datos persistente en serverless, usa Neon Postgres con `DATABASE_URL`
+3. Conecta Neon Postgres (`vercel integration add neon`)
+4. Configura `ADMIN_PASSWORD`, `ADMIN_SECRET` y `WHATSAPP_NUMBER`
+5. Opcional: Vercel Blob para portadas en producción
 
 ## Flujo de compra
 

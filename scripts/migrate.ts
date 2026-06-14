@@ -1,18 +1,21 @@
-import Database from "better-sqlite3";
-import { drizzle } from "drizzle-orm/better-sqlite3";
-import { migrate } from "drizzle-orm/better-sqlite3/migrator";
-import fs from "fs";
-import path from "path";
+import { drizzle } from "drizzle-orm/neon-http";
+import { migrate } from "drizzle-orm/neon-http/migrator";
+import { neon } from "@neondatabase/serverless";
 
-const dataDir = path.join(process.cwd(), "data");
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir, { recursive: true });
+async function main() {
+  const databaseUrl = process.env.DATABASE_URL;
+  if (!databaseUrl) {
+    console.error("DATABASE_URL is required to run migrations.");
+    process.exit(1);
+  }
+
+  const sql = neon(databaseUrl);
+  const db = drizzle(sql);
+  await migrate(db, { migrationsFolder: "./drizzle" });
+  console.log("Migrations applied.");
 }
 
-const sqlite = new Database(path.join(dataDir, "libroteck.db"));
-sqlite.pragma("journal_mode = WAL");
-sqlite.pragma("foreign_keys = ON");
-
-const db = drizzle(sqlite);
-migrate(db, { migrationsFolder: "./drizzle" });
-console.log("Migrations applied.");
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

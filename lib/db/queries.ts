@@ -1,23 +1,28 @@
 import { eq } from "drizzle-orm";
 import type { CountryCode, ProductType } from "@/lib/pricing/countries";
 import { getPriceForCountry as resolvePriceForCountry } from "@/lib/pricing/product-price";
-import { loadStoreSettings, saveStoreSettings } from "@/lib/settings/store";
 import { getDb } from "./index";
 import {
   productPrices,
   products,
   settings,
   type ProductWithPrices,
+  type Settings,
 } from "./schema";
 
-export async function getSettings() {
-  const settingsData = await loadStoreSettings();
+function defaultSettings(): Omit<Settings, "id"> & { id: number } {
   return {
     id: 1,
-    whatsappNumber: settingsData.whatsappNumber,
-    storeName: settingsData.storeName,
-    welcomeMessage: settingsData.welcomeMessage,
+    whatsappNumber: process.env.WHATSAPP_NUMBER ?? "5212345678900",
+    storeName: "LibroTeck",
+    welcomeMessage: "Elige tu país y ordena por WhatsApp",
   };
+}
+
+export async function getSettings() {
+  const db = await getDb();
+  const rows = await db.select().from(settings).limit(1);
+  return rows[0] ?? defaultSettings();
 }
 
 export async function upsertSettings(data: {
@@ -25,11 +30,24 @@ export async function upsertSettings(data: {
   storeName: string;
   welcomeMessage: string;
 }) {
-  return saveStoreSettings(data);
+  const db = await getDb();
+  const existing = await db.select().from(settings).limit(1);
+
+  if (existing[0]) {
+    const [updated] = await db
+      .update(settings)
+      .set(data)
+      .where(eq(settings.id, existing[0].id))
+      .returning();
+    return updated;
+  }
+
+  const [created] = await db.insert(settings).values(data).returning();
+  return created;
 }
 
 export async function getActiveProducts(): Promise<ProductWithPrices[]> {
-  const db = getDb();
+  const db = await getDb();
   const rows = await db.query.products.findMany({
     where: eq(products.isActive, true),
     with: { prices: true },
@@ -39,7 +57,7 @@ export async function getActiveProducts(): Promise<ProductWithPrices[]> {
 }
 
 export async function getAllProducts(): Promise<ProductWithPrices[]> {
-  const db = getDb();
+  const db = await getDb();
   return db.query.products.findMany({
     with: { prices: true },
     orderBy: (table, { desc }) => [desc(table.createdAt)],
@@ -49,7 +67,7 @@ export async function getAllProducts(): Promise<ProductWithPrices[]> {
 export async function getProductBySlug(
   slug: string,
 ): Promise<ProductWithPrices | undefined> {
-  const db = getDb();
+  const db = await getDb();
   return db.query.products.findFirst({
     where: eq(products.slug, slug),
     with: { prices: true },
@@ -59,7 +77,7 @@ export async function getProductBySlug(
 export async function getProductById(
   id: number,
 ): Promise<ProductWithPrices | undefined> {
-  const db = getDb();
+  const db = await getDb();
   return db.query.products.findFirst({
     where: eq(products.id, id),
     with: { prices: true },
@@ -87,7 +105,7 @@ export async function createProduct(input: {
     amount: number;
   }>;
 }) {
-  const db = getDb();
+  const db = await getDb();
   const [product] = await db
     .insert(products)
     .values({
@@ -132,7 +150,7 @@ export async function updateProduct(
     }>;
   },
 ) {
-  const db = getDb();
+  const db = await getDb();
   await db
     .update(products)
     .set({
@@ -163,6 +181,6 @@ export async function updateProduct(
 }
 
 export async function deleteProduct(id: number) {
-  const db = getDb();
+  const db = await getDb();
   await db.delete(products).where(eq(products.id, id));
 }

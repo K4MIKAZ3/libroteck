@@ -54,7 +54,7 @@ const demoProducts = [
 ];
 
 async function seed() {
-  const db = getDb();
+  const db = await getDb();
   console.log("Seeding database...");
 
   const existingSettings = await db.select().from(settings).limit(1);

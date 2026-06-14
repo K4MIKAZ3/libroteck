@@ -71,7 +71,7 @@ export function ProductForm({
     coverUrl,
     isActive,
     isNew,
-    createdAt: product?.createdAt ?? new Date().toISOString(),
+    createdAt: product?.createdAt ?? new Date(),
     prices: (Object.entries(prices) as [CountryCode, string][])
       .filter(([, amount]) => amount.trim() !== "")
       .map(([countryCode, amount], index) => ({

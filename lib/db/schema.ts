@@ -1,27 +1,30 @@
-import { relations, sql } from "drizzle-orm";
+import { relations } from "drizzle-orm";
 import {
+  boolean,
+  doublePrecision,
   integer,
-  real,
-  sqliteTable,
+  pgTable,
+  serial,
   text,
-} from "drizzle-orm/sqlite-core";
+  timestamp,
+} from "drizzle-orm/pg-core";
 
-export const products = sqliteTable("products", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const products = pgTable("products", {
+  id: serial("id").primaryKey(),
   name: text("name").notNull(),
   slug: text("slug").notNull().unique(),
   type: text("type", { enum: ["course", "book", "bundle"] }).notNull(),
   description: text("description").notNull().default(""),
   coverUrl: text("cover_url").notNull().default(""),
-  isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
-  isNew: integer("is_new", { mode: "boolean" }).notNull().default(false),
-  createdAt: text("created_at")
+  isActive: boolean("is_active").notNull().default(true),
+  isNew: boolean("is_new").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
-    .default(sql`(datetime('now'))`),
+    .defaultNow(),
 });
 
-export const productPrices = sqliteTable("product_prices", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const productPrices = pgTable("product_prices", {
+  id: serial("id").primaryKey(),
   productId: integer("product_id")
     .notNull()
     .references(() => products.id, { onDelete: "cascade" }),
@@ -29,16 +32,16 @@ export const productPrices = sqliteTable("product_prices", {
     enum: ["MX", "CO", "AR", "PE", "INT"],
   }).notNull(),
   currency: text("currency").notNull(),
-  amount: real("amount").notNull(),
+  amount: doublePrecision("amount").notNull(),
 });
 
-export const settings = sqliteTable("settings", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const settings = pgTable("settings", {
+  id: serial("id").primaryKey(),
   whatsappNumber: text("whatsapp_number").notNull().default("5212345678900"),
   storeName: text("store_name").notNull().default("LibroTeck"),
   welcomeMessage: text("welcome_message")
     .notNull()
-    .default("Cursos y libros digitales"),
+    .default("Elige tu país y ordena por WhatsApp"),
 });
 
 export const productsRelations = relations(products, ({ many }) => ({
