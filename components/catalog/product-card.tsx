@@ -1,5 +1,6 @@
 "use client";
 
+import { ProductPriceDisplay } from "@/components/catalog/product-price-display";
 import { CoverImage } from "@/components/catalog/cover-image";
 import Link from "next/link";
 import { ShoppingCart, Star } from "lucide-react";
@@ -10,7 +11,6 @@ import { useCart } from "@/components/providers/cart-provider";
 import { useCountry } from "@/components/providers/country-provider";
 import { getPriceForCountry } from "@/lib/pricing/product-price";
 import {
-  formatPrice,
   PRODUCT_TYPE_LABELS,
   type ProductType,
 } from "@/lib/pricing/countries";
@@ -69,9 +69,7 @@ export function ProductCard({ product }: { product: ProductWithPrices }) {
           </p>
         </div>
         <div className="flex items-center justify-between gap-2">
-          <p className="text-lg font-bold text-[#C8956C]">
-            {price ? formatPrice(price.amount, price.currency) : "Consultar"}
-          </p>
+          <ProductPriceDisplay price={price} size="sm" />
           <Button size="sm" onClick={handleAdd} disabled={!price}>
             <ShoppingCart className="size-4" />
             Añadir

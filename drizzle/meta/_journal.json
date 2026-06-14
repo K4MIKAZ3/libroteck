@@ -10,10 +10,10 @@
       "breakpoints": true
     },
     {
-      "idx": 1,
+      "idx": 2,
       "version": "7",
-      "when": 1781414400000,
-      "tag": "0001_admin_password",
+      "when": 1781500800000,
+      "tag": "0002_compare_at_and_bolivia",
       "breakpoints": true
     }
   ]

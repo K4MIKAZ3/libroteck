@@ -1,4 +1,5 @@
 import { CatalogGrid } from "@/components/catalog/catalog-grid";
+import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { getActiveProducts, getSettings } from "@/lib/db/queries";
 
@@ -29,6 +30,7 @@ export default async function HomePage() {
 
         <CatalogGrid products={products} />
       </main>
+      <SiteFooter />
     </div>
   );
 }

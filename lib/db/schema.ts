@@ -29,10 +29,11 @@ export const productPrices = pgTable("product_prices", {
     .notNull()
     .references(() => products.id, { onDelete: "cascade" }),
   countryCode: text("country_code", {
-    enum: ["MX", "CO", "AR", "PE", "INT"],
+    enum: ["MX", "CO", "AR", "PE", "BO", "INT"],
   }).notNull(),
   currency: text("currency").notNull(),
   amount: doublePrecision("amount").notNull(),
+  compareAtAmount: doublePrecision("compare_at_amount"),
 });
 
 export const settings = pgTable("settings", {

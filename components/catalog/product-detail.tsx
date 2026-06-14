@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { ProductPriceDisplay } from "@/components/catalog/product-price-display";
 import { CoverImage } from "@/components/catalog/cover-image";
 import Link from "next/link";
 import { ArrowLeft, ShoppingCart } from "lucide-react";
+import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { useCart } from "@/components/providers/cart-provider";
 import { useCountry } from "@/components/providers/country-provider";
@@ -13,7 +15,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import type { ProductWithPrices } from "@/lib/db/schema";
 import { getPriceForCountry } from "@/lib/pricing/product-price";
 import {
-  formatPrice,
   PRODUCT_TYPE_LABELS,
   type ProductType,
 } from "@/lib/pricing/countries";
@@ -64,11 +65,7 @@ export function ProductDetail({
               <h1 className="font-heading mt-4 text-3xl font-bold text-[#1E3A5F] sm:text-4xl">
                 {product.name}
               </h1>
-              <p className="mt-4 text-lg font-bold text-[#C8956C]">
-                {price
-                  ? formatPrice(price.amount, price.currency)
-                  : "Precio no disponible"}
-              </p>
+              <ProductPriceDisplay price={price} size="lg" className="mt-4" />
             </div>
 
             <Card>
@@ -125,6 +122,7 @@ export function ProductDetail({
           </div>
         </div>
       </main>
+      <SiteFooter />
     </div>
   );
 }

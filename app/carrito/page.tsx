@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { CartView } from "@/components/cart/cart-view";
+import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { Button } from "@/components/ui/button";
 import { getSettings } from "@/lib/db/queries";
@@ -29,6 +30,7 @@ export default async function CartPage() {
         </h1>
         <CartView whatsappNumber={settings?.whatsappNumber ?? "5212345678900"} />
       </main>
+      <SiteFooter />
     </div>
   );
 }

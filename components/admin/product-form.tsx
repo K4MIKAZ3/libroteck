@@ -34,6 +34,7 @@ const emptyPrices = (): PriceForm => ({
   CO: "",
   AR: "",
   PE: "",
+  BO: "",
   INT: "",
 });
 
@@ -80,6 +81,7 @@ export function ProductForm({
         countryCode,
         currency: COUNTRIES[countryCode].currency,
         amount: Number(amount),
+        compareAtAmount: null,
       })),
   };
 
