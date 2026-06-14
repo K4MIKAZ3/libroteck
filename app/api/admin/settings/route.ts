@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { requireAdminRequest } from "@/lib/auth/request";
 import { upsertSettings } from "@/lib/db/queries";
 
+export const runtime = "nodejs";
+
 export async function PUT(request: Request) {
   try {
     await requireAdminRequest(request);
@@ -30,7 +32,7 @@ export async function PUT(request: Request) {
         body.welcomeMessage?.trim() || "Elige tu país y ordena por WhatsApp",
     });
 
-    return NextResponse.json(settings);
+    return NextResponse.json({ success: true, settings });
   } catch (error) {
     console.error("Failed to save settings", error);
     return NextResponse.json(

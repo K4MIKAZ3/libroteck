@@ -83,6 +83,12 @@ export async function loadStoreSettings() {
 
 export async function saveStoreSettings(data: StoreSettings) {
   const saved = saveSettingsToDb(data);
-  await saveSettingsToBlob(data);
+
+  try {
+    await saveSettingsToBlob(data);
+  } catch (error) {
+    console.error("Failed to save settings to blob", error);
+  }
+
   return saved ?? data;
 }

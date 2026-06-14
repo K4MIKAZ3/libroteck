@@ -5,8 +5,19 @@ import {
   verifyAdminSessionToken,
 } from "@/lib/auth";
 
+function isServerActionRequest(request: NextRequest) {
+  return Boolean(
+    request.headers.get("Next-Action") ??
+      request.headers.get("next-action"),
+  );
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  if (isServerActionRequest(request)) {
+    return NextResponse.next();
+  }
 
   if (pathname.startsWith("/admin") && !pathname.startsWith("/admin/login")) {
     const token = request.cookies.get(ADMIN_COOKIE_NAME)?.value;
