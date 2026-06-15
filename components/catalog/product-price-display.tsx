@@ -17,7 +17,7 @@ export function ProductPriceDisplay({
   className,
 }: ProductPriceDisplayProps) {
   if (!price) {
-    return <span className={cn("text-[#1A1A2E]/50", className)}>Consultar</span>;
+    return <span className={cn("text-[#0b1020]/50", className)}>Consultar</span>;
   }
 
   const hasDiscount =
@@ -28,24 +28,24 @@ export function ProductPriceDisplay({
 
   const saleSize =
     size === "lg"
-      ? "text-2xl"
+      ? "text-3xl"
       : size === "sm"
-        ? "text-base"
-        : "text-lg";
+        ? "text-xl"
+        : "text-2xl";
 
   return (
     <div className={cn("flex flex-wrap items-center gap-2", className)}>
       {hasDiscount && (
         <>
-          <span className="text-sm text-[#1A1A2E]/45 line-through">
+          <span className="text-sm text-[#666] line-through">
             {formatPrice(price.compareAtAmount!, price.currency)}
           </span>
-          <span className="rounded-full bg-[#C8956C]/15 px-2 py-0.5 text-xs font-semibold text-[#C8956C]">
+          <span className="rounded-full bg-[#fff3b0] px-2.5 py-0.5 text-xs font-black text-[#111]">
             -{pct}%
           </span>
         </>
       )}
-      <span className={cn("font-bold text-[#C8956C]", saleSize)}>
+      <span className={cn("font-black text-[#1f4bff]", saleSize)}>
         {formatPrice(price.amount, price.currency)}
       </span>
     </div>

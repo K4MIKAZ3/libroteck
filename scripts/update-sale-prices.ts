@@ -3,6 +3,7 @@ import { getDb } from "../lib/db/index";
 import { productPrices, products } from "../lib/db/schema";
 import {
   COUNTRIES,
+  getCompareAtAmount,
   SALE_AMOUNTS,
   type CountryCode,
   type ProductType,
@@ -17,23 +18,22 @@ async function main() {
 
   for (const product of allProducts) {
     const type = product.type as ProductType;
-    const saleType = type === "bundle" ? "bundle" : type === "course" ? "course" : null;
+    const saleType =
+      type === "bundle" ? "bundle" : type === "course" ? "course" : null;
 
     for (const price of product.prices) {
       const country = price.countryCode as CountryCode;
 
       if (saleType) {
         const saleAmount = SALE_AMOUNTS[saleType][country];
-        const compareAt =
-          price.compareAtAmount ??
-          (price.amount > saleAmount ? price.amount : null);
+        const compareAt = getCompareAtAmount(type, country, product.slug);
 
         await db
           .update(productPrices)
           .set({
             amount: saleAmount,
             compareAtAmount:
-              compareAt && compareAt > saleAmount ? compareAt : price.compareAtAmount,
+              compareAt && compareAt > saleAmount ? compareAt : null,
           })
           .where(eq(productPrices.id, price.id));
 
@@ -45,30 +45,19 @@ async function main() {
       product.prices.map((p) => p.countryCode as CountryCode),
     );
 
-    if (!existingCountries.has("BO")) {
-      const intPrice = product.prices.find((p) => p.countryCode === "INT");
-      const compareAt =
-        saleType && intPrice
-          ? intPrice.compareAtAmount ?? intPrice.amount
-          : intPrice?.amount ?? 0;
-      const amount =
-        saleType
-          ? SALE_AMOUNTS[saleType].BO
-          : intPrice
-            ? Math.round(intPrice.amount * 6.9)
-            : 0;
+    if (!existingCountries.has("BO") && saleType) {
+      const compareAt = getCompareAtAmount(type, "BO", product.slug);
+      const amount = SALE_AMOUNTS[saleType].BO;
 
-      if (amount > 0) {
-        await db.insert(productPrices).values({
-          productId: product.id,
-          countryCode: "BO",
-          currency: COUNTRIES.BO.currency,
-          amount,
-          compareAtAmount:
-            saleType && compareAt > amount ? Math.round(compareAt * 6.9) : null,
-        });
-        inserted++;
-      }
+      await db.insert(productPrices).values({
+        productId: product.id,
+        countryCode: "BO",
+        currency: COUNTRIES.BO.currency,
+        amount,
+        compareAtAmount:
+          compareAt && compareAt > amount ? compareAt : null,
+      });
+      inserted++;
     }
   }
 

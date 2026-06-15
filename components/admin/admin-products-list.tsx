@@ -1,8 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Loader2, Pencil, Star } from "lucide-react";
 import { DeleteProductButton } from "@/components/admin/delete-product-button";
 import { ProductSearchBar } from "@/components/catalog/product-search-bar";
@@ -27,16 +26,22 @@ export function AdminProductsList({
   deleteToken: string;
   actionToken: string;
 }) {
-  const router = useRouter();
+  const [items, setItems] = useState(products);
   const [query, setQuery] = useState("");
   const [togglingId, setTogglingId] = useState<number | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setItems(products);
+  }, [products]);
 
   const filtered = useMemo(() => {
-    return sortProductsForDisplay(filterProductsBySearch(products, query));
-  }, [products, query]);
+    return sortProductsForDisplay(filterProductsBySearch(items, query));
+  }, [items, query]);
 
   async function toggleFeatured(product: ProductWithPrices) {
     setTogglingId(product.id);
+    setError(null);
 
     try {
       const response = await fetch(`/api/admin/products/${product.id}/featured`, {
@@ -49,14 +54,34 @@ export function AdminProductsList({
         }),
       });
 
-      const data = (await response.json()) as { error?: string };
+      const data = (await response.json()) as {
+        error?: string;
+        product?: Pick<ProductWithPrices, "id" | "isFeatured" | "sortOrder">;
+      };
+
       if (!response.ok) {
         throw new Error(data.error ?? "No se pudo actualizar");
       }
 
-      router.refresh();
-    } catch {
-      // refresh will restore state on failure
+      if (data.product) {
+        setItems((current) =>
+          current.map((item) =>
+            item.id === data.product!.id
+              ? {
+                  ...item,
+                  isFeatured: data.product!.isFeatured,
+                  sortOrder: data.product!.sortOrder,
+                }
+              : item,
+          ),
+        );
+      }
+    } catch (toggleError) {
+      setError(
+        toggleError instanceof Error
+          ? toggleError.message
+          : "No se pudo actualizar el destacado",
+      );
     } finally {
       setTogglingId(null);
     }
@@ -64,6 +89,11 @@ export function AdminProductsList({
 
   return (
     <div className="space-y-6">
+      {error && (
+        <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </p>
+      )}
       <ProductSearchBar
         value={query}
         onChange={setQuery}

@@ -13,6 +13,7 @@ import {
   type ProductType,
 } from "@/lib/pricing/countries";
 import { buildWhatsAppMessage, buildWhatsAppUrl } from "@/lib/whatsapp/message";
+import { HOME_PATH } from "@/lib/routes";
 
 export function CartView({ whatsappNumber }: { whatsappNumber: string }) {
   const { items, total, updateQuantity, removeItem, clearCart } = useCart();
@@ -22,12 +23,12 @@ export function CartView({ whatsappNumber }: { whatsappNumber: string }) {
     return (
       <Card>
         <CardContent className="flex flex-col items-center gap-4 py-16 text-center">
-          <p className="text-lg font-medium text-[#1A1A2E]">Tu carrito está vacío</p>
-          <p className="text-sm text-[#1A1A2E]/60">
+          <p className="text-lg font-bold text-[#0b1020]">Tu carrito está vacío</p>
+          <p className="text-sm text-[#666]">
             Explora el catálogo y añade cursos o libros.
           </p>
           <Button asChild>
-            <Link href="/">Ver catálogo</Link>
+            <Link href={HOME_PATH}>Ver catálogo</Link>
           </Button>
         </CardContent>
       </Card>
@@ -51,7 +52,7 @@ export function CartView({ whatsappNumber }: { whatsappNumber: string }) {
         {items.map((item) => (
           <Card key={item.productId}>
             <CardContent className="flex gap-4 p-4">
-              <div className="relative size-24 shrink-0 overflow-hidden rounded-lg bg-[#FAF7F2]">
+              <div className="relative size-24 shrink-0 overflow-hidden rounded-xl bg-[#f4f6fb]">
                 {item.coverUrl && (
                   <CoverImage
                     src={item.coverUrl}
@@ -64,11 +65,11 @@ export function CartView({ whatsappNumber }: { whatsappNumber: string }) {
                 <div>
                   <Link
                     href={`/producto/${item.slug}`}
-                    className="font-semibold text-[#1A1A2E] hover:text-[#1E3A5F]"
+                    className="font-semibold text-[#0b1020] hover:text-[#1f4bff]"
                   >
                     {item.name}
                   </Link>
-                  <p className="text-sm text-[#1A1A2E]/60">
+                  <p className="text-sm text-[#666]">
                     {PRODUCT_TYPE_LABELS[item.type as ProductType]}
                   </p>
                 </div>
@@ -93,7 +94,7 @@ export function CartView({ whatsappNumber }: { whatsappNumber: string }) {
                     </Button>
                   </div>
                   <div className="flex items-center gap-3">
-                    <p className="font-bold text-[#C8956C]">
+                    <p className="font-black text-[#1f4bff]">
                       {formatPrice(item.unitPrice * item.quantity, item.currency)}
                     </p>
                     <Button
@@ -115,8 +116,8 @@ export function CartView({ whatsappNumber }: { whatsappNumber: string }) {
       <Card className="h-fit lg:sticky lg:top-24">
         <CardContent className="space-y-4 p-5">
           <div className="flex items-center justify-between">
-            <span className="text-[#1A1A2E]/70">Total</span>
-            <span className="text-2xl font-bold text-[#1E3A5F]">
+            <span className="text-[#666]">Total</span>
+            <span className="text-2xl font-black text-[#1f4bff]">
               {formatPrice(total, currency)}
             </span>
           </div>
@@ -125,7 +126,7 @@ export function CartView({ whatsappNumber }: { whatsappNumber: string }) {
               Ordenar por WhatsApp
             </a>
           </Button>
-          <p className="text-center text-xs text-[#1A1A2E]/60">
+          <p className="text-center text-xs text-[#666]">
             El pago se completa por WhatsApp de forma externa.
           </p>
           <Button variant="ghost" className="w-full" onClick={clearCart}>

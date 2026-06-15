@@ -1,3 +1,4 @@
+import { CookieSettingsLink } from "@/components/layout/cookie-settings-link";
 import { CreditCard, Landmark, Wallet } from "lucide-react";
 
 const PAYMENT_METHODS = [
@@ -30,16 +31,16 @@ const PAYMENT_METHODS = [
 
 export function SiteFooter() {
   return (
-    <footer className="mt-16 border-t border-[#E8E0D5] bg-white">
+    <footer className="mt-16 bg-[#0b1020] text-white">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
         <div className="text-center">
-          <p className="font-literata text-xs uppercase tracking-[0.2em] text-[#C8956C]">
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#ffd600]">
             Métodos de pago
           </p>
-          <h2 className="font-heading mt-2 text-xl font-bold text-[#1E3A5F] sm:text-2xl">
+          <h2 className="font-heading mt-2 text-xl font-bold sm:text-2xl">
             Aceptamos los siguientes medios
           </h2>
-          <p className="mx-auto mt-2 max-w-lg text-sm text-[#1A1A2E]/60">
+          <p className="mx-auto mt-2 max-w-lg text-sm text-[#dbe2ff]">
             Al ordenar por WhatsApp te indicamos los datos para completar tu pago
             de forma segura.
           </p>
@@ -49,25 +50,30 @@ export function SiteFooter() {
           {PAYMENT_METHODS.map((method) => (
             <div
               key={method.name}
-              className="flex flex-col items-center rounded-2xl border border-[#E8E0D5] bg-[#FAF7F2] px-4 py-5 text-center transition-shadow hover:shadow-md"
+              className="flex flex-col items-center rounded-3xl border border-white/10 bg-white/5 px-4 py-5 text-center transition-shadow hover:shadow-[0_8px_25px_rgba(0,0,0,0.2)]"
             >
-              <div className="flex size-12 items-center justify-center rounded-full bg-[#1E3A5F]/10 text-[#1E3A5F]">
+              <div className="flex size-12 items-center justify-center rounded-full bg-[#1f4bff]/30 text-[#ffd600]">
                 <method.icon className="size-5" />
               </div>
-              <p className="mt-3 font-semibold text-[#1A1A2E]">{method.name}</p>
-              <p className="mt-1 text-xs text-[#1A1A2E]/55">
+              <p className="mt-3 font-semibold">{method.name}</p>
+              <p className="mt-1 text-xs text-[#dbe2ff]/80">
                 {method.description}
               </p>
             </div>
           ))}
         </div>
 
-        <p className="mt-10 text-center text-xs text-[#1A1A2E]/45">
+        <p className="mt-10 text-center text-xs text-[#dbe2ff]/70">
           © {new Date().getFullYear()} LibroTeck — Cursos y libros digitales
           {" · "}
-          <a href="/privacidad" className="underline-offset-2 hover:underline">
+          <a
+            href="/privacidad"
+            className="text-[#ffd600] underline-offset-2 hover:underline"
+          >
             Privacidad
           </a>
+          {" · "}
+          <CookieSettingsLink />
         </p>
       </div>
     </footer>

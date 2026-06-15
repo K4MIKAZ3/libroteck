@@ -4,6 +4,7 @@ import { CartView } from "@/components/cart/cart-view";
 import { StoreShell } from "@/components/layout/store-shell";
 import { Button } from "@/components/ui/button";
 import { getSettings } from "@/lib/db/queries";
+import { HOME_PATH } from "@/lib/routes";
 
 export const dynamic = "force-dynamic";
 
@@ -17,12 +18,12 @@ export default async function CartPage() {
   return (
     <StoreShell settings={settings}>
       <Button asChild variant="ghost" className="mb-6">
-        <Link href="/">
+        <Link href={HOME_PATH}>
           <ArrowLeft className="size-4" />
           Seguir comprando
         </Link>
       </Button>
-      <h1 className="font-heading mb-8 text-3xl font-bold text-[#1E3A5F]">
+      <h1 className="font-heading mb-8 text-3xl font-black text-[#0b1020]">
         Tu carrito
       </h1>
       <CartView whatsappNumber={settings?.whatsappNumber ?? "5212345678900"} />

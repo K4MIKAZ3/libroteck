@@ -45,6 +45,58 @@ export const SALE_AMOUNTS: Record<
   },
 };
 
+/** Precio anterior (tachado) por tier y país */
+export const COMPARE_AT_AMOUNTS: Record<
+  "course" | "bundle" | "mega",
+  Record<CountryCode, number>
+> = {
+  course: {
+    INT: 34.99,
+    MX: 599,
+    CO: 109000,
+    AR: 59000,
+    PE: 99,
+    BO: 69,
+  },
+  bundle: {
+    INT: 49.99,
+    MX: 799,
+    CO: 149000,
+    AR: 79000,
+    PE: 129,
+    BO: 110,
+  },
+  mega: {
+    INT: 79.99,
+    MX: 1499,
+    CO: 279000,
+    AR: 149000,
+    PE: 249,
+    BO: 552,
+  },
+};
+
+/** Packs con precio mega (antes del descuento a $6) */
+export const MEGA_BUNDLE_SLUGS = new Set([
+  "biblioteca-online-automotriz-300-gb",
+  "pack-completo-24-000-libros-cursos-y-manuales-automotrices",
+]);
+
+export function getCompareAtAmount(
+  type: ProductType,
+  country: CountryCode,
+  slug?: string,
+): number | null {
+  if (type === "course") {
+    return COMPARE_AT_AMOUNTS.course[country];
+  }
+  if (type === "bundle") {
+    const tier = slug && MEGA_BUNDLE_SLUGS.has(slug) ? "mega" : "bundle";
+    return COMPARE_AT_AMOUNTS[tier][country];
+  }
+  return null;
+}
+
 export function formatPrice(amount: number, currency: string): string {
   const locale =
     currency === "USD"

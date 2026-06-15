@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Literata, Plus_Jakarta_Sans } from "next/font/google";
-import { AdSenseHead } from "@/components/ads/adsense-head";
+import { Analytics } from "@vercel/analytics/next";
 import { FloatingCartButton } from "@/components/cart/floating-cart-button";
 import { AppProviders } from "@/components/providers/app-providers";
 import {
@@ -36,7 +36,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     description:
       "Catálogo de cursos y libros digitales con precios por país. Ordena fácilmente por WhatsApp.",
-    metadataBase: new URL("https://libroteck.vercel.app"),
+    metadataBase: new URL("https://libroteck.xyz"),
     ...(process.env.GOOGLE_SITE_VERIFICATION
       ? {
           verification: {
@@ -65,14 +65,23 @@ export default async function RootLayout({
 
   return (
     <html lang="es" className="h-full">
+      <head>
+        {loadAdsense && (
+          <script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${clientId}`}
+            crossOrigin="anonymous"
+          />
+        )}
+      </head>
       <body
-        className={`${inter.variable} ${jakarta.variable} ${literata.variable} min-h-full bg-[#FAF7F2] font-[family-name:var(--font-inter)] text-[#1A1A2E] antialiased`}
+        className={`${inter.variable} ${jakarta.variable} ${literata.variable} min-h-full bg-[#f4f6fb] font-[family-name:var(--font-inter)] text-[#0b1020] antialiased`}
       >
-        {loadAdsense && <AdSenseHead clientId={clientId} />}
         <AppProviders>
           {children}
           <FloatingCartButton />
         </AppProviders>
+        <Analytics />
       </body>
     </html>
   );

@@ -16,6 +16,7 @@ import {
   PRODUCT_TYPE_LABELS,
   type ProductType,
 } from "@/lib/pricing/countries";
+import { HOME_PATH } from "@/lib/routes";
 
 export function ProductDetail({
   product,
@@ -30,7 +31,7 @@ export function ProductDetail({
   return (
     <>
       <Button asChild variant="ghost" className="mb-6">
-          <Link href="/">
+          <Link href={HOME_PATH}>
             <ArrowLeft className="size-4" />
             Volver al catálogo
           </Link>
@@ -38,7 +39,7 @@ export function ProductDetail({
 
         <div className="grid gap-8 lg:grid-cols-2">
           <Card className="overflow-hidden">
-            <div className="relative aspect-[3/4] bg-[#FAF7F2]">
+            <div className="relative aspect-[3/4] bg-[#f4f6fb]">
               {product.coverUrl && (
                 <CoverImage
                   src={product.coverUrl}
@@ -58,7 +59,7 @@ export function ProductDetail({
                 </Badge>
                 {product.isNew && <Badge variant="new">Nuevo</Badge>}
               </div>
-              <h1 className="font-heading mt-4 text-3xl font-bold text-[#1E3A5F] sm:text-4xl">
+              <h1 className="font-heading mt-4 text-3xl font-black text-[#0b1020] sm:text-4xl">
                 {product.name}
               </h1>
               <ProductPriceDisplay price={price} size="lg" className="mt-4" />
@@ -66,14 +67,14 @@ export function ProductDetail({
 
             <Card>
               <CardContent className="space-y-4 p-5">
-                <p className="leading-relaxed text-[#1A1A2E]/80">
+                <p className="leading-relaxed text-[#555]">
                   {product.description}
                 </p>
-                <p className="text-sm text-[#1A1A2E]/60">
+                <p className="text-sm text-[#666]">
                   El pago se completa por WhatsApp de forma externa.
                 </p>
                 <div className="flex flex-wrap items-center gap-3">
-                  <div className="flex items-center rounded-lg border border-[#E8E0D5] bg-white">
+                  <div className="flex items-center rounded-full border border-[#e8ecff] bg-white">
                     <Button
                       variant="ghost"
                       size="icon"

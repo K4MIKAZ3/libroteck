@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Lock, Plus, Settings, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { HOME_PATH } from "@/lib/routes";
 
 type AdminNavProps = {
   active?: "productos" | "configuracion" | "seguridad";
@@ -27,7 +28,7 @@ export function AdminNav({ active = "productos" }: AdminNavProps) {
         </div>
         <div className="flex flex-wrap gap-2">
           <Button asChild variant="outline">
-            <Link href="/">Ver tienda</Link>
+            <Link href={HOME_PATH}>Ver tienda</Link>
           </Button>
           <Button asChild>
             <Link href="/admin/productos/nuevo">

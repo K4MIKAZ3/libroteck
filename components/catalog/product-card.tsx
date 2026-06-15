@@ -35,9 +35,9 @@ export function ProductCard({ product }: { product: ProductWithPrices }) {
   };
 
   return (
-    <Card className="group overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg">
+    <Card className="group overflow-hidden transition-all duration-300 hover:-translate-y-2.5 hover:shadow-[0_18px_45px_rgba(0,0,0,0.18)]">
       <Link href={`/producto/${product.slug}`} className="block">
-        <div className="relative aspect-[3/4] overflow-hidden bg-[#FAF7F2]">
+        <div className="relative aspect-[3/4] overflow-hidden bg-[#f4f6fb]">
           {product.coverUrl ? (
             <CoverImage
               src={product.coverUrl}
@@ -45,12 +45,15 @@ export function ProductCard({ product }: { product: ProductWithPrices }) {
               className="transition-transform duration-300 group-hover:scale-105"
             />
           ) : (
-            <div className="flex h-full items-center justify-center text-[#1A1A2E]/30">
+            <div className="flex h-full items-center justify-center text-[#0b1020]/30">
               Sin portada
             </div>
           )}
           {product.isFeatured && (
-            <Badge variant="secondary" className="absolute right-3 top-3 gap-1 bg-[#C8956C] text-white">
+            <Badge
+              variant="secondary"
+              className="absolute right-3 top-3 gap-1 bg-[#ffd600] text-[#111]"
+            >
               <Star className="size-3 fill-current" />
               Top
             </Badge>
@@ -63,22 +66,27 @@ export function ProductCard({ product }: { product: ProductWithPrices }) {
           )}
         </div>
       </Link>
-      <CardContent className="space-y-3 p-4">
+      <CardContent className="space-y-3 p-5">
         <div>
           <Link href={`/producto/${product.slug}`}>
-            <h3 className="line-clamp-2 font-semibold text-[#1A1A2E] transition-colors hover:text-[#1E3A5F]">
+            <h3 className="line-clamp-2 text-lg font-bold text-[#0b1020] transition-colors hover:text-[#1f4bff]">
               {product.name}
             </h3>
           </Link>
-          <p className="mt-1 text-sm text-[#1A1A2E]/60">
+          <p className="mt-1 text-sm text-[#666]">
             {PRODUCT_TYPE_LABELS[product.type as ProductType]}
           </p>
         </div>
-        <div className="flex items-center justify-between gap-2">
+        <div className="space-y-3">
           <ProductPriceDisplay price={price} size="sm" />
-          <Button size="sm" onClick={handleAdd} disabled={!price}>
+          <Button
+            size="sm"
+            className="w-full"
+            onClick={handleAdd}
+            disabled={!price}
+          >
             <ShoppingCart className="size-4" />
-            Añadir
+            Añadir al carrito
           </Button>
         </div>
       </CardContent>

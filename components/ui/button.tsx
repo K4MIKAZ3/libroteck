@@ -4,24 +4,27 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-[#1E3A5F]/30",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-bold transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-[#1f4bff]/30",
   {
     variants: {
       variant: {
-        default: "bg-[#1E3A5F] text-white hover:bg-[#162d4a]",
+        default:
+          "bg-[#1f4bff] text-white hover:bg-[#0b1020] shadow-sm",
+        accent:
+          "bg-[#ffd600] text-[#111] hover:bg-white shadow-[0_8px_20px_rgba(255,214,0,0.3)] hover:-translate-y-0.5",
         secondary:
-          "bg-[#C8956C]/15 text-[#1E3A5F] hover:bg-[#C8956C]/25 border border-[#E8E0D5]",
+          "bg-[#1f4bff]/10 text-[#1f4bff] hover:bg-[#1f4bff]/20 border border-[#e8ecff]",
         outline:
-          "border border-[#E8E0D5] bg-white hover:bg-[#FAF7F2] text-[#1A1A2E]",
-        ghost: "hover:bg-[#FAF7F2] text-[#1A1A2E]",
+          "border border-[#e8ecff] bg-white hover:bg-[#f4f6fb] text-[#0b1020]",
+        ghost: "hover:bg-[#f4f6fb] text-[#0b1020] rounded-lg",
         whatsapp: "bg-[#25D366] text-white hover:bg-[#1fb855] font-semibold",
-        destructive: "bg-red-600 text-white hover:bg-red-700",
+        destructive: "bg-red-600 text-white hover:bg-red-700 rounded-lg",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-12 rounded-xl px-6 text-base",
-        icon: "size-10",
+        default: "h-10 px-5 py-2",
+        sm: "h-8 px-4 text-xs",
+        lg: "h-12 px-7 text-base",
+        icon: "size-10 rounded-full",
       },
     },
     defaultVariants: {

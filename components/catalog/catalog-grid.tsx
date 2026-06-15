@@ -26,6 +26,15 @@ export function CatalogGrid({ products }: { products: ProductWithPrices[] }) {
 
   return (
     <div className="space-y-8">
+      <div className="text-center">
+        <h2 className="font-heading text-3xl font-black text-[#0b1020] sm:text-4xl">
+          Catálogo destacado
+        </h2>
+        <p className="mt-2 text-lg text-[#555]">
+          Elige tu próximo curso o pack y empieza a aprender hoy.
+        </p>
+      </div>
+
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <ProductFilters value={filter} onChange={setFilter} />
         <ProductSearchBar
@@ -36,7 +45,7 @@ export function CatalogGrid({ products }: { products: ProductWithPrices[] }) {
       </div>
 
       {filtered.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-[#E8E0D5] bg-white p-12 text-center text-[#1A1A2E]/60">
+        <p className="rounded-3xl border border-dashed border-[#e8ecff] bg-white p-12 text-center text-[#666]">
           {query.trim()
             ? "No hay resultados para tu búsqueda."
             : "No hay productos en esta categoría."}

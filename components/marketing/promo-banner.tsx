@@ -43,36 +43,34 @@ export function PromoBanner({
 
   return (
     <aside
-      className="relative mb-8 overflow-hidden rounded-2xl border border-[#C8956C]/25 bg-gradient-to-r from-[#FAF7F2] to-white p-5 shadow-sm sm:p-6"
+      className="bg-offer-gradient relative mb-8 overflow-hidden rounded-[32px] p-6 text-center text-white shadow-[0_18px_45px_rgba(31,75,255,0.25)] sm:p-8"
       role="complementary"
       aria-label="Promoción"
     >
       <button
         type="button"
         onClick={dismiss}
-        className="absolute right-3 top-3 rounded-full p-1.5 text-[#1A1A2E]/40 transition-colors hover:bg-[#1E3A5F]/5 hover:text-[#1A1A2E]"
+        className="absolute right-3 top-3 rounded-full p-1.5 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
         aria-label="Cerrar promoción"
       >
         <X className="size-4" />
       </button>
 
-      <div className="flex flex-col gap-4 pr-8 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex gap-4">
-          <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#1E3A5F]/10 text-[#1E3A5F]">
+      <div className="mx-auto max-w-2xl">
+        <div className="mb-3 flex justify-center">
+          <div className="flex size-11 items-center justify-center rounded-xl bg-[#ffd600]/20 text-[#ffd600]">
             <Megaphone className="size-5" />
           </div>
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#C8956C]">
-              {title.trim() || "Promoción"}
-            </p>
-            <p className="mt-1 text-sm leading-relaxed text-[#1A1A2E]/80 sm:text-base">
-              {message}
-            </p>
-          </div>
         </div>
+        <h2 className="font-heading text-2xl font-black sm:text-3xl">
+          {title.trim() || "Oferta especial"}
+        </h2>
+        <p className="mt-3 text-base leading-relaxed text-[#eef2ff] sm:text-lg">
+          {message}
+        </p>
 
         {link?.trim() && (
-          <Button asChild variant="outline" className="shrink-0 self-start sm:self-center">
+          <Button asChild variant="accent" className="mt-5">
             {isExternal ? (
               <a href={link} target="_blank" rel="noopener noreferrer">
                 {buttonLabel}
