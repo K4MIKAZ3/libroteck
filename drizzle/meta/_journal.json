@@ -64,6 +64,13 @@
       "when": 1782019200000,
       "tag": "0008_whatsapp_order_template",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1782105600000,
+      "tag": "0009_streaming_category",
+      "breakpoints": true
     }
   ]
 }
