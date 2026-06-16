@@ -57,7 +57,7 @@ export async function PUT(
     const body = (await request.json()) as ProductInput;
 
     try {
-      await requireAdminRequest(request, body._token, "products");
+      await requireAdminRequest(request, body._token, "products", "products:write");
     } catch {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
@@ -117,7 +117,7 @@ export async function DELETE(
     const token = await readToken(request);
 
     try {
-      await requireAdminRequest(request, token, "products");
+      await requireAdminRequest(request, token, "products", "products:write");
     } catch {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }

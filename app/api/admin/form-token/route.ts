@@ -9,6 +9,7 @@ const ALLOWED_PURPOSES = new Set<FormTokenPurpose>([
   "settings",
   "password",
   "products",
+  "users",
 ]);
 
 export async function GET(request: Request) {

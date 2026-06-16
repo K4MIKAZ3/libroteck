@@ -9,9 +9,15 @@ import { Label } from "@/components/ui/label";
 
 type SecurityFormClientProps = {
   saveToken: string;
+  readOnly?: boolean;
+  currentUserId?: number;
+  usersTokenAvailable?: boolean;
 };
 
-export function SecurityFormClient({ saveToken }: SecurityFormClientProps) {
+export function SecurityFormClient({
+  saveToken,
+  readOnly = false,
+}: SecurityFormClientProps) {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -68,20 +74,28 @@ export function SecurityFormClient({ saveToken }: SecurityFormClientProps) {
   return (
     <Card className="max-w-2xl">
         <CardHeader>
-          <CardTitle>Cambiar contraseña admin</CardTitle>
+          <CardTitle>Cambiar mi contraseña</CardTitle>
         </CardHeader>
         <CardContent>
-          {feedback && (
-            <p
-              className={`mb-4 text-sm ${
-                feedback.type === "success" ? "text-green-700" : "text-red-600"
-              }`}
-            >
-              {feedback.text}
+          {readOnly ? (
+            <p className="text-sm text-[#666]">
+              Tu rol no permite cambiar contraseñas desde aquí.
             </p>
-          )}
+          ) : (
+            <>
+              {feedback && (
+                <p
+                  className={`mb-4 text-sm ${
+                    feedback.type === "success"
+                      ? "text-green-700"
+                      : "text-red-600"
+                  }`}
+                >
+                  {feedback.text}
+                </p>
+              )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="currentPassword">Contraseña actual</Label>
               <Input
@@ -127,7 +141,9 @@ export function SecurityFormClient({ saveToken }: SecurityFormClientProps) {
                 "Cambiar contraseña"
               )}
             </Button>
-          </form>
+              </form>
+            </>
+          )}
         </CardContent>
       </Card>
   );

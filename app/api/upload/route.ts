@@ -7,14 +7,29 @@ import { safeUploadFilename, validateUploadFile } from "@/lib/security/upload";
 
 async function authorizeUpload(request: Request, formToken: string) {
   try {
-    await requireAdminMutation(request, formToken, "products");
+    await requireAdminMutation(
+      request,
+      formToken,
+      "products",
+      "products:write",
+    );
     return true;
   } catch {
     try {
-      await requireAdminMutation(request, formToken, "settings");
+      await requireAdminMutation(request, formToken, "settings", "hero:write");
       return true;
     } catch {
-      return false;
+      try {
+        await requireAdminMutation(
+          request,
+          formToken,
+          "settings",
+          "settings:write",
+        );
+        return true;
+      } catch {
+        return false;
+      }
     }
   }
 }

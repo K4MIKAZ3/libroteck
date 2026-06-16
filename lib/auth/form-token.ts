@@ -1,12 +1,17 @@
 import { SignJWT, jwtVerify } from "jose";
 import { getAdminSecret } from "@/lib/auth/session";
 
-export type FormTokenPurpose = "settings" | "password" | "products";
+export type FormTokenPurpose =
+  | "settings"
+  | "password"
+  | "products"
+  | "users";
 
 const FORM_TOKEN_TTL: Record<FormTokenPurpose, string> = {
   products: "8h",
   settings: "2h",
   password: "30m",
+  users: "2h",
 };
 
 export async function createFormToken(purpose: FormTokenPurpose) {

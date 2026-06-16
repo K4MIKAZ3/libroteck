@@ -11,7 +11,7 @@ export async function POST(
   const formToken = String(formData.get("_token") ?? "");
 
   try {
-    await requireAdminRequest(request, formToken, "products");
+    await requireAdminRequest(request, formToken, "products", "products:write");
   } catch {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }

@@ -2,10 +2,11 @@ import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { createFormToken } from "@/lib/auth/form-token";
 import {
-  requireAdminMutation,
+  requireAdminPermission,
   requireAdminSession,
 } from "@/lib/auth/request";
-import { upsertSettings, updateStoreHeroOffer } from "@/lib/db/queries";
+import { roleHasPermission } from "@/lib/auth/roles";
+import { upsertSettings, updateStoreHeroOffer, getSettings } from "@/lib/db/queries";
 import { toPublicSettings } from "@/lib/security/public-settings";
 import { isSafeImageUrl, isSafePromoLink } from "@/lib/security/urls";
 
@@ -100,23 +101,18 @@ export async function GET(request: Request) {
 export async function PUT(request: Request) {
   try {
     const body = (await request.json()) as SettingsInput;
+    const session = await requireAdminSession(request);
+    const { verifyFormToken } = await import("@/lib/auth/form-token");
 
-    try {
-      await requireAdminMutation(request, body._token, "settings");
-    } catch {
+    if (!(await verifyFormToken(body._token, "settings"))) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
-    const normalized = normalizeSettings(body);
-    if (!normalized) {
-      return NextResponse.json(
-        { error: "WhatsApp y nombre de tienda son obligatorios" },
-        { status: 400 },
-      );
-    }
+    const canWriteSettings = roleHasPermission(session.role, "settings:write");
+    const canWriteHero = roleHasPermission(session.role, "hero:write");
 
-    if ("error" in normalized) {
-      return NextResponse.json({ error: normalized.error }, { status: 400 });
+    if (!canWriteSettings && !canWriteHero) {
+      return NextResponse.json({ error: "Sin permiso" }, { status: 403 });
     }
 
     const heroOffer = normalizeHeroOffer(body);
@@ -124,8 +120,30 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: heroOffer.error }, { status: 400 });
     }
 
-    const settings = await upsertSettings(normalized.data, request);
-    const store = await updateStoreHeroOffer(heroOffer.data, request);
+    let settings = await getSettings(request);
+    let store;
+
+    if (canWriteSettings) {
+      const normalized = normalizeSettings(body);
+      if (!normalized) {
+        return NextResponse.json(
+          { error: "WhatsApp y nombre de tienda son obligatorios" },
+          { status: 400 },
+        );
+      }
+
+      if ("error" in normalized) {
+        return NextResponse.json({ error: normalized.error }, { status: 400 });
+      }
+
+      settings = await upsertSettings(normalized.data, request);
+      store = await updateStoreHeroOffer(heroOffer.data, request);
+    } else if (canWriteHero) {
+      store = await updateStoreHeroOffer(heroOffer.data, request);
+    } else {
+      return NextResponse.json({ error: "Sin permiso" }, { status: 403 });
+    }
+
     revalidatePath("/");
     revalidatePath("/home");
     revalidatePath("/admin/configuracion");
@@ -150,38 +168,22 @@ export async function POST(request: Request) {
   const formData = await request.formData();
   const formToken = String(formData.get("_token") ?? "");
 
+  let session;
   try {
-    await requireAdminMutation(request, formToken, "settings");
+    session = await requireAdminSession(request);
+    const { verifyFormToken } = await import("@/lib/auth/form-token");
+    if (!(await verifyFormToken(formToken, "settings"))) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
   } catch {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-  const normalized = normalizeSettings({
-    whatsappNumber: String(formData.get("whatsappNumber") ?? ""),
-    storeName: String(formData.get("storeName") ?? ""),
-    welcomeMessage: String(formData.get("welcomeMessage") ?? ""),
-    whatsappOrderTemplate: String(formData.get("whatsappOrderTemplate") ?? ""),
-    promoEnabled: formData.get("promoEnabled") === "true",
-    promoTitle: String(formData.get("promoTitle") ?? ""),
-    promoMessage: String(formData.get("promoMessage") ?? ""),
-    promoLink: String(formData.get("promoLink") ?? ""),
-    promoButtonLabel: String(formData.get("promoButtonLabel") ?? ""),
-    adsEnabled: formData.get("adsEnabled") === "true",
-    adsenseClientId: String(formData.get("adsenseClientId") ?? ""),
-    adSlotTop: String(formData.get("adSlotTop") ?? ""),
-    adSlotLeft: String(formData.get("adSlotLeft") ?? ""),
-    adSlotRight: String(formData.get("adSlotRight") ?? ""),
-  });
+  const canWriteSettings = roleHasPermission(session.role, "settings:write");
+  const canWriteHero = roleHasPermission(session.role, "hero:write");
 
-  if (!normalized) {
-    return NextResponse.json(
-      { error: "WhatsApp y nombre de tienda son obligatorios" },
-      { status: 400 },
-    );
-  }
-
-  if ("error" in normalized) {
-    return NextResponse.json({ error: normalized.error }, { status: 400 });
+  if (!canWriteSettings && !canWriteHero) {
+    return NextResponse.json({ error: "Sin permiso" }, { status: 403 });
   }
 
   const heroOffer = normalizeHeroOffer({
@@ -198,8 +200,44 @@ export async function POST(request: Request) {
   }
 
   try {
-    const settings = await upsertSettings(normalized.data, request);
-    const store = await updateStoreHeroOffer(heroOffer.data, request);
+    let settings = await getSettings(request);
+    let store;
+
+    if (canWriteSettings) {
+      const normalized = normalizeSettings({
+        whatsappNumber: String(formData.get("whatsappNumber") ?? ""),
+        storeName: String(formData.get("storeName") ?? ""),
+        welcomeMessage: String(formData.get("welcomeMessage") ?? ""),
+        whatsappOrderTemplate: String(formData.get("whatsappOrderTemplate") ?? ""),
+        promoEnabled: formData.get("promoEnabled") === "true",
+        promoTitle: String(formData.get("promoTitle") ?? ""),
+        promoMessage: String(formData.get("promoMessage") ?? ""),
+        promoLink: String(formData.get("promoLink") ?? ""),
+        promoButtonLabel: String(formData.get("promoButtonLabel") ?? ""),
+        adsEnabled: formData.get("adsEnabled") === "true",
+        adsenseClientId: String(formData.get("adsenseClientId") ?? ""),
+        adSlotTop: String(formData.get("adSlotTop") ?? ""),
+        adSlotLeft: String(formData.get("adSlotLeft") ?? ""),
+        adSlotRight: String(formData.get("adSlotRight") ?? ""),
+      });
+
+      if (!normalized) {
+        return NextResponse.json(
+          { error: "WhatsApp y nombre de tienda son obligatorios" },
+          { status: 400 },
+        );
+      }
+
+      if ("error" in normalized) {
+        return NextResponse.json({ error: normalized.error }, { status: 400 });
+      }
+
+      settings = await upsertSettings(normalized.data, request);
+      store = await updateStoreHeroOffer(heroOffer.data, request);
+    } else {
+      store = await updateStoreHeroOffer(heroOffer.data, request);
+    }
+
     revalidatePath("/");
     revalidatePath("/home");
     revalidatePath("/admin/configuracion");

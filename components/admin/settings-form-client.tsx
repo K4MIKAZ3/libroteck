@@ -23,6 +23,9 @@ type SettingsFormClientProps = {
   storeSlug: StoreSlug;
   catalogProducts: ProductWithPrices[];
   saveToken: string;
+  canWriteSettings?: boolean;
+  canWriteHero?: boolean;
+  readOnly?: boolean;
 };
 
 export function SettingsFormClient({
@@ -31,7 +34,13 @@ export function SettingsFormClient({
   storeSlug,
   catalogProducts,
   saveToken,
+  canWriteSettings = true,
+  canWriteHero = true,
+  readOnly = false,
 }: SettingsFormClientProps) {
+  const settingsDisabled = readOnly || !canWriteSettings;
+  const heroDisabled = readOnly || !canWriteHero;
+  const canSave = !readOnly && (canWriteSettings || canWriteHero);
   const [whatsappNumber, setWhatsappNumber] = useState(
     initialSettings.whatsappNumber,
   );
@@ -166,6 +175,11 @@ export function SettingsFormClient({
     <Card className="max-w-2xl">
         <CardHeader>
           <CardTitle>Configuración de la tienda</CardTitle>
+          {readOnly && (
+            <p className="text-sm text-[#666]">
+              Modo solo lectura: puedes ver la configuración pero no modificarla.
+            </p>
+          )}
         </CardHeader>
         <CardContent>
           {feedback && (
@@ -187,6 +201,7 @@ export function SettingsFormClient({
                 onChange={(event) => setWhatsappNumber(event.target.value)}
                 placeholder="5212345678900"
                 required
+                disabled={settingsDisabled}
               />
               <p className="text-xs text-[#1A1A2E]/60">
                 Incluye código de país sin + ni espacios.
@@ -200,6 +215,7 @@ export function SettingsFormClient({
                 value={storeName}
                 onChange={(event) => setStoreName(event.target.value)}
                 required
+                disabled={settingsDisabled}
               />
             </div>
             <div className="space-y-2">
@@ -210,6 +226,7 @@ export function SettingsFormClient({
                 onChange={(event) => setWelcomeMessage(event.target.value)}
                 rows={3}
                 required
+                disabled={settingsDisabled}
               />
             </div>
 
@@ -225,6 +242,7 @@ export function SettingsFormClient({
               onSubtitleChange={setHeroOfferSubtitle}
               onBackgroundImageChange={setHeroOfferBackgroundImageUrl}
               uploadToken={saveToken}
+              disabled={heroDisabled}
             />
 
             <div className="space-y-2">
@@ -239,10 +257,12 @@ export function SettingsFormClient({
                 }
                 rows={10}
                 className="font-mono text-sm"
+                disabled={settingsDisabled}
               />
               <p className="text-xs text-[#1A1A2E]/60">
                 Variables disponibles:{" "}
                 {WHATSAPP_TEMPLATE_PLACEHOLDERS.join(", ")}.{" "}
+                {!settingsDisabled && (
                 <button
                   type="button"
                   className="text-[var(--primary-hover)] underline underline-offset-2"
@@ -252,6 +272,7 @@ export function SettingsFormClient({
                 >
                   Restaurar mensaje por defecto
                 </button>
+                )}
               </p>
             </div>
 
@@ -270,6 +291,7 @@ export function SettingsFormClient({
                   checked={promoEnabled}
                   onChange={(event) => setPromoEnabled(event.target.checked)}
                   className="size-4 rounded border-[#E8E0D5]"
+                  disabled={settingsDisabled}
                 />
                 <span className="text-sm font-medium">Mostrar banner promocional</span>
               </label>
@@ -281,7 +303,7 @@ export function SettingsFormClient({
                   value={promoTitle}
                   onChange={(event) => setPromoTitle(event.target.value)}
                   placeholder="Oferta especial"
-                  disabled={!promoEnabled}
+                  disabled={!promoEnabled || settingsDisabled}
                 />
               </div>
               <div className="space-y-2">
@@ -292,7 +314,7 @@ export function SettingsFormClient({
                   onChange={(event) => setPromoMessage(event.target.value)}
                   rows={2}
                   placeholder="Packs TF VICTOR con descuento esta semana"
-                  disabled={!promoEnabled}
+                  disabled={!promoEnabled || settingsDisabled}
                 />
               </div>
               <div className="space-y-2">
@@ -302,7 +324,7 @@ export function SettingsFormClient({
                   value={promoLink}
                   onChange={(event) => setPromoLink(event.target.value)}
                   placeholder="/producto/tf-victor-tomos-18-19-y-20"
-                  disabled={!promoEnabled}
+                  disabled={!promoEnabled || settingsDisabled}
                 />
               </div>
               <div className="space-y-2">
@@ -312,7 +334,7 @@ export function SettingsFormClient({
                   value={promoButtonLabel}
                   onChange={(event) => setPromoButtonLabel(event.target.value)}
                   placeholder="Ver promoción"
-                  disabled={!promoEnabled}
+                  disabled={!promoEnabled || settingsDisabled}
                 />
               </div>
             </div>
@@ -332,6 +354,7 @@ export function SettingsFormClient({
                   checked={adsEnabled}
                   onChange={(event) => setAdsEnabled(event.target.checked)}
                   className="size-4 rounded border-[#E8E0D5]"
+                  disabled={settingsDisabled}
                 />
                 <span className="text-sm font-medium">Activar anuncios AdSense</span>
               </label>
@@ -343,7 +366,7 @@ export function SettingsFormClient({
                   value={adsenseClientId}
                   onChange={(event) => setAdsenseClientId(event.target.value)}
                   placeholder="ca-pub-XXXXXXXXXXXXXXXX"
-                  disabled={!adsEnabled}
+                  disabled={!adsEnabled || settingsDisabled}
                 />
               </div>
 
@@ -355,7 +378,7 @@ export function SettingsFormClient({
                     value={adSlotTop}
                     onChange={(event) => setAdSlotTop(event.target.value)}
                     placeholder="1234567890"
-                    disabled={!adsEnabled}
+                    disabled={!adsEnabled || settingsDisabled}
                   />
                   <p className="text-xs text-[#1A1A2E]/50">{AD_SIZE_GUIDE.top}</p>
                 </div>
@@ -366,7 +389,7 @@ export function SettingsFormClient({
                     value={adSlotLeft}
                     onChange={(event) => setAdSlotLeft(event.target.value)}
                     placeholder="1234567891"
-                    disabled={!adsEnabled}
+                    disabled={!adsEnabled || settingsDisabled}
                   />
                   <p className="text-xs text-[#1A1A2E]/50">{AD_SIZE_GUIDE.left}</p>
                 </div>
@@ -377,7 +400,7 @@ export function SettingsFormClient({
                     value={adSlotRight}
                     onChange={(event) => setAdSlotRight(event.target.value)}
                     placeholder="1234567892"
-                    disabled={!adsEnabled}
+                    disabled={!adsEnabled || settingsDisabled}
                   />
                   <p className="text-xs text-[#1A1A2E]/50">{AD_SIZE_GUIDE.right}</p>
                 </div>
@@ -418,16 +441,20 @@ export function SettingsFormClient({
               </div>
             </div>
 
+            {canSave && (
             <Button type="submit" disabled={saving}>
               {saving ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />
                   Guardando…
                 </>
-              ) : (
+              ) : canWriteSettings ? (
                 "Guardar configuración"
+              ) : (
+                "Guardar tarjeta de oferta"
               )}
             </Button>
+            )}
           </form>
         </CardContent>
       </Card>

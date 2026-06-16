@@ -21,10 +21,12 @@ export function AdminProductsList({
   products,
   deleteToken,
   actionToken,
+  readOnly = false,
 }: {
   products: ProductWithPrices[];
   deleteToken: string;
   actionToken: string;
+  readOnly?: boolean;
 }) {
   const [items, setItems] = useState(products);
   const [query, setQuery] = useState("");
@@ -142,42 +144,53 @@ export function AdminProductsList({
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant={product.isFeatured ? "default" : "outline"}
-                    disabled={togglingId === product.id}
-                    onClick={() => toggleFeatured(product)}
-                    title={
-                      product.isFeatured
-                        ? "Quitar de destacados"
-                        : "Mostrar primero en la web"
-                    }
-                  >
-                    {togglingId === product.id ? (
-                      <Loader2 className="size-4 animate-spin" />
-                    ) : (
-                      <Star
-                        className={cn(
-                          "size-4",
-                          product.isFeatured && "fill-current",
+                  {!readOnly && (
+                    <>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant={product.isFeatured ? "default" : "outline"}
+                        disabled={togglingId === product.id}
+                        onClick={() => toggleFeatured(product)}
+                        title={
+                          product.isFeatured
+                            ? "Quitar de destacados"
+                            : "Mostrar primero en la web"
+                        }
+                      >
+                        {togglingId === product.id ? (
+                          <Loader2 className="size-4 animate-spin" />
+                        ) : (
+                          <Star
+                            className={cn(
+                              "size-4",
+                              product.isFeatured && "fill-current",
+                            )}
+                          />
                         )}
+                        {product.isFeatured ? "Destacado" : "Destacar"}
+                      </Button>
+
+                      <Button asChild variant="outline" size="sm">
+                        <Link href={`/admin/productos/${product.id}`}>
+                          <Pencil className="size-4" />
+                          Editar
+                        </Link>
+                      </Button>
+
+                      <DeleteProductButton
+                        productId={product.id}
+                        deleteToken={deleteToken}
                       />
-                    )}
-                    {product.isFeatured ? "Destacado" : "Destacar"}
-                  </Button>
-
-                  <Button asChild variant="outline" size="sm">
-                    <Link href={`/admin/productos/${product.id}`}>
-                      <Pencil className="size-4" />
-                      Editar
-                    </Link>
-                  </Button>
-
-                  <DeleteProductButton
-                    productId={product.id}
-                    deleteToken={deleteToken}
-                  />
+                    </>
+                  )}
+                  {readOnly && (
+                    <Button asChild variant="outline" size="sm">
+                      <Link href={`/admin/productos/${product.id}`}>
+                        Ver
+                      </Link>
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>

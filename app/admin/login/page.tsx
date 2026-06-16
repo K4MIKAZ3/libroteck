@@ -25,6 +25,16 @@ function AdminLoginForm() {
         <form action="/api/admin/login" method="POST" className="space-y-4">
           <input type="hidden" name="next" value={nextPath} />
           <div className="space-y-2">
+            <Label htmlFor="username">Usuario</Label>
+            <Input
+              id="username"
+              name="username"
+              defaultValue="admin"
+              autoComplete="username"
+              required
+            />
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="password">Contraseña</Label>
             <Input
               id="password"
@@ -34,7 +44,7 @@ function AdminLoginForm() {
             />
           </div>
           {hasError && (
-            <p className="text-sm text-red-600">Contraseña incorrecta</p>
+            <p className="text-sm text-red-600">Usuario o contraseña incorrectos</p>
           )}
           {isRateLimited && (
             <p className="text-sm text-red-600">

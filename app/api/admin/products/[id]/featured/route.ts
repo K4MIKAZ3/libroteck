@@ -14,7 +14,7 @@ export async function PATCH(
     };
 
     try {
-      await requireAdminRequest(request, body._token, "products");
+      await requireAdminRequest(request, body._token, "products", "products:write");
     } catch {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }

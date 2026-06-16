@@ -3,6 +3,7 @@ import { Lock, Plus, Settings, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { HOME_PATH } from "@/lib/routes";
+import type { AdminCapabilities } from "@/lib/auth/capabilities";
 import type { StoreSlug } from "@/lib/store/context";
 
 type AdminNavProps = {
@@ -10,6 +11,7 @@ type AdminNavProps = {
   brandPrimary: string;
   brandAccent: string;
   storeSlug: StoreSlug;
+  capabilities?: AdminCapabilities;
 };
 
 const links = [
@@ -23,7 +25,10 @@ export function AdminNav({
   brandPrimary,
   brandAccent,
   storeSlug,
+  capabilities,
 }: AdminNavProps) {
+  const canCreateProducts = capabilities?.canWriteProducts ?? true;
+
   return (
     <div className="mb-8 space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -40,12 +45,14 @@ export function AdminNav({
           <Button asChild variant="outline">
             <Link href={HOME_PATH}>Ver tienda</Link>
           </Button>
-          <Button asChild>
-            <Link href="/admin/productos/nuevo">
-              <Plus className="size-4" />
-              Nuevo producto
-            </Link>
-          </Button>
+          {canCreateProducts && (
+            <Button asChild>
+              <Link href="/admin/productos/nuevo">
+                <Plus className="size-4" />
+                Nuevo producto
+              </Link>
+            </Button>
+          )}
           <Button asChild variant="secondary">
             <Link href="/api/admin/logout">Salir</Link>
           </Button>

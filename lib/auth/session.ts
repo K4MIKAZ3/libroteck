@@ -1,9 +1,17 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies, headers } from "next/headers";
+import { isAdminRole, type AdminRole } from "@/lib/auth/roles";
 
 export const ADMIN_COOKIE_NAME = "libroteck_admin";
 const SESSION_DURATION = 60 * 60 * 24 * 7;
 const MIN_SECRET_LENGTH = 32;
+
+export type AdminSessionPayload = {
+  userId: number;
+  username: string;
+  role: AdminRole;
+  storeId: number;
+};
 
 function readAdminSecret(): string | null {
   const secret = process.env.ADMIN_SECRET?.trim();
@@ -121,12 +129,61 @@ export function setAdminAuthCookie(
   cookieStore.set(ADMIN_COOKIE_NAME, token, getAdminCookieOptions(host));
 }
 
-export async function createAdminSessionToken() {
-  return new SignJWT({ role: "admin" })
+export async function createAdminSessionToken(user: AdminSessionPayload) {
+  return new SignJWT({
+    sub: String(user.userId),
+    username: user.username,
+    role: user.role,
+    storeId: user.storeId,
+  })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(`${SESSION_DURATION}s`)
     .sign(getAdminSecret());
+}
+
+export function parseAdminSessionPayload(
+  payload: Record<string, unknown>,
+): AdminSessionPayload | null {
+  const userId = Number(payload.sub);
+  const username =
+    typeof payload.username === "string" ? payload.username : null;
+  const role = typeof payload.role === "string" ? payload.role : null;
+  const storeId = Number(payload.storeId);
+
+  if (
+    !Number.isFinite(userId) ||
+    !username ||
+    !isAdminRole(role) ||
+    !Number.isFinite(storeId)
+  ) {
+    return null;
+  }
+
+  return { userId, username, role, storeId };
+}
+
+export async function parseAdminSessionToken(
+  token?: string | null,
+): Promise<AdminSessionPayload | null> {
+  if (!token) {
+    return null;
+  }
+
+  const secret = readAdminSecret();
+  if (!secret) {
+    return null;
+  }
+
+  try {
+    const { payload } = await jwtVerify(
+      token,
+      new TextEncoder().encode(secret),
+    );
+    return parseAdminSessionPayload(payload as Record<string, unknown>);
+  } catch {
+    return null;
+  }
 }
 
 export function readAdminCookieTokens(
@@ -157,7 +214,7 @@ export async function verifyAdminSessionFromCookieHeader(
   cookieHeader: string | null | undefined,
 ) {
   for (const token of readAdminCookieTokens(cookieHeader)) {
-    if (await verifyAdminSessionToken(token)) {
+    if (await parseAdminSessionToken(token)) {
       return true;
     }
   }
@@ -166,28 +223,42 @@ export async function verifyAdminSessionFromCookieHeader(
 }
 
 export async function verifyAdminSessionToken(token?: string | null) {
-  if (!token) {
-    return false;
-  }
-
-  const secret = readAdminSecret();
-  if (!secret) {
-    return false;
-  }
-
-  try {
-    const { payload } = await jwtVerify(
-      token,
-      new TextEncoder().encode(secret),
-    );
-    return payload.role === "admin";
-  } catch {
-    return false;
-  }
+  return Boolean(await parseAdminSessionToken(token));
 }
 
-export async function createAdminSession() {
-  const token = await createAdminSessionToken();
+export async function getAdminSessionFromCookieHeader(
+  cookieHeader: string | null | undefined,
+) {
+  for (const token of readAdminCookieTokens(cookieHeader)) {
+    const session = await parseAdminSessionToken(token);
+    if (session) {
+      return session;
+    }
+  }
+
+  return null;
+}
+
+export async function getAdminSession() {
+  const cookieStore = await cookies();
+  const headerStore = await headers();
+  const tokens = [
+    cookieStore.get(ADMIN_COOKIE_NAME)?.value,
+    ...readAdminCookieTokens(headerStore.get("cookie")),
+  ].filter((token): token is string => Boolean(token));
+
+  for (const token of tokens) {
+    const session = await parseAdminSessionToken(token);
+    if (session) {
+      return session;
+    }
+  }
+
+  return null;
+}
+
+export async function createAdminSession(user: AdminSessionPayload) {
+  const token = await createAdminSessionToken(user);
   const cookieStore = await cookies();
   const host = (await headers()).get("host");
   setAdminAuthCookie(cookieStore, token, host);
@@ -201,20 +272,7 @@ export async function clearAdminSession() {
 }
 
 export async function isAdminAuthenticated() {
-  const cookieStore = await cookies();
-  const headerStore = await headers();
-  const tokens = [
-    cookieStore.get(ADMIN_COOKIE_NAME)?.value,
-    ...readAdminCookieTokens(headerStore.get("cookie")),
-  ].filter((token): token is string => Boolean(token));
-
-  for (const token of tokens) {
-    if (await verifyAdminSessionToken(token)) {
-      return true;
-    }
-  }
-
-  return false;
+  return Boolean(await getAdminSession());
 }
 
 export async function requireAdmin() {

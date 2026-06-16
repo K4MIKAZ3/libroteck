@@ -64,6 +64,7 @@ type HeroOfferEditorProps = {
   onSubtitleChange: (value: string) => void;
   onBackgroundImageChange: (value: string) => void;
   uploadToken: string;
+  disabled?: boolean;
 };
 
 function normalizePlatformName(name: string) {
@@ -119,6 +120,7 @@ export function HeroOfferEditor({
   onSubtitleChange,
   onBackgroundImageChange,
   uploadToken,
+  disabled = false,
 }: HeroOfferEditorProps) {
   const subtitlePresets =
     storeSlug === "streaming"
@@ -203,8 +205,12 @@ export function HeroOfferEditor({
         <Label htmlFor="heroPlatformSelect">
           Plataforma o producto destacado
         </Label>
-        <Select value={platformMode} onValueChange={handlePlatformChange}>
-          <SelectTrigger id="heroPlatformSelect">
+        <Select
+          value={platformMode}
+          onValueChange={handlePlatformChange}
+          disabled={disabled}
+        >
+          <SelectTrigger id="heroPlatformSelect" disabled={disabled}>
             <SelectValue placeholder="Elige del catálogo o personaliza" />
           </SelectTrigger>
           <SelectContent>
@@ -233,6 +239,7 @@ export function HeroOfferEditor({
               onServiceNameChange(event.target.value);
             }}
             placeholder="Netflix"
+            disabled={disabled}
           />
           <p className="text-xs text-[#1A1A2E]/55">
             Primera parte del título grande.
@@ -245,6 +252,7 @@ export function HeroOfferEditor({
             value={heroOfferPrice}
             onChange={(event) => onPriceChange(event.target.value)}
             placeholder="$3.99"
+            disabled={disabled}
           />
           <p className="text-xs text-[#1A1A2E]/55">
             Segunda parte: se muestra como &quot;desde $3.99&quot;.
@@ -261,8 +269,12 @@ export function HeroOfferEditor({
 
       <div className="space-y-2">
         <Label htmlFor="heroSubtitleSelect">Texto secundario del banner</Label>
-        <Select value={subtitleMode} onValueChange={handleSubtitlePresetChange}>
-          <SelectTrigger id="heroSubtitleSelect">
+        <Select
+          value={subtitleMode}
+          onValueChange={handleSubtitlePresetChange}
+          disabled={disabled}
+        >
+          <SelectTrigger id="heroSubtitleSelect" disabled={disabled}>
             <SelectValue placeholder="Elige un texto o personaliza" />
           </SelectTrigger>
           <SelectContent>
@@ -286,6 +298,7 @@ export function HeroOfferEditor({
             onSubtitleChange(event.target.value);
           }}
           placeholder="Disney+, HBO Max y más plataformas"
+          disabled={disabled}
         />
         <p className="text-xs text-[#1A1A2E]/55">
           Línea debajo del título, por ejemplo otras plataformas incluidas.
@@ -301,6 +314,7 @@ export function HeroOfferEditor({
         placeholder="Deja vacío para usar el color amarillo/naranja"
         emptyPreviewText="Degradado por defecto"
         allowClear
+        disabled={disabled}
       />
 
       <div className="max-w-sm">

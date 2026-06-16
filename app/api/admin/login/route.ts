@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
 import {
-  ADMIN_COOKIE_NAME,
   createAdminSessionToken,
   getHostFromRequest,
   setAdminAuthCookie,
-  verifyAdminPassword,
+  verifyAdminLogin,
 } from "@/lib/auth";
 import {
   checkLoginRateLimit,
@@ -14,14 +13,16 @@ import {
 
 async function createLoginResponse(
   request: Request,
+  username: string,
   password: string,
   nextPath: string,
 ) {
-  if (!(await verifyAdminPassword(password, request))) {
+  const session = await verifyAdminLogin(username, password, request);
+  if (!session) {
     return null;
   }
 
-  const token = await createAdminSessionToken();
+  const token = await createAdminSessionToken(session);
   const destination = nextPath.startsWith("/admin") ? nextPath : "/admin/productos";
   const response = NextResponse.redirect(new URL(destination, request.url));
   setAdminAuthCookie(response.cookies, token, getHostFromRequest(request));
@@ -54,22 +55,31 @@ export async function POST(request: Request) {
 
   const contentType = request.headers.get("content-type") ?? "";
   let password = "";
+  let username = "admin";
   let nextPath = "/admin/productos";
 
   if (contentType.includes("application/json")) {
     const body = (await request.json()) as {
       password?: string;
+      username?: string;
       next?: string;
     };
     password = body.password ?? "";
+    username = body.username ?? username;
     nextPath = body.next ?? nextPath;
   } else {
     const formData = await request.formData();
     password = String(formData.get("password") ?? "");
+    username = String(formData.get("username") ?? username);
     nextPath = String(formData.get("next") ?? nextPath);
   }
 
-  const response = await createLoginResponse(request, password, nextPath);
+  const response = await createLoginResponse(
+    request,
+    username,
+    password,
+    nextPath,
+  );
 
   if (!response) {
     recordLoginFailure(request);

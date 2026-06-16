@@ -4,13 +4,15 @@ import {
   createAdminSessionToken,
   getHostFromRequest,
   setAdminAuthCookie,
-  verifyAdminPassword,
+  verifyAdminLogin,
 } from "@/lib/auth";
-import { requireAdminMutation } from "@/lib/auth/request";
+import { requireAdminSession } from "@/lib/auth/request";
+import { updateAdminUserPassword } from "@/lib/db/admin-users";
 import { updateAdminPassword } from "@/lib/db/queries";
 
 export async function PUT(request: Request) {
   try {
+    const session = await requireAdminSession(request);
     const body = (await request.json()) as {
       currentPassword?: string;
       newPassword?: string;
@@ -18,9 +20,8 @@ export async function PUT(request: Request) {
       _token?: string;
     };
 
-    try {
-      await requireAdminMutation(request, body._token, "password");
-    } catch {
+    const { verifyFormToken } = await import("@/lib/auth/form-token");
+    if (!(await verifyFormToken(body._token, "password"))) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
@@ -42,23 +43,49 @@ export async function PUT(request: Request) {
       );
     }
 
-    if (!(await verifyAdminPassword(currentPassword, request))) {
-      return NextResponse.json(
-        { error: "La contraseña actual no es correcta" },
-        { status: 400 },
+    if (session.userId > 0) {
+      const valid = await verifyAdminLogin(
+        session.username,
+        currentPassword,
+        request,
+      );
+      if (!valid) {
+        return NextResponse.json(
+          { error: "La contraseña actual no es correcta" },
+          { status: 400 },
+        );
+      }
+
+      await updateAdminUserPassword(session.userId, newPassword, request);
+    } else {
+      const valid = await verifyAdminLogin("admin", currentPassword, request);
+      if (!valid) {
+        return NextResponse.json(
+          { error: "La contraseña actual no es correcta" },
+          { status: 400 },
+        );
+      }
+      await updateAdminPassword(newPassword, request);
+    }
+
+    revalidatePath("/admin/seguridad");
+
+    const refreshedSession = await verifyAdminLogin(
+      session.username,
+      newPassword,
+      request,
+    );
+    const response = NextResponse.json({ success: true });
+
+    if (refreshedSession) {
+      const token = await createAdminSessionToken(refreshedSession);
+      setAdminAuthCookie(
+        response.cookies,
+        token,
+        getHostFromRequest(request),
       );
     }
 
-    await updateAdminPassword(newPassword, request);
-    revalidatePath("/admin/seguridad");
-
-    const token = await createAdminSessionToken();
-    const response = NextResponse.json({ success: true });
-    setAdminAuthCookie(
-      response.cookies,
-      token,
-      getHostFromRequest(request),
-    );
     return response;
   } catch (error) {
     console.error("Failed to update admin password", error);

@@ -59,11 +59,13 @@ export function ProductForm({
   saveToken,
   storeSlug,
   storeId,
+  readOnly = false,
 }: {
   product?: ProductWithPrices;
   saveToken: string;
   storeSlug: StoreSlug;
   storeId: number;
+  readOnly?: boolean;
 }) {
   const router = useRouter();
   const isStreamingStore = storeSlug === "streaming";
@@ -220,12 +222,22 @@ export function ProductForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="grid gap-6 xl:grid-cols-[1fr_320px]">
+    <form
+      onSubmit={readOnly ? (event) => event.preventDefault() : handleSubmit}
+      className="grid gap-6 xl:grid-cols-[1fr_320px]"
+    >
       <Card>
         <CardHeader>
-          <CardTitle>{product ? "Editar producto" : "Nuevo producto"}</CardTitle>
+          <CardTitle>
+            {readOnly
+              ? "Ver producto"
+              : product
+                ? "Editar producto"
+                : "Nuevo producto"}
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-5">
+          <fieldset disabled={readOnly} className="min-w-0 space-y-5 border-0 p-0">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="name">Nombre</Label>
@@ -413,14 +425,17 @@ export function ProductForm({
           {error && <p className="text-sm text-red-600">{error}</p>}
 
           <div className="flex gap-3">
-            <Button type="submit" disabled={saving}>
-              {saving && <Loader2 className="size-4 animate-spin" />}
-              Guardar producto
-            </Button>
+            {!readOnly && (
+              <Button type="submit" disabled={saving}>
+                {saving && <Loader2 className="size-4 animate-spin" />}
+                Guardar producto
+              </Button>
+            )}
             <Button type="button" variant="outline" onClick={() => router.back()}>
-              Cancelar
+              {readOnly ? "Volver" : "Cancelar"}
             </Button>
           </div>
+          </fieldset>
         </CardContent>
       </Card>
 

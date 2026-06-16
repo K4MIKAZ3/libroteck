@@ -16,6 +16,7 @@ export function ImageUpload({
   placeholder = "URL de la imagen o sube un archivo",
   allowClear = false,
   emptyPreviewText = "Sin imagen",
+  disabled = false,
 }: {
   value: string;
   onChange: (url: string) => void;
@@ -25,6 +26,7 @@ export function ImageUpload({
   placeholder?: string;
   allowClear?: boolean;
   emptyPreviewText?: string;
+  disabled?: boolean;
 }) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -86,10 +88,11 @@ export function ImageUpload({
             value={value}
             onChange={(event) => onChange(event.target.value)}
             placeholder={placeholder}
+            disabled={disabled}
           />
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" asChild disabled={uploading}>
-              <label className="cursor-pointer">
+            <Button variant="outline" asChild disabled={uploading || disabled}>
+              <label className={disabled ? "pointer-events-none opacity-50" : "cursor-pointer"}>
                 {uploading ? (
                   <Loader2 className="size-4 animate-spin" />
                 ) : (
@@ -109,6 +112,7 @@ export function ImageUpload({
                 type="button"
                 variant="outline"
                 onClick={() => onChange("")}
+                disabled={disabled}
               >
                 Usar color por defecto
               </Button>

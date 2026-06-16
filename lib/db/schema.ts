@@ -104,9 +104,35 @@ export const settings = pgTable(
   (table) => [uniqueIndex("settings_store_id_unique").on(table.storeId)],
 );
 
+export const adminUsers = pgTable(
+  "admin_users",
+  {
+    id: serial("id").primaryKey(),
+    storeId: integer("store_id")
+      .notNull()
+      .references(() => stores.id, { onDelete: "cascade" }),
+    username: text("username").notNull(),
+    passwordHash: text("password_hash").notNull(),
+    role: text("role", {
+      enum: ["superadmin", "privileged", "viewer"],
+    }).notNull(),
+    isActive: boolean("is_active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("admin_users_store_username_unique").on(
+      table.storeId,
+      table.username,
+    ),
+  ],
+);
+
 export const storesRelations = relations(stores, ({ many }) => ({
   products: many(products),
   settings: many(settings),
+  adminUsers: many(adminUsers),
 }));
 
 export const productsRelations = relations(products, ({ one, many }) => ({
@@ -131,9 +157,17 @@ export const settingsRelations = relations(settings, ({ one }) => ({
   }),
 }));
 
+export const adminUsersRelations = relations(adminUsers, ({ one }) => ({
+  store: one(stores, {
+    fields: [adminUsers.storeId],
+    references: [stores.id],
+  }),
+}));
+
 export type Store = typeof stores.$inferSelect;
 export type Product = typeof products.$inferSelect;
 export type ProductPrice = typeof productPrices.$inferSelect;
 export type Settings = typeof settings.$inferSelect;
+export type AdminUser = typeof adminUsers.$inferSelect;
 
 export type ProductWithPrices = Product & { prices: ProductPrice[] };
