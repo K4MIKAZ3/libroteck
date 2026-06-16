@@ -19,6 +19,10 @@ export type CartItem = {
   quantity: number;
   unitPrice: number;
   currency: string;
+  isCombo?: boolean;
+  comboLines?: Array<{ name: string; unitPrice: number }>;
+  comboDiscountPercent?: number;
+  comboSubtotal?: number;
 };
 
 type CartContextValue = {
@@ -60,6 +64,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const addItem = useCallback(
     (item: Omit<CartItem, "quantity">, quantity = 1) => {
       setItems((current) => {
+        if (item.isCombo) {
+          return [...current, { ...item, quantity: 1 }];
+        }
+
         const existing = current.find((entry) => entry.productId === item.productId);
         if (existing) {
           return current.map((entry) =>
@@ -84,9 +92,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     setItems((current) =>
-      current.map((entry) =>
-        entry.productId === productId ? { ...entry, quantity } : entry,
-      ),
+      current.map((entry) => {
+        if (entry.productId !== productId) {
+          return entry;
+        }
+        if (entry.isCombo) {
+          return entry;
+        }
+        return { ...entry, quantity };
+      }),
     );
   }, []);
 

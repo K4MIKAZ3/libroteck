@@ -19,6 +19,11 @@ export const stores = pgTable("stores", {
   heroBadge: text("hero_badge").notNull().default(""),
   heroOfferTitle: text("hero_offer_title").notNull().default(""),
   heroOfferSubtitle: text("hero_offer_subtitle").notNull().default(""),
+  heroOfferBackgroundImageUrl: text("hero_offer_background_image_url")
+    .notNull()
+    .default(""),
+  heroOfferServiceName: text("hero_offer_service_name").notNull().default(""),
+  heroOfferPrice: text("hero_offer_price").notNull().default(""),
   catalogTitle: text("catalog_title").notNull().default("Catálogo destacado"),
   catalogSubtitle: text("catalog_subtitle").notNull().default(""),
   searchPlaceholder: text("search_placeholder").notNull().default(""),
@@ -76,6 +81,9 @@ export const settings = pgTable(
     welcomeMessage: text("welcome_message")
       .notNull()
       .default("Elige tu país y ordena por WhatsApp"),
+    whatsappOrderTemplate: text("whatsapp_order_template")
+      .notNull()
+      .default(""),
     adminPasswordHash: text("admin_password_hash"),
     promoEnabled: boolean("promo_enabled").notNull().default(false),
     promoTitle: text("promo_title").notNull().default(""),

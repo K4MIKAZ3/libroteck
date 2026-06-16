@@ -11,7 +11,11 @@ export async function POST(request: Request) {
   try {
     await requireAdminRequest(request, formToken, "products");
   } catch {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    try {
+      await requireAdminRequest(request, formToken, "settings");
+    } catch {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
   }
 
   const file = formData.get("file");

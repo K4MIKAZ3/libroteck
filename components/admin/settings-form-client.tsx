@@ -7,16 +7,24 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import type { Settings } from "@/lib/db/schema";
+import type { Settings, Store } from "@/lib/db/schema";
+import {
+  DEFAULT_WHATSAPP_ORDER_TEMPLATE,
+  WHATSAPP_TEMPLATE_PLACEHOLDERS,
+} from "@/lib/whatsapp/message";
 import { AD_NETWORK_GUIDE, AD_SIZE_GUIDE } from "@/lib/ads/config";
+import { ImageUpload } from "@/components/admin/image-upload";
+import { HeroOfferCard } from "@/components/marketing/hero-offer-card";
 
 type SettingsFormClientProps = {
   initialSettings: Settings;
+  initialStore: Store;
   saveToken: string;
 };
 
 export function SettingsFormClient({
   initialSettings,
+  initialStore,
   saveToken,
 }: SettingsFormClientProps) {
   const [whatsappNumber, setWhatsappNumber] = useState(
@@ -25,6 +33,9 @@ export function SettingsFormClient({
   const [storeName, setStoreName] = useState(initialSettings.storeName);
   const [welcomeMessage, setWelcomeMessage] = useState(
     initialSettings.welcomeMessage,
+  );
+  const [whatsappOrderTemplate, setWhatsappOrderTemplate] = useState(
+    initialSettings.whatsappOrderTemplate || DEFAULT_WHATSAPP_ORDER_TEMPLATE,
   );
   const [promoEnabled, setPromoEnabled] = useState(initialSettings.promoEnabled);
   const [promoTitle, setPromoTitle] = useState(initialSettings.promoTitle);
@@ -40,6 +51,19 @@ export function SettingsFormClient({
   const [adSlotTop, setAdSlotTop] = useState(initialSettings.adSlotTop);
   const [adSlotLeft, setAdSlotLeft] = useState(initialSettings.adSlotLeft);
   const [adSlotRight, setAdSlotRight] = useState(initialSettings.adSlotRight);
+  const [heroOfferServiceName, setHeroOfferServiceName] = useState(
+    initialStore.heroOfferServiceName || initialStore.heroOfferTitle.split(" desde ")[0] || "",
+  );
+  const [heroOfferPrice, setHeroOfferPrice] = useState(
+    initialStore.heroOfferPrice ||
+      initialStore.heroOfferTitle.split(" desde ").slice(1).join(" desde ") ||
+      "",
+  );
+  const [heroOfferSubtitle, setHeroOfferSubtitle] = useState(
+    initialStore.heroOfferSubtitle,
+  );
+  const [heroOfferBackgroundImageUrl, setHeroOfferBackgroundImageUrl] =
+    useState(initialStore.heroOfferBackgroundImageUrl);
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState<{
     type: "success" | "error";
@@ -60,6 +84,7 @@ export function SettingsFormClient({
           whatsappNumber,
           storeName,
           welcomeMessage,
+          whatsappOrderTemplate,
           promoEnabled,
           promoTitle,
           promoMessage,
@@ -70,6 +95,10 @@ export function SettingsFormClient({
           adSlotTop,
           adSlotLeft,
           adSlotRight,
+          heroOfferServiceName,
+          heroOfferPrice,
+          heroOfferSubtitle,
+          heroOfferBackgroundImageUrl,
           _token: saveToken,
         }),
       });
@@ -77,6 +106,7 @@ export function SettingsFormClient({
       const data = (await response.json()) as {
         success?: boolean;
         settings?: Settings;
+        store?: Store;
         error?: string;
       };
 
@@ -88,6 +118,9 @@ export function SettingsFormClient({
         setWhatsappNumber(data.settings.whatsappNumber);
         setStoreName(data.settings.storeName);
         setWelcomeMessage(data.settings.welcomeMessage);
+        setWhatsappOrderTemplate(
+          data.settings.whatsappOrderTemplate || DEFAULT_WHATSAPP_ORDER_TEMPLATE,
+        );
         setPromoEnabled(data.settings.promoEnabled);
         setPromoTitle(data.settings.promoTitle);
         setPromoMessage(data.settings.promoMessage);
@@ -98,6 +131,13 @@ export function SettingsFormClient({
         setAdSlotTop(data.settings.adSlotTop);
         setAdSlotLeft(data.settings.adSlotLeft);
         setAdSlotRight(data.settings.adSlotRight);
+      }
+
+      if (data.store) {
+        setHeroOfferServiceName(data.store.heroOfferServiceName);
+        setHeroOfferPrice(data.store.heroOfferPrice);
+        setHeroOfferSubtitle(data.store.heroOfferSubtitle);
+        setHeroOfferBackgroundImageUrl(data.store.heroOfferBackgroundImageUrl);
       }
 
       setFeedback({
@@ -147,6 +187,35 @@ export function SettingsFormClient({
                 Incluye código de país sin + ni espacios.
               </p>
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="whatsappOrderTemplate">
+                Mensaje de pedido por WhatsApp
+              </Label>
+              <Textarea
+                id="whatsappOrderTemplate"
+                value={whatsappOrderTemplate}
+                onChange={(event) =>
+                  setWhatsappOrderTemplate(event.target.value)
+                }
+                rows={10}
+                className="font-mono text-sm"
+              />
+              <p className="text-xs text-[#1A1A2E]/60">
+                Variables disponibles:{" "}
+                {WHATSAPP_TEMPLATE_PLACEHOLDERS.join(", ")}.{" "}
+                <button
+                  type="button"
+                  className="text-[#1E3A5F] underline underline-offset-2"
+                  onClick={() =>
+                    setWhatsappOrderTemplate(DEFAULT_WHATSAPP_ORDER_TEMPLATE)
+                  }
+                >
+                  Restaurar mensaje por defecto
+                </button>
+              </p>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="storeName">Nombre de la tienda</Label>
               <Input
@@ -165,6 +234,77 @@ export function SettingsFormClient({
                 rows={3}
                 required
               />
+            </div>
+
+            <div className="rounded-xl border border-[#E8E0D5] bg-[#FAF7F2]/60 p-4 space-y-4">
+              <div>
+                <p className="font-medium text-[#1E3A5F]">
+                  Banner principal (tarjeta amarilla)
+                </p>
+                <p className="mt-1 text-xs text-[#1A1A2E]/60">
+                  Aparece a la derecha del hero en pantallas grandes. Puedes usar
+                  el degradado por defecto o subir una imagen de fondo.
+                </p>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="heroOfferServiceName">Plataforma / cuenta</Label>
+                  <Input
+                    id="heroOfferServiceName"
+                    value={heroOfferServiceName}
+                    onChange={(event) =>
+                      setHeroOfferServiceName(event.target.value)
+                    }
+                    placeholder="Netflix"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="heroOfferPrice">Precio destacado</Label>
+                  <Input
+                    id="heroOfferPrice"
+                    value={heroOfferPrice}
+                    onChange={(event) => setHeroOfferPrice(event.target.value)}
+                    placeholder="$3.99"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="heroOfferSubtitle">Texto secundario</Label>
+                <Input
+                  id="heroOfferSubtitle"
+                  value={heroOfferSubtitle}
+                  onChange={(event) => setHeroOfferSubtitle(event.target.value)}
+                  placeholder="Disney+, HBO Max y más plataformas"
+                />
+              </div>
+
+              <ImageUpload
+                label="Fondo del banner (opcional)"
+                value={heroOfferBackgroundImageUrl}
+                onChange={setHeroOfferBackgroundImageUrl}
+                uploadToken={saveToken}
+                previewClassName="aspect-[16/10] max-w-[240px]"
+                placeholder="Deja vacío para usar el color amarillo/naranja"
+                emptyPreviewText="Degradado por defecto"
+                allowClear
+              />
+
+              <div className="max-w-sm">
+                <p className="mb-2 text-xs font-medium text-[#1A1A2E]/60">
+                  Vista previa
+                </p>
+                <HeroOfferCard
+                  store={{
+                    heroOfferServiceName,
+                    heroOfferPrice,
+                    heroOfferTitle: "",
+                    heroOfferSubtitle,
+                    heroOfferBackgroundImageUrl,
+                  }}
+                />
+              </div>
             </div>
 
             <div className="rounded-xl border border-[#E8E0D5] bg-[#FAF7F2]/60 p-4 space-y-4">

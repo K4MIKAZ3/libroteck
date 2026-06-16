@@ -26,7 +26,11 @@ export default async function CartPage() {
       <h1 className="font-heading mb-8 text-3xl font-black text-[#0b1020]">
         Tu carrito
       </h1>
-      <CartView whatsappNumber={settings?.whatsappNumber ?? "5212345678900"} />
+      <CartView
+        whatsappNumber={settings?.whatsappNumber ?? "5212345678900"}
+        storeName={settings?.storeName}
+        whatsappOrderTemplate={settings?.whatsappOrderTemplate}
+      />
     </StoreShell>
   );
 }

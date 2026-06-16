@@ -11,10 +11,20 @@ export function ImageUpload({
   value,
   onChange,
   uploadToken,
+  label = "Portada",
+  previewClassName = "aspect-[3/4] max-w-[160px]",
+  placeholder = "URL de la imagen o sube un archivo",
+  allowClear = false,
+  emptyPreviewText = "Sin imagen",
 }: {
   value: string;
   onChange: (url: string) => void;
   uploadToken?: string;
+  label?: string;
+  previewClassName?: string;
+  placeholder?: string;
+  allowClear?: boolean;
+  emptyPreviewText?: string;
 }) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,14 +68,16 @@ export function ImageUpload({
 
   return (
     <div className="space-y-3">
-      <Label>Portada</Label>
+      <Label>{label}</Label>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
-        <div className="relative aspect-[3/4] w-full max-w-[160px] overflow-hidden rounded-xl border border-[#E8E0D5] bg-[#FAF7F2]">
+        <div
+          className={`relative w-full overflow-hidden rounded-xl border border-[#E8E0D5] bg-[#FAF7F2] ${previewClassName}`}
+        >
           {value ? (
-            <Image src={value} alt="Portada" fill className="object-cover" />
+            <Image src={value} alt={label} fill className="object-cover" />
           ) : (
-            <div className="flex h-full items-center justify-center text-sm text-[#1A1A2E]/40">
-              Sin imagen
+            <div className="flex h-full min-h-[120px] items-center justify-center text-sm text-[#1A1A2E]/40">
+              {emptyPreviewText}
             </div>
           )}
         </div>
@@ -73,9 +85,9 @@ export function ImageUpload({
           <Input
             value={value}
             onChange={(event) => onChange(event.target.value)}
-            placeholder="URL de la portada o sube un archivo"
+            placeholder={placeholder}
           />
-          <div>
+          <div className="flex flex-wrap gap-2">
             <Button variant="outline" asChild disabled={uploading}>
               <label className="cursor-pointer">
                 {uploading ? (
@@ -92,6 +104,15 @@ export function ImageUpload({
                 />
               </label>
             </Button>
+            {allowClear && value ? (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onChange("")}
+              >
+                Usar color por defecto
+              </Button>
+            ) : null}
           </div>
           {error && <p className="text-sm text-red-600">{error}</p>}
         </div>

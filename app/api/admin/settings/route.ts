@@ -2,7 +2,7 @@ import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { ADMIN_COOKIE_NAME, verifyAdminSessionToken } from "@/lib/auth";
 import { createFormToken, verifyFormToken } from "@/lib/auth/form-token";
-import { upsertSettings } from "@/lib/db/queries";
+import { upsertSettings, updateStoreHeroOffer } from "@/lib/db/queries";
 
 function getCookieToken(request: Request) {
   const cookieHeader = request.headers.get("cookie");
@@ -34,6 +34,7 @@ type SettingsInput = {
   whatsappNumber?: string;
   storeName?: string;
   welcomeMessage?: string;
+  whatsappOrderTemplate?: string;
   promoEnabled?: boolean;
   promoTitle?: string;
   promoMessage?: string;
@@ -44,6 +45,10 @@ type SettingsInput = {
   adSlotTop?: string;
   adSlotLeft?: string;
   adSlotRight?: string;
+  heroOfferServiceName?: string;
+  heroOfferPrice?: string;
+  heroOfferSubtitle?: string;
+  heroOfferBackgroundImageUrl?: string;
   _token?: string;
 };
 
@@ -57,6 +62,7 @@ function normalizeSettings(body: SettingsInput) {
     storeName: body.storeName.trim(),
     welcomeMessage:
       body.welcomeMessage?.trim() || "Elige tu país y ordena por WhatsApp",
+    whatsappOrderTemplate: body.whatsappOrderTemplate?.trim() ?? "",
     promoEnabled: Boolean(body.promoEnabled),
     promoTitle: body.promoTitle?.trim() ?? "",
     promoMessage: body.promoMessage?.trim() ?? "",
@@ -96,13 +102,22 @@ export async function PUT(request: Request) {
     }
 
     const settings = await upsertSettings(payload, request);
+    const store = await updateStoreHeroOffer(
+      {
+        heroOfferServiceName: body.heroOfferServiceName ?? "",
+        heroOfferPrice: body.heroOfferPrice ?? "",
+        heroOfferSubtitle: body.heroOfferSubtitle ?? "",
+        heroOfferBackgroundImageUrl: body.heroOfferBackgroundImageUrl ?? "",
+      },
+      request,
+    );
     revalidatePath("/");
     revalidatePath("/home");
     revalidatePath("/admin/configuracion");
     revalidatePath("/carrito");
     revalidatePath("/producto/[slug]", "layout");
 
-    return NextResponse.json({ success: true, settings });
+    return NextResponse.json({ success: true, settings, store });
   } catch (error) {
     console.error("Failed to save settings", error);
     return NextResponse.json(
@@ -124,6 +139,7 @@ export async function POST(request: Request) {
     whatsappNumber: String(formData.get("whatsappNumber") ?? ""),
     storeName: String(formData.get("storeName") ?? ""),
     welcomeMessage: String(formData.get("welcomeMessage") ?? ""),
+    whatsappOrderTemplate: String(formData.get("whatsappOrderTemplate") ?? ""),
     promoEnabled: formData.get("promoEnabled") === "true",
     promoTitle: String(formData.get("promoTitle") ?? ""),
     promoMessage: String(formData.get("promoMessage") ?? ""),
@@ -145,12 +161,23 @@ export async function POST(request: Request) {
 
   try {
     const settings = await upsertSettings(payload, request);
+    const store = await updateStoreHeroOffer(
+      {
+        heroOfferServiceName: String(formData.get("heroOfferServiceName") ?? ""),
+        heroOfferPrice: String(formData.get("heroOfferPrice") ?? ""),
+        heroOfferSubtitle: String(formData.get("heroOfferSubtitle") ?? ""),
+        heroOfferBackgroundImageUrl: String(
+          formData.get("heroOfferBackgroundImageUrl") ?? "",
+        ),
+      },
+      request,
+    );
     revalidatePath("/");
     revalidatePath("/home");
     revalidatePath("/admin/configuracion");
     revalidatePath("/carrito");
     revalidatePath("/producto/[slug]", "layout");
-    return NextResponse.json({ success: true, settings });
+    return NextResponse.json({ success: true, settings, store });
   } catch (error) {
     console.error("Failed to save settings", error);
     return NextResponse.json(

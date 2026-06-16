@@ -15,7 +15,15 @@ import {
 import { buildWhatsAppMessage, buildWhatsAppUrl } from "@/lib/whatsapp/message";
 import { HOME_PATH } from "@/lib/routes";
 
-export function CartView({ whatsappNumber }: { whatsappNumber: string }) {
+export function CartView({
+  whatsappNumber,
+  storeName = "LibroTeck",
+  whatsappOrderTemplate,
+}: {
+  whatsappNumber: string;
+  storeName?: string;
+  whatsappOrderTemplate?: string;
+}) {
   const { items, total, updateQuantity, removeItem, clearCart } = useCart();
   const { country, currency } = useCountry();
 
@@ -41,8 +49,14 @@ export function CartView({ whatsappNumber }: { whatsappNumber: string }) {
       quantity: item.quantity,
       unitPrice: item.unitPrice,
       currency: item.currency,
+      isCombo: item.isCombo,
+      comboLines: item.comboLines,
+      comboDiscountPercent: item.comboDiscountPercent,
+      comboSubtotal: item.comboSubtotal,
     })),
     country,
+    storeName,
+    whatsappOrderTemplate,
   );
   const whatsappUrl = buildWhatsAppUrl(whatsappNumber, message);
 
@@ -63,36 +77,59 @@ export function CartView({ whatsappNumber }: { whatsappNumber: string }) {
               </div>
               <div className="flex flex-1 flex-col justify-between gap-3">
                 <div>
-                  <Link
-                    href={`/producto/${item.slug}`}
-                    className="font-semibold text-[#0b1020] hover:text-[#1f4bff]"
-                  >
-                    {item.name}
-                  </Link>
-                  <p className="text-sm text-[#666]">
-                    {PRODUCT_TYPE_LABELS[item.type as ProductType]}
-                  </p>
+                  {item.isCombo ? (
+                    <p className="font-semibold text-[#0b1020]">{item.name}</p>
+                  ) : (
+                    <Link
+                      href={`/producto/${item.slug}`}
+                      className="font-semibold text-[#0b1020] hover:text-[#1f4bff]"
+                    >
+                      {item.name}
+                    </Link>
+                  )}
+                  {item.isCombo && item.comboLines ? (
+                    <ul className="mt-2 space-y-1 text-xs text-[#666]">
+                      {item.comboLines.map((line) => (
+                        <li key={line.name}>
+                          {line.name} — {formatPrice(line.unitPrice, item.currency)}
+                        </li>
+                      ))}
+                      {item.comboDiscountPercent != null && (
+                        <li className="font-medium text-[#e50914]">
+                          Descuento combo: {item.comboDiscountPercent}%
+                        </li>
+                      )}
+                    </ul>
+                  ) : (
+                    <p className="text-sm text-[#666]">
+                      {PRODUCT_TYPE_LABELS[item.type as ProductType]}
+                    </p>
+                  )}
                 </div>
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="size-8"
-                      onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-                    >
-                      <Minus className="size-4" />
-                    </Button>
-                    <span className="w-8 text-center font-medium">{item.quantity}</span>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="size-8"
-                      onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                    >
-                      <Plus className="size-4" />
-                    </Button>
-                  </div>
+                  {item.isCombo ? (
+                    <span className="text-sm text-[#666]">1 combo</span>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="size-8"
+                        onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                      >
+                        <Minus className="size-4" />
+                      </Button>
+                      <span className="w-8 text-center font-medium">{item.quantity}</span>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="size-8"
+                        onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                      >
+                        <Plus className="size-4" />
+                      </Button>
+                    </div>
+                  )}
                   <div className="flex items-center gap-3">
                     <p className="font-black text-[#1f4bff]">
                       {formatPrice(item.unitPrice * item.quantity, item.currency)}

@@ -68,6 +68,7 @@ export async function getSettings(request?: Request) {
       slug === "streaming"
         ? "Cuentas premium de streaming al mejor precio"
         : "Elige tu país y ordena por WhatsApp",
+    whatsappOrderTemplate: "",
     adminPasswordHash: null,
     promoEnabled: false,
     promoTitle: "",
@@ -94,6 +95,7 @@ export async function upsertSettings(
     whatsappNumber: string;
     storeName: string;
     welcomeMessage: string;
+    whatsappOrderTemplate?: string;
     promoEnabled?: boolean;
     promoTitle?: string;
     promoMessage?: string;
@@ -165,6 +167,58 @@ export async function updateAdminPassword(
     })
     .returning();
   return created;
+}
+
+export async function getStoreRecord(request?: Request) {
+  noStore();
+  const db = await getDb();
+  const storeId = await getStoreIdForRequest(request);
+  const store = await db.query.stores.findFirst({
+    where: eq(stores.id, storeId),
+  });
+
+  if (!store) {
+    throw new Error("Tienda no encontrada");
+  }
+
+  return store;
+}
+
+export async function updateStoreHeroOffer(
+  data: {
+    heroOfferServiceName: string;
+    heroOfferPrice: string;
+    heroOfferSubtitle: string;
+    heroOfferBackgroundImageUrl: string;
+  },
+  request?: Request,
+) {
+  noStore();
+  const db = await getDb();
+  const storeId = await getStoreIdForRequest(request);
+
+  const service = data.heroOfferServiceName.trim();
+  const price = data.heroOfferPrice.trim();
+  const heroOfferTitle =
+    service && price ? `${service} desde ${price}` : service || price;
+
+  const [updated] = await db
+    .update(stores)
+    .set({
+      heroOfferServiceName: service,
+      heroOfferPrice: price,
+      heroOfferSubtitle: data.heroOfferSubtitle.trim(),
+      heroOfferBackgroundImageUrl: data.heroOfferBackgroundImageUrl.trim(),
+      heroOfferTitle,
+    })
+    .where(eq(stores.id, storeId))
+    .returning();
+
+  if (!updated) {
+    throw new Error("No se pudo actualizar el banner");
+  }
+
+  return updated;
 }
 
 export async function getActiveProducts(

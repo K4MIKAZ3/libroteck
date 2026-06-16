@@ -45,6 +45,7 @@ function defaultSettingsForStore(
     welcomeMessage: isStreaming
       ? "Cuentas premium de streaming al mejor precio"
       : "Elige tu país y ordena por WhatsApp",
+    whatsappOrderTemplate: "",
     adminPasswordHash: null,
     promoEnabled: false,
     promoTitle: "",

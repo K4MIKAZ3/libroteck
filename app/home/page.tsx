@@ -1,6 +1,7 @@
 import { CatalogGrid } from "@/components/catalog/catalog-grid";
 import { StoreShell } from "@/components/layout/store-shell";
 import { PromoBannerFromSettings } from "@/components/marketing/promo-banner";
+import { HeroOfferCard } from "@/components/marketing/hero-offer-card";
 import { getActiveProducts } from "@/lib/db/queries";
 import { getStoreContext } from "@/lib/store/context";
 
@@ -11,6 +12,8 @@ export default async function HomePage() {
   const products = await getActiveProducts();
 
   const welcome = settings.welcomeMessage;
+
+  const isStreaming = slug === "streaming";
 
   return (
     <StoreShell store={store} settings={settings} storeSlug={slug}>
@@ -32,24 +35,23 @@ export default async function HomePage() {
             )}
           </h1>
           <p className="mt-5 max-w-xl text-lg leading-relaxed text-[#eef2ff]">
-            Elige tu país, revisa los precios en tu moneda y ordena por WhatsApp
-            en un solo clic.
+            {isStreaming
+              ? "Perfiles individuales de streaming — no cuentas completas. Arma tu combo y ahorra hasta 40%."
+              : "Elige tu país, revisa los precios en tu moneda y ordena por WhatsApp en un solo clic."}
           </p>
+          {isStreaming && (
+            <a
+              href="#arma-tu-combo"
+              className="mt-6 inline-flex rounded-full bg-[#ffd600] px-6 py-3 text-sm font-bold text-[#111] transition hover:bg-[#ffe566]"
+            >
+              Arma tu combo →
+            </a>
+          )}
         </div>
 
         <div className="hidden lg:block">
           <div className="rotate-2 rounded-[30px] border border-white/20 bg-white/10 p-6 shadow-[0_20px_60px_rgba(0,0,0,0.3)] backdrop-blur-md">
-            <div className="flex min-h-[280px] flex-col justify-between rounded-[22px] bg-gradient-to-br from-[#ffd600] to-[#ff7b00] p-8 text-[#111] shadow-[inset_12px_0_rgba(0,0,0,0.13)]">
-              <span className="w-fit rounded-full bg-[#111] px-4 py-2 text-xs font-bold text-white">
-                OFERTA ESPECIAL
-              </span>
-              <div>
-                <h2 className="text-3xl font-black leading-tight">
-                  {store.heroOfferTitle}
-                </h2>
-                <p className="mt-2 font-bold">{store.heroOfferSubtitle}</p>
-              </div>
-            </div>
+            <HeroOfferCard store={store} />
           </div>
         </div>
       </section>

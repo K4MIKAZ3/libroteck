@@ -1,6 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
+import { Sparkles } from "lucide-react";
+import { ComboBuilder } from "@/components/catalog/combo-builder";
 import { ProductCard } from "@/components/catalog/product-card";
 import { ProductFilters } from "@/components/catalog/product-filters";
 import { ProductSearchBar } from "@/components/catalog/product-search-bar";
@@ -11,6 +14,7 @@ import {
 } from "@/lib/catalog/product-list";
 import type { ProductType } from "@/lib/pricing/countries";
 import type { StoreSlug } from "@/lib/store/context";
+import { Button } from "@/components/ui/button";
 
 type CatalogGridProps = {
   products: ProductWithPrices[];
@@ -41,6 +45,20 @@ export function CatalogGrid({
 
   return (
     <div className="space-y-8">
+      {storeSlug === "streaming" && (
+        <>
+          <div className="flex justify-center">
+            <Button asChild size="lg" className="gap-2">
+              <a href="#arma-tu-combo">
+                <Sparkles className="size-4" />
+                Arma tu combo
+              </a>
+            </Button>
+          </div>
+          <ComboBuilder products={products} />
+        </>
+      )}
+
       <div className="text-center">
         <h2 className="font-heading text-3xl font-black text-[#0b1020] sm:text-4xl">
           {catalogTitle}
@@ -66,7 +84,7 @@ export function CatalogGrid({
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
           {filtered.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard key={product.id} product={product} storeSlug={storeSlug} />
           ))}
         </div>
       )}

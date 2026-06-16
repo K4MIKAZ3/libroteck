@@ -38,7 +38,7 @@ export default async function ProductPage({
 
   return (
     <StoreShell store={store} settings={settings} storeSlug={storeSlug}>
-      <ProductDetail product={product} />
+      <ProductDetail product={product} storeSlug={storeSlug} />
     </StoreShell>
   );
 }
