@@ -106,7 +106,7 @@ export function ProductCard({
       <CardContent className="space-y-3 p-5">
         <div>
           <Link href={`/producto/${product.slug}`}>
-            <h3 className="line-clamp-2 text-lg font-bold text-[#0b1020] transition-colors hover:text-[#1f4bff]">
+            <h3 className="line-clamp-2 text-lg font-bold text-[#0b1020] transition-colors hover:text-[#2a4494]">
               {displayName}
             </h3>
           </Link>

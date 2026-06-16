@@ -3,13 +3,13 @@
 :root {
   --background: #f4f6fb;
   --foreground: #0b1020;
-  --primary: #1f4bff;
-  --primary-dark: #0b1020;
+  --primary: #2a4494;
+  --primary-dark: #121a2e;
   --accent: #ffd600;
   --accent-orange: #ff7b00;
-  --border: #e8ecff;
+  --border: #e0e4ef;
   --muted: #555555;
-  --muted-light: #eef2ff;
+  --muted-light: #e8ecf5;
   --whatsapp: #25d366;
 }
 
@@ -39,16 +39,16 @@ body {
 }
 
 .bg-header-gradient {
-  background: linear-gradient(135deg, #0b1020, #1f4bff);
+  background: linear-gradient(135deg, #121a2e, #2a4494);
 }
 
 .bg-hero-gradient {
   background:
-    linear-gradient(135deg, rgba(11, 16, 32, 0.94), rgba(31, 75, 255, 0.75)),
-    radial-gradient(circle at top right, #ffd600 0%, transparent 25%),
-    linear-gradient(135deg, #0b1020, #1f4bff);
+    linear-gradient(135deg, rgba(18, 26, 46, 0.98), rgba(42, 68, 148, 0.62)),
+    radial-gradient(circle at top right, rgba(255, 214, 0, 0.28) 0%, transparent 28%),
+    linear-gradient(135deg, #121a2e, #243b7a);
 }
 
 .bg-offer-gradient {
-  background: linear-gradient(135deg, #0b1020, #1f4bff);
+  background: linear-gradient(135deg, #121a2e, #2a4494);
 }

@@ -1,8 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import Link from "next/link";
-import { Sparkles } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ChevronDown, Sparkles } from "lucide-react";
 import { ComboBuilder } from "@/components/catalog/combo-builder";
 import { ProductCard } from "@/components/catalog/product-card";
 import { ProductFilters } from "@/components/catalog/product-filters";
@@ -14,7 +13,6 @@ import {
 } from "@/lib/catalog/product-list";
 import type { ProductType } from "@/lib/pricing/countries";
 import type { StoreSlug } from "@/lib/store/context";
-import { Button } from "@/components/ui/button";
 
 type CatalogGridProps = {
   products: ProductWithPrices[];
@@ -23,6 +21,10 @@ type CatalogGridProps = {
   catalogSubtitle: string;
   searchPlaceholder: string;
 };
+
+function openComboFromHash() {
+  return window.location.hash === "#arma-tu-combo";
+}
 
 export function CatalogGrid({
   products,
@@ -33,6 +35,7 @@ export function CatalogGrid({
 }: CatalogGridProps) {
   const [filter, setFilter] = useState<"all" | ProductType>("all");
   const [query, setQuery] = useState("");
+  const [comboOpen, setComboOpen] = useState(false);
 
   const filtered = useMemo(() => {
     const bySearch = filterProductsBySearch(products, query);
@@ -43,22 +46,50 @@ export function CatalogGrid({
     return sorted.filter((product) => product.type === filter);
   }, [products, filter, query]);
 
+  useEffect(() => {
+    if (storeSlug !== "streaming") {
+      return;
+    }
+
+    function syncFromHash() {
+      if (openComboFromHash()) {
+        setComboOpen(true);
+        requestAnimationFrame(() => {
+          document
+            .getElementById("arma-tu-combo")
+            ?.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      }
+    }
+
+    syncFromHash();
+    window.addEventListener("hashchange", syncFromHash);
+    return () => window.removeEventListener("hashchange", syncFromHash);
+  }, [storeSlug]);
+
+  function handleOpenCombo() {
+    setComboOpen(true);
+    window.history.replaceState(null, "", "#arma-tu-combo");
+    requestAnimationFrame(() => {
+      document
+        .getElementById("arma-tu-combo")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
+
+  function handleCloseCombo() {
+    setComboOpen(false);
+    if (window.location.hash === "#arma-tu-combo") {
+      window.history.replaceState(
+        null,
+        "",
+        window.location.pathname + window.location.search,
+      );
+    }
+  }
+
   return (
     <div className="space-y-8">
-      {storeSlug === "streaming" && (
-        <>
-          <div className="flex justify-center">
-            <Button asChild size="lg" className="gap-2">
-              <a href="#arma-tu-combo">
-                <Sparkles className="size-4" />
-                Arma tu combo
-              </a>
-            </Button>
-          </div>
-          <ComboBuilder products={products} />
-        </>
-      )}
-
       <div className="text-center">
         <h2 className="font-heading text-3xl font-black text-[#0b1020] sm:text-4xl">
           {catalogTitle}
@@ -76,7 +107,7 @@ export function CatalogGrid({
       </div>
 
       {filtered.length === 0 ? (
-        <p className="rounded-3xl border border-dashed border-[#e8ecff] bg-white p-12 text-center text-[#666]">
+        <p className="rounded-3xl border border-dashed border-[#e0e4ef] bg-white p-12 text-center text-[#666]">
           {query.trim()
             ? "No hay resultados para tu búsqueda."
             : "No hay productos en esta categoría."}
@@ -86,6 +117,41 @@ export function CatalogGrid({
           {filtered.map((product) => (
             <ProductCard key={product.id} product={product} storeSlug={storeSlug} />
           ))}
+        </div>
+      )}
+
+      {storeSlug === "streaming" && (
+        <div id="arma-tu-combo" className="scroll-mt-28">
+          {comboOpen ? (
+            <ComboBuilder
+              products={products}
+              onMinimize={handleCloseCombo}
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={handleOpenCombo}
+              className="flex w-full items-center justify-between gap-4 rounded-[28px] border border-[#e0e4ef] bg-white p-5 text-left shadow-[0_8px_28px_rgba(18,26,46,0.06)] transition hover:border-[#2a4494]/30 hover:shadow-[0_12px_32px_rgba(18,26,46,0.08)] sm:p-6"
+            >
+              <div className="flex items-center gap-4">
+                <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[#ffd600] text-[#111]">
+                  <Sparkles className="size-5" />
+                </span>
+                <div>
+                  <p className="font-heading text-lg font-black text-[#0b1020] sm:text-xl">
+                    Arma tu combo
+                  </p>
+                  <p className="mt-1 text-sm text-[#666]">
+                    2 perfiles 40% off · 3 perfiles 30% off · 4 perfiles 20% off
+                  </p>
+                </div>
+              </div>
+              <span className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[#2a4494] px-4 py-2 text-sm font-bold text-white">
+                Abrir
+                <ChevronDown className="size-4" />
+              </span>
+            </button>
+          )}
         </div>
       )}
     </div>

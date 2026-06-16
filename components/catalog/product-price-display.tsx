@@ -45,7 +45,7 @@ export function ProductPriceDisplay({
           </span>
         </>
       )}
-      <span className={cn("font-black text-[#1f4bff]", saleSize)}>
+      <span className={cn("font-black text-[#2a4494]", saleSize)}>
         {formatPrice(price.amount, price.currency)}
       </span>
     </div>

@@ -7,24 +7,29 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import type { Settings, Store } from "@/lib/db/schema";
+import type { ProductWithPrices, Settings, Store } from "@/lib/db/schema";
+import type { StoreSlug } from "@/lib/store/context";
+import { AD_NETWORK_GUIDE, AD_SIZE_GUIDE } from "@/lib/ads/config";
+import { HeroOfferEditor } from "@/components/admin/hero-offer-editor";
+
 import {
   DEFAULT_WHATSAPP_ORDER_TEMPLATE,
   WHATSAPP_TEMPLATE_PLACEHOLDERS,
 } from "@/lib/whatsapp/message";
-import { AD_NETWORK_GUIDE, AD_SIZE_GUIDE } from "@/lib/ads/config";
-import { ImageUpload } from "@/components/admin/image-upload";
-import { HeroOfferCard } from "@/components/marketing/hero-offer-card";
 
 type SettingsFormClientProps = {
   initialSettings: Settings;
   initialStore: Store;
+  storeSlug: StoreSlug;
+  catalogProducts: ProductWithPrices[];
   saveToken: string;
 };
 
 export function SettingsFormClient({
   initialSettings,
   initialStore,
+  storeSlug,
+  catalogProducts,
   saveToken,
 }: SettingsFormClientProps) {
   const [whatsappNumber, setWhatsappNumber] = useState(
@@ -189,6 +194,40 @@ export function SettingsFormClient({
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="storeName">Nombre de la tienda</Label>
+              <Input
+                id="storeName"
+                value={storeName}
+                onChange={(event) => setStoreName(event.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="welcomeMessage">Mensaje principal del hero</Label>
+              <Textarea
+                id="welcomeMessage"
+                value={welcomeMessage}
+                onChange={(event) => setWelcomeMessage(event.target.value)}
+                rows={3}
+                required
+              />
+            </div>
+
+            <HeroOfferEditor
+              products={catalogProducts}
+              storeSlug={storeSlug}
+              heroOfferServiceName={heroOfferServiceName}
+              heroOfferPrice={heroOfferPrice}
+              heroOfferSubtitle={heroOfferSubtitle}
+              heroOfferBackgroundImageUrl={heroOfferBackgroundImageUrl}
+              onServiceNameChange={setHeroOfferServiceName}
+              onPriceChange={setHeroOfferPrice}
+              onSubtitleChange={setHeroOfferSubtitle}
+              onBackgroundImageChange={setHeroOfferBackgroundImageUrl}
+              uploadToken={saveToken}
+            />
+
+            <div className="space-y-2">
               <Label htmlFor="whatsappOrderTemplate">
                 Mensaje de pedido por WhatsApp
               </Label>
@@ -214,97 +253,6 @@ export function SettingsFormClient({
                   Restaurar mensaje por defecto
                 </button>
               </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="storeName">Nombre de la tienda</Label>
-              <Input
-                id="storeName"
-                value={storeName}
-                onChange={(event) => setStoreName(event.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="welcomeMessage">Mensaje principal</Label>
-              <Textarea
-                id="welcomeMessage"
-                value={welcomeMessage}
-                onChange={(event) => setWelcomeMessage(event.target.value)}
-                rows={3}
-                required
-              />
-            </div>
-
-            <div className="rounded-xl border border-[#E8E0D5] bg-[#FAF7F2]/60 p-4 space-y-4">
-              <div>
-                <p className="font-medium text-[#1E3A5F]">
-                  Banner principal (tarjeta amarilla)
-                </p>
-                <p className="mt-1 text-xs text-[#1A1A2E]/60">
-                  Aparece a la derecha del hero en pantallas grandes. Puedes usar
-                  el degradado por defecto o subir una imagen de fondo.
-                </p>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="heroOfferServiceName">Plataforma / cuenta</Label>
-                  <Input
-                    id="heroOfferServiceName"
-                    value={heroOfferServiceName}
-                    onChange={(event) =>
-                      setHeroOfferServiceName(event.target.value)
-                    }
-                    placeholder="Netflix"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="heroOfferPrice">Precio destacado</Label>
-                  <Input
-                    id="heroOfferPrice"
-                    value={heroOfferPrice}
-                    onChange={(event) => setHeroOfferPrice(event.target.value)}
-                    placeholder="$3.99"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="heroOfferSubtitle">Texto secundario</Label>
-                <Input
-                  id="heroOfferSubtitle"
-                  value={heroOfferSubtitle}
-                  onChange={(event) => setHeroOfferSubtitle(event.target.value)}
-                  placeholder="Disney+, HBO Max y más plataformas"
-                />
-              </div>
-
-              <ImageUpload
-                label="Fondo del banner (opcional)"
-                value={heroOfferBackgroundImageUrl}
-                onChange={setHeroOfferBackgroundImageUrl}
-                uploadToken={saveToken}
-                previewClassName="aspect-[16/10] max-w-[240px]"
-                placeholder="Deja vacío para usar el color amarillo/naranja"
-                emptyPreviewText="Degradado por defecto"
-                allowClear
-              />
-
-              <div className="max-w-sm">
-                <p className="mb-2 text-xs font-medium text-[#1A1A2E]/60">
-                  Vista previa
-                </p>
-                <HeroOfferCard
-                  store={{
-                    heroOfferServiceName,
-                    heroOfferPrice,
-                    heroOfferTitle: "",
-                    heroOfferSubtitle,
-                    heroOfferBackgroundImageUrl,
-                  }}
-                />
-              </div>
             </div>
 
             <div className="rounded-xl border border-[#E8E0D5] bg-[#FAF7F2]/60 p-4 space-y-4">

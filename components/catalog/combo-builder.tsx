@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check, Package, ShoppingCart, Sparkles } from "lucide-react";
+import { Check, ChevronUp, Package, ShoppingCart, Sparkles } from "lucide-react";
 import { useCart } from "@/components/providers/cart-provider";
 import { useCountry } from "@/components/providers/country-provider";
 import { Badge } from "@/components/ui/badge";
@@ -26,9 +26,10 @@ import { cn } from "@/lib/utils";
 
 type ComboBuilderProps = {
   products: ProductWithPrices[];
+  onMinimize?: () => void;
 };
 
-export function ComboBuilder({ products }: ComboBuilderProps) {
+export function ComboBuilder({ products, onMinimize }: ComboBuilderProps) {
   const { country, currency } = useCountry();
   const { addItem } = useCart();
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
@@ -115,10 +116,7 @@ export function ComboBuilder({ products }: ComboBuilderProps) {
   }
 
   return (
-    <section
-      id="arma-tu-combo"
-      className="mb-12 scroll-mt-28 rounded-[32px] border border-[#e8ecff] bg-white p-6 shadow-[0_12px_40px_rgba(31,75,255,0.08)] sm:p-8"
-    >
+    <section className="rounded-[32px] border border-[#e0e4ef] bg-white p-6 shadow-[0_12px_40px_rgba(18,26,46,0.06)] sm:p-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <Badge className="mb-3 gap-1 bg-[#ffd600] text-[#111] hover:bg-[#ffd600]">
@@ -134,15 +132,29 @@ export function ComboBuilder({ products }: ComboBuilderProps) {
             completa. El descuento se aplica al total del combo.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          {COMBO_DISCOUNT_RULES.map((rule) => (
-            <span
-              key={rule.count}
-              className="rounded-full bg-[#f4f6fb] px-3 py-1 text-xs font-bold text-[#1f4bff]"
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap gap-2">
+            {COMBO_DISCOUNT_RULES.map((rule) => (
+              <span
+                key={rule.count}
+                className="rounded-full bg-[#f4f6fb] px-3 py-1 text-xs font-bold text-[#2a4494]"
+              >
+                {rule.count} perfiles → {rule.percent}% OFF
+              </span>
+            ))}
+          </div>
+          {onMinimize ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={onMinimize}
+              className="gap-1"
             >
-              {rule.count} perfiles → {rule.percent}% OFF
-            </span>
-          ))}
+              <ChevronUp className="size-4" />
+              Minimizar
+            </Button>
+          ) : null}
         </div>
       </div>
 
@@ -165,8 +177,8 @@ export function ComboBuilder({ products }: ComboBuilderProps) {
                 className={cn(
                   "flex items-center justify-between gap-3 rounded-2xl border p-4 text-left transition-all",
                   isSelected
-                    ? "border-[#1f4bff] bg-[#eef2ff] shadow-sm"
-                    : "border-[#e8ecff] bg-white hover:border-[#1f4bff]/40",
+                    ? "border-[#2a4494] bg-[#e8ecf5] shadow-sm"
+                    : "border-[#e0e4ef] bg-white hover:border-[#2a4494]/40",
                   isDisabled && "cursor-not-allowed opacity-50",
                 )}
               >
@@ -178,7 +190,7 @@ export function ComboBuilder({ products }: ComboBuilderProps) {
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   {price && (
-                    <span className="text-sm font-bold text-[#1f4bff]">
+                    <span className="text-sm font-bold text-[#2a4494]">
                       {formatPrice(price.amount, price.currency)}
                     </span>
                   )}
@@ -186,8 +198,8 @@ export function ComboBuilder({ products }: ComboBuilderProps) {
                     className={cn(
                       "flex size-6 items-center justify-center rounded-full border",
                       isSelected
-                        ? "border-[#1f4bff] bg-[#1f4bff] text-white"
-                        : "border-[#d0d7ff] bg-white",
+                        ? "border-[#2a4494] bg-[#2a4494] text-white"
+                        : "border-[#c8d0e4] bg-white",
                     )}
                   >
                     {isSelected && <Check className="size-3.5" />}
@@ -198,10 +210,10 @@ export function ComboBuilder({ products }: ComboBuilderProps) {
           })}
         </div>
 
-        <Card className="h-fit border-[#e8ecff] lg:sticky lg:top-28">
+        <Card className="h-fit border-[#e0e4ef] lg:sticky lg:top-28">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-lg">
-              <Package className="size-5 text-[#1f4bff]" />
+              <Package className="size-5 text-[#2a4494]" />
               Tu combo
             </CardTitle>
           </CardHeader>
@@ -239,7 +251,7 @@ export function ComboBuilder({ products }: ComboBuilderProps) {
                   <span>Descuento ({combo.discountPercent}%)</span>
                   <span>−{formatPrice(combo.discountAmount, combo.currency)}</span>
                 </div>
-                <div className="flex justify-between border-t border-[#e8ecff] pt-2 text-lg font-black text-[#1f4bff]">
+                <div className="flex justify-between border-t border-[#e0e4ef] pt-2 text-lg font-black text-[#2a4494]">
                   <span>Total combo</span>
                   <span>{formatPrice(combo.total, combo.currency)}</span>
                 </div>
