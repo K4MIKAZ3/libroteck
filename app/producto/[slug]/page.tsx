@@ -27,7 +27,7 @@ export default async function ProductPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [product, { store, settings, slug }] = await Promise.all([
+  const [product, { store, settings, slug: storeSlug }] = await Promise.all([
     getProductBySlug(slug),
     getStoreContext(),
   ]);
@@ -37,7 +37,7 @@ export default async function ProductPage({
   }
 
   return (
-    <StoreShell store={store} settings={settings} storeSlug={slug}>
+    <StoreShell store={store} settings={settings} storeSlug={storeSlug}>
       <ProductDetail product={product} />
     </StoreShell>
   );
