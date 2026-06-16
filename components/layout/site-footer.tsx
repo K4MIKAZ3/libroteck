@@ -1,45 +1,22 @@
 import { CookieSettingsLink } from "@/components/layout/cookie-settings-link";
-import { CreditCard, Landmark, Wallet } from "lucide-react";
-
-const PAYMENT_METHODS = [
-  {
-    name: "Binance",
-    description: "USDT y criptomonedas",
-    icon: Wallet,
-  },
-  {
-    name: "PayPal",
-    description: "Pagos internacionales",
-    icon: CreditCard,
-  },
-  {
-    name: "Bancos de Bolivia",
-    description: "Transferencia bancaria",
-    icon: Landmark,
-  },
-  {
-    name: "Nequi",
-    description: "Colombia",
-    icon: Wallet,
-  },
-  {
-    name: "Bancolombia",
-    description: "Colombia",
-    icon: Landmark,
-  },
-] as const;
+import { getPaymentMethods } from "@/lib/store/payment-methods";
+import type { StoreSlug } from "@/lib/store/context";
 
 type SiteFooterProps = {
   brandPrimary: string;
   brandAccent: string;
   tagline: string;
+  storeSlug: StoreSlug;
 };
 
 export function SiteFooter({
   brandPrimary,
   brandAccent,
   tagline,
+  storeSlug,
 }: SiteFooterProps) {
+  const paymentMethods = getPaymentMethods(storeSlug);
+
   return (
     <footer className="mt-16 bg-[#0b1020] text-white">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
@@ -56,8 +33,8 @@ export function SiteFooter({
           </p>
         </div>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          {PAYMENT_METHODS.map((method) => (
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          {paymentMethods.map((method) => (
             <div
               key={method.name}
               className="flex flex-col items-center rounded-3xl border border-white/10 bg-white/5 px-4 py-5 text-center transition-shadow hover:shadow-[0_8px_25px_rgba(0,0,0,0.2)]"

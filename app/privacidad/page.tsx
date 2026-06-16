@@ -11,11 +11,11 @@ export const metadata = {
 };
 
 export default async function PrivacyPage() {
-  const { store, settings } = await getStoreContext();
+  const { store, settings, slug } = await getStoreContext();
   const storeName = settings.storeName || `${store.brandPrimary}${store.brandAccent}`;
 
   return (
-    <StoreShell store={store} settings={settings}>
+    <StoreShell store={store} settings={settings} storeSlug={slug}>
       <article className="mx-auto max-w-3xl space-y-6 rounded-2xl border border-[#e8ecff] bg-white p-6 sm:p-10">
         <div>
           <h1 className="font-heading text-3xl font-bold text-[#1f4bff]">

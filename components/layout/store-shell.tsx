@@ -5,14 +5,17 @@ import type { Settings, Store } from "@/lib/db/schema";
 import { getAdConfig } from "@/lib/ads/config";
 import { shouldShowAdUnits } from "@/lib/ads/client-id";
 import { cn } from "@/lib/utils";
+import type { StoreSlug } from "@/lib/store/context";
 
 export function StoreShell({
   store,
   settings,
+  storeSlug,
   children,
 }: {
   store: Store;
   settings: Settings;
+  storeSlug: StoreSlug;
   children: React.ReactNode;
 }) {
   const ads = getAdConfig(settings);
@@ -77,6 +80,7 @@ export function StoreShell({
         brandPrimary={store.brandPrimary}
         brandAccent={store.brandAccent}
         tagline={store.footerTagline}
+        storeSlug={storeSlug}
       />
     </div>
   );

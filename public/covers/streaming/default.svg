@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 533" fill="none">
+  <rect width="400" height="533" rx="24" fill="#0b1020"/>
+  <rect x="24" y="24" width="352" height="485" rx="16" fill="url(#g)"/>
+  <text x="200" y="270" text-anchor="middle" fill="#ffd600" font-family="Arial,sans-serif" font-size="42" font-weight="900">XCON</text>
+  <text x="200" y="320" text-anchor="middle" fill="#ffffff" font-family="Arial,sans-serif" font-size="42" font-weight="900">DEF</text>
+  <text x="200" y="380" text-anchor="middle" fill="#dbe2ff" font-family="Arial,sans-serif" font-size="18">Cuenta digital</text>
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="400" y2="533" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1f4bff"/>
+      <stop offset="1" stop-color="#e50914"/>
+    </linearGradient>
+  </defs>
+</svg>

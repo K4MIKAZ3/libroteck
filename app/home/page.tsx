@@ -13,7 +13,7 @@ export default async function HomePage() {
   const welcome = settings.welcomeMessage;
 
   return (
-    <StoreShell store={store} settings={settings}>
+    <StoreShell store={store} settings={settings} storeSlug={slug}>
       <section className="bg-hero-gradient mb-10 grid items-center gap-10 overflow-hidden rounded-[32px] px-6 py-12 text-white shadow-[0_18px_45px_rgba(31,75,255,0.25)] sm:px-10 sm:py-14 lg:grid-cols-[1.1fr_0.9fr]">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#ffd600]">

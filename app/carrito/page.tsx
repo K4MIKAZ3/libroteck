@@ -13,10 +13,10 @@ export const metadata = {
 };
 
 export default async function CartPage() {
-  const { store, settings } = await getStoreContext();
+  const { store, settings, slug } = await getStoreContext();
 
   return (
-    <StoreShell store={store} settings={settings}>
+    <StoreShell store={store} settings={settings} storeSlug={slug}>
       <Button asChild variant="ghost" className="mb-6">
         <Link href={HOME_PATH}>
           <ArrowLeft className="size-4" />
