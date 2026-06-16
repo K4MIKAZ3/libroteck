@@ -3,11 +3,17 @@ import { getAdminSecret } from "@/lib/auth/session";
 
 export type FormTokenPurpose = "settings" | "password" | "products";
 
+const FORM_TOKEN_TTL: Record<FormTokenPurpose, string> = {
+  products: "8h",
+  settings: "2h",
+  password: "30m",
+};
+
 export async function createFormToken(purpose: FormTokenPurpose) {
   return new SignJWT({ purpose })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime("30m")
+    .setExpirationTime(FORM_TOKEN_TTL[purpose])
     .sign(getAdminSecret());
 }
 

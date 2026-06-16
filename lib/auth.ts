@@ -8,6 +8,7 @@ export {
   clearAdminSession,
   getAdminCookieOptions,
   getAdminSecret,
+  getHostFromRequest,
   isAdminAuthenticated,
   requireAdmin,
   verifyAdminSessionToken,

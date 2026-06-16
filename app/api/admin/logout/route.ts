@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { ADMIN_COOKIE_NAME, getAdminCookieOptions } from "@/lib/auth/session";
+import { ADMIN_COOKIE_NAME, getAdminCookieOptions, getHostFromRequest } from "@/lib/auth/session";
 
 function logoutResponse(request: Request) {
   const response = NextResponse.redirect(new URL("/admin/login", request.url));
   response.cookies.set(ADMIN_COOKIE_NAME, "", {
-    ...getAdminCookieOptions(),
+    ...getAdminCookieOptions(getHostFromRequest(request)),
     maxAge: 0,
   });
   return response;

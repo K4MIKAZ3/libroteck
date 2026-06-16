@@ -4,12 +4,15 @@ import { requireAdminRequest } from "@/lib/auth/request";
 import { deleteProduct, getProductById, updateProduct } from "@/lib/db/queries";
 import type { CountryCode, ProductType } from "@/lib/pricing/countries";
 import { validateProductCoverUrl } from "@/lib/security/product-input";
+import { getStoreSlugFromRequest } from "@/lib/store/context";
+import type { StreamingProductCategory } from "@/lib/store/streaming-categories";
 import { slugify } from "@/lib/utils";
 
 type ProductInput = {
   name: string;
   slug?: string;
   type: ProductType;
+  streamingCategory?: StreamingProductCategory | null;
   description: string;
   coverUrl: string;
   isActive: boolean;
@@ -21,6 +24,21 @@ type ProductInput = {
   }>;
   _token?: string;
 };
+
+function normalizeStreamingCategory(
+  request: Request,
+  value?: StreamingProductCategory | null,
+): StreamingProductCategory | null {
+  if (getStoreSlugFromRequest(request) !== "streaming") {
+    return null;
+  }
+
+  if (value === "streaming" || value === "ia" || value === "panel") {
+    return value;
+  }
+
+  return "streaming";
+}
 
 async function readToken(request: Request) {
   try {
@@ -61,6 +79,10 @@ export async function PUT(
       name: body.name,
       slug: body.slug || slugify(body.name),
       type: body.type,
+      streamingCategory: normalizeStreamingCategory(
+        request,
+        body.streamingCategory,
+      ),
       description: body.description,
       coverUrl: body.coverUrl,
       isActive: body.isActive,

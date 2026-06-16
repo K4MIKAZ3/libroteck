@@ -3,6 +3,7 @@ import {
   ADMIN_COOKIE_NAME,
   createAdminSessionToken,
   getAdminCookieOptions,
+  getHostFromRequest,
   verifyAdminPassword,
 } from "@/lib/auth";
 import {
@@ -23,7 +24,11 @@ async function createLoginResponse(
   const token = await createAdminSessionToken();
   const destination = nextPath.startsWith("/admin") ? nextPath : "/admin/productos";
   const response = NextResponse.redirect(new URL(destination, request.url));
-  response.cookies.set(ADMIN_COOKIE_NAME, token, getAdminCookieOptions());
+  response.cookies.set(
+    ADMIN_COOKIE_NAME,
+    token,
+    getAdminCookieOptions(getHostFromRequest(request)),
+  );
   return response;
 }
 

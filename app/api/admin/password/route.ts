@@ -4,6 +4,7 @@ import {
   ADMIN_COOKIE_NAME,
   createAdminSessionToken,
   getAdminCookieOptions,
+  getHostFromRequest,
   verifyAdminPassword,
 } from "@/lib/auth";
 import { requireAdminMutation } from "@/lib/auth/request";
@@ -54,7 +55,11 @@ export async function PUT(request: Request) {
 
     const token = await createAdminSessionToken();
     const response = NextResponse.json({ success: true });
-    response.cookies.set(ADMIN_COOKIE_NAME, token, getAdminCookieOptions());
+    response.cookies.set(
+      ADMIN_COOKIE_NAME,
+      token,
+      getAdminCookieOptions(getHostFromRequest(request)),
+    );
     return response;
   } catch (error) {
     console.error("Failed to update admin password", error);

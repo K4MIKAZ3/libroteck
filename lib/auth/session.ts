@@ -34,9 +34,27 @@ export function getAdminSecret() {
   return new TextEncoder().encode(secret);
 }
 
-export function getAdminCookieOptions() {
+export function resolveAdminCookieDomain(host?: string | null): string | undefined {
+  if (process.env.NODE_ENV !== "production" || !host) {
+    return undefined;
+  }
+
+  const hostname = host.split(":")[0].toLowerCase();
+  if (hostname === "libroteck.xyz" || hostname.endsWith(".libroteck.xyz")) {
+    return ".libroteck.xyz";
+  }
+
+  return undefined;
+}
+
+export function getHostFromRequest(request: Request): string | undefined {
+  return request.headers.get("host") ?? undefined;
+}
+
+export function getAdminCookieOptions(host?: string | null) {
   const isProduction = process.env.NODE_ENV === "production";
-  const sameSite: "strict" | "lax" = isProduction ? "strict" : "lax";
+  const sameSite: "strict" | "lax" = isProduction ? "lax" : "lax";
+  const domain = resolveAdminCookieDomain(host);
 
   return {
     httpOnly: true,
@@ -44,6 +62,7 @@ export function getAdminCookieOptions() {
     sameSite,
     maxAge: SESSION_DURATION,
     path: "/",
+    ...(domain ? { domain } : {}),
   };
 }
 

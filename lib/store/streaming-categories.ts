@@ -1,6 +1,16 @@
 import type { ProductWithPrices } from "@/lib/db/schema";
 
 export type StreamingCatalogFilter = "all" | "streaming" | "ia" | "panel";
+export type StreamingProductCategory = Exclude<StreamingCatalogFilter, "all">;
+
+export const STREAMING_PRODUCT_CATEGORIES: Array<{
+  value: StreamingProductCategory;
+  label: string;
+}> = [
+  { value: "streaming", label: "Streaming (perfil)" },
+  { value: "ia", label: "IA" },
+  { value: "panel", label: "Panel revendedor" },
+];
 
 export const STREAMING_CATALOG_FILTERS: Array<{
   value: StreamingCatalogFilter;
@@ -14,7 +24,7 @@ export const STREAMING_CATALOG_FILTERS: Array<{
 
 const LEGACY_COMBO_SLUGS = new Set(["combos", "combos-triples"]);
 
-const IA_SLUGS = new Set(["chatgpt"]);
+const IA_SLUGS = new Set(["chatgpt", "claudeai", "claude-ai"]);
 
 function productText(product: Pick<ProductWithPrices, "slug" | "name">) {
   return `${product.slug} ${product.name}`.toLowerCase();
@@ -45,17 +55,29 @@ export function isIaProduct(
   const text = productText(product);
   return (
     text.includes("chatgpt") ||
+    text.includes("claude") ||
     text.includes(" openai") ||
     text.includes("gemini") ||
-    text.includes("copilot")
+    text.includes("copilot") ||
+    text.includes("anthropic")
   );
 }
 
-export function getStreamingCatalogCategory(
-  product: Pick<ProductWithPrices, "slug" | "name" | "type">,
-): Exclude<StreamingCatalogFilter, "all"> | null {
+function isStoredStreamingCategory(
+  value: string | null | undefined,
+): value is StreamingProductCategory {
+  return value === "streaming" || value === "ia" || value === "panel";
+}
+
+export function resolveStreamingProductCategory(
+  product: Pick<ProductWithPrices, "slug" | "name" | "type" | "streamingCategory">,
+): StreamingProductCategory | null {
   if (isLegacyComboProduct(product)) {
     return null;
+  }
+
+  if (isStoredStreamingCategory(product.streamingCategory)) {
+    return product.streamingCategory;
   }
 
   if (isPanelProduct(product)) {
@@ -71,6 +93,12 @@ export function getStreamingCatalogCategory(
   }
 
   return null;
+}
+
+export function getStreamingCatalogCategory(
+  product: Pick<ProductWithPrices, "slug" | "name" | "type" | "streamingCategory">,
+): StreamingProductCategory | null {
+  return resolveStreamingProductCategory(product);
 }
 
 export function isStreamingCatalogProduct(product: ProductWithPrices): boolean {
@@ -93,7 +121,7 @@ export function filterStreamingCatalogProducts(
 }
 
 export function getStreamingCategoryLabel(
-  product: Pick<ProductWithPrices, "slug" | "name" | "type">,
+  product: Pick<ProductWithPrices, "slug" | "name" | "type" | "streamingCategory">,
 ): string {
   const category = getStreamingCatalogCategory(product);
 

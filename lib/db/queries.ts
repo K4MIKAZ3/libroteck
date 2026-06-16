@@ -281,6 +281,7 @@ export async function createProduct(
     name: string;
     slug: string;
     type: ProductType;
+    streamingCategory?: "streaming" | "ia" | "panel" | null;
     description: string;
     coverUrl: string;
     isActive: boolean;
@@ -302,6 +303,7 @@ export async function createProduct(
       name: input.name,
       slug: input.slug,
       type: input.type,
+      streamingCategory: input.streamingCategory ?? null,
       description: input.description,
       coverUrl: input.coverUrl,
       isActive: input.isActive,
@@ -329,6 +331,7 @@ export async function updateProduct(
     name: string;
     slug: string;
     type: ProductType;
+    streamingCategory?: "streaming" | "ia" | "panel" | null;
     description: string;
     coverUrl: string;
     isActive: boolean;
@@ -349,6 +352,7 @@ export async function updateProduct(
       name: input.name,
       slug: input.slug,
       type: input.type,
+      streamingCategory: input.streamingCategory ?? null,
       description: input.description,
       coverUrl: input.coverUrl,
       isActive: input.isActive,

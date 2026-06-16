@@ -36,6 +36,11 @@ import {
   getProductTypesForStore,
 } from "@/lib/store/product-types";
 import type { StoreSlug } from "@/lib/store/context";
+import {
+  resolveStreamingProductCategory,
+  STREAMING_PRODUCT_CATEGORIES,
+  type StreamingProductCategory,
+} from "@/lib/store/streaming-categories";
 import { slugify } from "@/lib/utils";
 
 type PriceForm = Record<CountryCode, string>;
@@ -61,14 +66,29 @@ export function ProductForm({
   storeId: number;
 }) {
   const router = useRouter();
+  const isStreamingStore = storeSlug === "streaming";
   const productTypes = getProductTypesForStore(storeSlug);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [formToken, setFormToken] = useState(saveToken);
   const [name, setName] = useState(product?.name ?? "");
   const [slug, setSlug] = useState(product?.slug ?? "");
   const [type, setType] = useState<ProductType>(
     (product?.type as ProductType) ?? getDefaultProductType(storeSlug),
   );
+  const [streamingCategory, setStreamingCategory] =
+    useState<StreamingProductCategory>(
+      product?.streamingCategory ??
+        resolveStreamingProductCategory(
+          product ?? {
+            slug: "",
+            name: "",
+            type: "subscription",
+            streamingCategory: null,
+          },
+        ) ??
+        "streaming",
+    );
   const [description, setDescription] = useState(product?.description ?? "");
   const [coverUrl, setCoverUrl] = useState(product?.coverUrl ?? "");
   const [isActive, setIsActive] = useState(product?.isActive ?? true);
@@ -90,12 +110,31 @@ export function ProductForm({
     setPrices(pricesFromUsdToForm(usd));
   }
 
+  async function refreshFormToken() {
+    const response = await fetch("/api/admin/form-token?purpose=products", {
+      credentials: "same-origin",
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = (await response.json()) as { token?: string };
+    if (!data.token) {
+      return null;
+    }
+
+    setFormToken(data.token);
+    return data.token;
+  }
+
   const previewProduct: ProductWithPrices = {
     id: product?.id ?? 0,
     storeId: product?.storeId ?? storeId,
     name: name || "Nombre del producto",
     slug: slug || "preview",
-    type,
+    type: isStreamingStore ? "subscription" : type,
+    streamingCategory: isStreamingStore ? streamingCategory : null,
     description,
     coverUrl,
     isActive,
@@ -120,10 +159,17 @@ export function ProductForm({
     setSaving(true);
     setError(null);
 
+    let token = formToken;
+    const refreshedToken = await refreshFormToken();
+    if (refreshedToken) {
+      token = refreshedToken;
+    }
+
     const payload = {
       name,
       slug: slug || slugify(name),
-      type,
+      type: isStreamingStore ? ("subscription" as const) : type,
+      ...(isStreamingStore ? { streamingCategory } : {}),
       description,
       coverUrl,
       isActive,
@@ -135,7 +181,7 @@ export function ProductForm({
           currency: COUNTRIES[countryCode].currency,
           amount: Number(amount),
         })),
-      _token: saveToken,
+      _token: token,
     };
 
     try {
@@ -148,6 +194,13 @@ export function ProductForm({
           body: JSON.stringify(payload),
         },
       );
+
+      if (response.status === 401) {
+        router.replace(
+          `/admin/login?next=${encodeURIComponent(window.location.pathname)}`,
+        );
+        return;
+      }
 
       if (!response.ok) {
         const data = (await response.json()) as { error?: string };
@@ -200,21 +253,47 @@ export function ProductForm({
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label>Tipo</Label>
-              <Select value={type} onValueChange={(value) => setType(value as ProductType)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {productTypes.map((productType) => (
-                    <SelectItem key={productType} value={productType}>
-                      {PRODUCT_TYPE_LABELS[productType]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {isStreamingStore ? (
+              <div className="space-y-2">
+                <Label>Categoría</Label>
+                <Select
+                  value={streamingCategory}
+                  onValueChange={(value) =>
+                    setStreamingCategory(value as StreamingProductCategory)
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {STREAMING_PRODUCT_CATEGORIES.map((category) => (
+                      <SelectItem key={category.value} value={category.value}>
+                        {category.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <Label>Tipo</Label>
+                <Select
+                  value={type}
+                  onValueChange={(value) => setType(value as ProductType)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {productTypes.map((productType) => (
+                      <SelectItem key={productType} value={productType}>
+                        {PRODUCT_TYPE_LABELS[productType]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <div className="space-y-2">
               <Label>Estado</Label>
               <div className="flex gap-2 pt-2">
@@ -256,7 +335,11 @@ export function ProductForm({
             />
           </div>
 
-          <ImageUpload value={coverUrl} onChange={setCoverUrl} uploadToken={saveToken} />
+          <ImageUpload
+            value={coverUrl}
+            onChange={setCoverUrl}
+            uploadToken={formToken}
+          />
 
           <div className="space-y-3">
             <div className="space-y-2">
@@ -350,7 +433,10 @@ export function ProductForm({
         </CardHeader>
         <CardContent>
           <CountryProvider>
-            <ProductCard product={previewProduct} />
+            <ProductCard
+              product={previewProduct}
+              storeSlug={storeSlug}
+            />
           </CountryProvider>
         </CardContent>
       </Card>

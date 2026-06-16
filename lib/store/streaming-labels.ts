@@ -36,7 +36,7 @@ export function getStreamingDisplayName(productName: string): string {
 }
 
 export function getStreamingProductSubtitle(
-  product: Pick<ProductWithPrices, "slug" | "name" | "type">,
+  product: Pick<ProductWithPrices, "slug" | "name" | "type" | "streamingCategory">,
 ): string {
   const category = getStreamingCatalogCategory(product);
 

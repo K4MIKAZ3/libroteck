@@ -41,6 +41,9 @@ export const products = pgTable(
     type: text("type", {
       enum: ["course", "book", "bundle", "subscription"],
     }).notNull(),
+    streamingCategory: text("streaming_category", {
+      enum: ["streaming", "ia", "panel"],
+    }),
     description: text("description").notNull().default(""),
     coverUrl: text("cover_url").notNull().default(""),
     isActive: boolean("is_active").notNull().default(true),
