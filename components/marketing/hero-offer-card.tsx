@@ -23,8 +23,7 @@ export function HeroOfferCard({ store, className }: HeroOfferCardProps) {
   return (
     <div
       className={cn(
-        "relative flex min-h-[280px] flex-col justify-between overflow-hidden rounded-[22px] p-8 text-[#111] shadow-[inset_12px_0_rgba(0,0,0,0.13)]",
-        !backgroundImage && "bg-gradient-to-br from-[#ffd600] to-[#ff7b00]",
+        "hero-offer-card relative flex min-h-[280px] flex-col justify-between overflow-hidden rounded-[22px] p-8 shadow-[inset_12px_0_rgba(0,0,0,0.1)]",
         className,
       )}
     >
@@ -46,8 +45,8 @@ export function HeroOfferCard({ store, className }: HeroOfferCardProps) {
         className={cn(
           "relative z-10 w-fit rounded-full px-4 py-2 text-xs font-bold",
           backgroundImage
-            ? "bg-white/90 text-[#111]"
-            : "bg-[#111] text-white",
+            ? "bg-white/90 text-[var(--foreground)]"
+            : "hero-offer-card__badge",
         )}
       >
         OFERTA ESPECIAL

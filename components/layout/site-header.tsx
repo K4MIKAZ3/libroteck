@@ -31,7 +31,7 @@ export function SiteHeader({ brandPrimary, brandAccent }: SiteHeaderProps) {
             <Button
               variant="outline"
               size="icon"
-              className="relative border-white/30 bg-white/10 text-white hover:bg-white hover:text-[#1c0a0a]"
+              className="relative border-white/30 bg-white/10 text-white hover:bg-white hover:text-[var(--foreground)]"
             >
               <ShoppingCart className="size-5" />
               {itemCount > 0 && (

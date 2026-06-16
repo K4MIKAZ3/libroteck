@@ -24,7 +24,7 @@ export function StoreShell({
   return (
     <div className="min-h-screen">
       {showUnits && ads.top && (
-        <div className="border-b border-[#f5d0d0] bg-white/90">
+        <div className="border-b border-[var(--border)] bg-white/90">
           <div className="mx-auto max-w-[728px] px-4 py-2">
             <AdSenseUnit
               clientId={ads.clientId}

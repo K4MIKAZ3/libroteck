@@ -16,7 +16,7 @@ function AdminLoginForm() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
-        <CardTitle className="font-literata text-2xl text-[#991b1b]">
+        <CardTitle className="font-literata text-2xl text-[var(--primary-hover)]">
           LibroTeck Admin
         </CardTitle>
       </CardHeader>
@@ -50,7 +50,7 @@ export default function AdminLoginPage() {
       <Suspense
         fallback={
           <div className="flex h-32 w-full max-w-md items-center justify-center rounded-2xl border border-[#E8E0D5] bg-white">
-            <Loader2 className="size-6 animate-spin text-[#991b1b]" />
+            <Loader2 className="size-6 animate-spin text-[var(--primary-hover)]" />
           </div>
         }
       >

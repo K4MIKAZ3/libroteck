@@ -65,7 +65,7 @@ export function PromoBanner({
         <h2 className="font-heading text-2xl font-black sm:text-3xl">
           {title.trim() || "Oferta especial"}
         </h2>
-        <p className="mt-3 text-base leading-relaxed text-[#fde8e8] sm:text-lg">
+        <p className="mt-3 text-base leading-relaxed text-[var(--footer-muted)] sm:text-lg">
           {message}
         </p>
 

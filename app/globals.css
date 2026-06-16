@@ -1,17 +1,46 @@
 @import "tailwindcss";
 
-:root {
-  --background: #faf6f6;
-  --foreground: #1c0a0a;
-  --primary: #dc2626;
-  --primary-dark: #1c0a0a;
-  --primary-hover: #991b1b;
+:root,
+[data-store="libroteck"] {
+  --background: #f4f6fb;
+  --foreground: #0b1020;
+  --primary: #2a4494;
+  --primary-dark: #0b1020;
+  --primary-hover: #1e3a5f;
   --accent: #ffd600;
   --accent-orange: #ff7b00;
-  --border: #f5d0d0;
+  --border: #e8ecff;
   --muted: #555555;
-  --muted-light: #fde8e8;
+  --muted-light: #eef2ff;
+  --surface: #f4f6fb;
+  --footer-bg: #0b1020;
+  --footer-muted: #eef2ff;
+  --hero-subtitle: #eef2ff;
   --whatsapp: #25d366;
+  --offer-card-from: #ffd600;
+  --offer-card-to: #ff7b00;
+  --offer-card-text: #111111;
+  --offer-card-badge-bg: #111111;
+  --offer-card-badge-text: #ffffff;
+}
+
+[data-store="streaming"] {
+  --background: #ece5dd;
+  --foreground: #111b21;
+  --primary: #25d366;
+  --primary-dark: #075e54;
+  --primary-hover: #128c7e;
+  --border: #cfe9c6;
+  --muted-light: #dcf8c6;
+  --surface: #f5f0e8;
+  --footer-bg: #075e54;
+  --footer-muted: #d9fdd3;
+  --hero-subtitle: #e7fce8;
+  --offer-card-from: #fff7ed;
+  --offer-card-to: #fdba74;
+  --offer-card-text: #075e54;
+  --offer-card-badge-bg: #075e54;
+  --offer-card-badge-text: #ffffff;
 }
 
 @theme inline {
@@ -39,17 +68,54 @@ body {
   font-family: var(--font-jakarta), var(--font-inter), sans-serif;
 }
 
-.bg-header-gradient {
-  background: linear-gradient(135deg, #1c0a0a, #b91c1c);
+[data-store="libroteck"] .bg-header-gradient {
+  background: linear-gradient(135deg, #0b1020, #2a4494);
 }
 
-.bg-hero-gradient {
+[data-store="streaming"] .bg-header-gradient {
+  background: linear-gradient(135deg, #075e54, #128c7e);
+}
+
+[data-store="libroteck"] .bg-hero-gradient {
   background:
-    linear-gradient(135deg, rgba(28, 10, 10, 0.98), rgba(185, 28, 28, 0.62)),
+    linear-gradient(135deg, rgba(11, 16, 32, 0.98), rgba(42, 68, 148, 0.62)),
     radial-gradient(circle at top right, rgba(255, 214, 0, 0.28) 0%, transparent 28%),
-    linear-gradient(135deg, #1c0a0a, #991b1b);
+    linear-gradient(135deg, #0b1020, #243b7a);
 }
 
-.bg-offer-gradient {
-  background: linear-gradient(135deg, #1c0a0a, #b91c1c);
+[data-store="streaming"] .bg-hero-gradient {
+  background:
+    linear-gradient(135deg, rgba(7, 94, 84, 0.97), rgba(18, 140, 126, 0.72)),
+    radial-gradient(circle at top right, rgba(220, 248, 198, 0.35) 0%, transparent 32%),
+    linear-gradient(135deg, #075e54, #128c7e);
+}
+
+[data-store="libroteck"] .bg-offer-gradient {
+  background: linear-gradient(135deg, #0b1020, #2a4494);
+}
+
+[data-store="streaming"] .bg-offer-gradient {
+  background: linear-gradient(135deg, #075e54, #25d366);
+}
+
+.hero-offer-card {
+  color: var(--offer-card-text);
+  background: linear-gradient(
+    to bottom right,
+    var(--offer-card-from),
+    var(--offer-card-to)
+  );
+}
+
+.hero-offer-card__badge {
+  background: var(--offer-card-badge-bg);
+  color: var(--offer-card-badge-text);
+}
+
+[data-store="libroteck"] .hero-section {
+  box-shadow: 0 18px 45px rgba(11, 16, 32, 0.22);
+}
+
+[data-store="streaming"] .hero-section {
+  box-shadow: 0 18px 45px rgba(7, 94, 84, 0.2);
 }

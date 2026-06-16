@@ -19,6 +19,7 @@ export const STREAMING_PAYMENTS = [
   { name: "Argentina", description: "Banco local", icon: Landmark },
   { name: "Chile", description: "Banco de Chile", icon: Landmark },
   { name: "Colombia", description: "Nequi y Bancolombia", icon: Wallet },
+  { name: "Otros", description: "Binance y PayPal", icon: Wallet },
 ] as const;
 
 export function getPaymentMethods(slug: StoreSlug) {

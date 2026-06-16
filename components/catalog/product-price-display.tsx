@@ -17,7 +17,7 @@ export function ProductPriceDisplay({
   className,
 }: ProductPriceDisplayProps) {
   if (!price) {
-    return <span className={cn("text-[#1c0a0a]/50", className)}>Consultar</span>;
+    return <span className={cn("text-[var(--foreground)]/50", className)}>Consultar</span>;
   }
 
   const hasDiscount =
@@ -45,7 +45,7 @@ export function ProductPriceDisplay({
           </span>
         </>
       )}
-      <span className={cn("font-black text-[#dc2626]", saleSize)}>
+      <span className={cn("font-black text-[var(--primary)]", saleSize)}>
         {formatPrice(price.amount, price.currency)}
       </span>
     </div>

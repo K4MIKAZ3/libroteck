@@ -66,12 +66,12 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { settings } = await getStoreContext();
+  const { settings, slug } = await getStoreContext();
   const clientId = resolveAdsenseClientId(settings);
   const loadAdsense = shouldLoadAdsenseScript(settings);
 
   return (
-    <html lang="es" className="h-full">
+    <html lang="es" className="h-full" data-store={slug}>
       <head>
         {loadAdsense && (
           <script
@@ -82,7 +82,7 @@ export default async function RootLayout({
         )}
       </head>
       <body
-        className={`${inter.variable} ${jakarta.variable} ${literata.variable} min-h-full bg-[#faf6f6] font-[family-name:var(--font-inter)] text-[#1c0a0a] antialiased`}
+        className={`${inter.variable} ${jakarta.variable} ${literata.variable} min-h-full bg-[var(--background)] font-[family-name:var(--font-inter)] text-[var(--foreground)] antialiased`}
       >
         <AppProviders>
           {children}

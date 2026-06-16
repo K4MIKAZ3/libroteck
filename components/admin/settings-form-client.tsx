@@ -245,7 +245,7 @@ export function SettingsFormClient({
                 {WHATSAPP_TEMPLATE_PLACEHOLDERS.join(", ")}.{" "}
                 <button
                   type="button"
-                  className="text-[#991b1b] underline underline-offset-2"
+                  className="text-[var(--primary-hover)] underline underline-offset-2"
                   onClick={() =>
                     setWhatsappOrderTemplate(DEFAULT_WHATSAPP_ORDER_TEMPLATE)
                   }
@@ -257,7 +257,7 @@ export function SettingsFormClient({
 
             <div className="rounded-xl border border-[#E8E0D5] bg-[#FAF7F2]/60 p-4 space-y-4">
               <div>
-                <p className="font-medium text-[#991b1b]">Publicidad suave</p>
+                <p className="font-medium text-[var(--primary-hover)]">Publicidad suave</p>
                 <p className="mt-1 text-xs text-[#1A1A2E]/60">
                   Banner opcional debajo del hero. El usuario puede cerrarlo. No
                   interrumpe la compra.
@@ -319,7 +319,7 @@ export function SettingsFormClient({
 
             <div className="rounded-xl border border-[#E8E0D5] bg-[#FAF7F2]/60 p-4 space-y-4">
               <div>
-                <p className="font-medium text-[#991b1b]">Espacios publicitarios</p>
+                <p className="font-medium text-[var(--primary-hover)]">Espacios publicitarios</p>
                 <p className="mt-1 text-xs text-[#1A1A2E]/60">
                   Barra superior + columnas laterales en pantallas grandes. En móvil
                   solo se muestra la barra de arriba.
@@ -384,7 +384,7 @@ export function SettingsFormClient({
               </div>
 
               <div className="rounded-lg border border-[#E8E0D5] bg-white p-3 text-xs text-[#1A1A2E]/70">
-                <p className="font-semibold text-[#991b1b]">Redes recomendadas</p>
+                <p className="font-semibold text-[var(--primary-hover)]">Redes recomendadas</p>
                 <ul className="mt-2 space-y-2">
                   {AD_NETWORK_GUIDE.map((network) => (
                     <li key={network.name}>
@@ -392,7 +392,7 @@ export function SettingsFormClient({
                         href={network.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="font-medium text-[#991b1b] underline-offset-2 hover:underline"
+                        className="font-medium text-[var(--primary-hover)] underline-offset-2 hover:underline"
                       >
                         {network.name}
                         {network.recommended ? " (recomendado)" : ""}
@@ -406,11 +406,11 @@ export function SettingsFormClient({
                   En AdSense crea 3 unidades: una horizontal (arriba) y dos
                   verticales (laterales). Copia el ca-pub y cada data-ad-slot aquí.
                   También necesitas la pagina{" "}
-                  <a href="/privacidad" className="text-[#991b1b] underline">
+                  <a href="/privacidad" className="text-[var(--primary-hover)] underline">
                     /privacidad
                   </a>{" "}
                   y el archivo{" "}
-                  <a href="/ads.txt" className="text-[#991b1b] underline">
+                  <a href="/ads.txt" className="text-[var(--primary-hover)] underline">
                     /ads.txt
                   </a>
                   .

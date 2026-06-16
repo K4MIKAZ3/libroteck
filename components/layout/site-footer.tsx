@@ -18,7 +18,7 @@ export function SiteFooter({
   const paymentMethods = getPaymentMethods(storeSlug);
 
   return (
-    <footer className="mt-16 bg-[#1c0a0a] text-white">
+    <footer className="mt-16 bg-[var(--footer-bg)] text-white">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
         <div className="text-center">
           <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#ffd600]">
@@ -27,7 +27,7 @@ export function SiteFooter({
           <h2 className="font-heading mt-2 text-xl font-bold sm:text-2xl">
             Aceptamos los siguientes medios
           </h2>
-          <p className="mx-auto mt-2 max-w-lg text-sm text-[#fde8e8]">
+          <p className="mx-auto mt-2 max-w-lg text-sm text-[var(--footer-muted)]">
             Al ordenar por WhatsApp te indicamos los datos para completar tu pago
             de forma segura.
           </p>
@@ -39,18 +39,18 @@ export function SiteFooter({
               key={method.name}
               className="flex flex-col items-center rounded-3xl border border-white/10 bg-white/5 px-4 py-5 text-center transition-shadow hover:shadow-[0_8px_25px_rgba(0,0,0,0.2)]"
             >
-              <div className="flex size-12 items-center justify-center rounded-full bg-[#dc2626]/30 text-[#ffd600]">
+              <div className="flex size-12 items-center justify-center rounded-full bg-[var(--primary)]/30 text-[#ffd600]">
                 <method.icon className="size-5" />
               </div>
               <p className="mt-3 font-semibold">{method.name}</p>
-              <p className="mt-1 text-xs text-[#fde8e8]/80">
+              <p className="mt-1 text-xs text-[var(--footer-muted)]/80">
                 {method.description}
               </p>
             </div>
           ))}
         </div>
 
-        <p className="mt-10 text-center text-xs text-[#fde8e8]/70">
+        <p className="mt-10 text-center text-xs text-[var(--footer-muted)]/70">
           © {new Date().getFullYear()} {brandPrimary}
           {brandAccent} — {tagline}
           {" · "}
