@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { requireAdminRequest } from "@/lib/auth/request";
 import { createProduct } from "@/lib/db/queries";
 import type { CountryCode, ProductType } from "@/lib/pricing/countries";
+import { validateProductCoverUrl } from "@/lib/security/product-input";
 import { slugify } from "@/lib/utils";
 
 type ProductInput = {
@@ -29,6 +30,11 @@ export async function POST(request: Request) {
       await requireAdminRequest(request, body._token, "products");
     } catch {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
+
+    const coverError = validateProductCoverUrl(body.coverUrl ?? "");
+    if (coverError) {
+      return NextResponse.json({ error: coverError }, { status: 400 });
     }
 
     const product = await createProduct({

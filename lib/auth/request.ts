@@ -21,26 +21,48 @@ export function getCookieTokenFromRequest(request: Request) {
   return undefined;
 }
 
+export async function hasValidAdminSession(request: Request) {
+  const cookieStore = await cookies();
+  const token =
+    cookieStore.get(ADMIN_COOKIE_NAME)?.value ??
+    getCookieTokenFromRequest(request);
+
+  return verifyAdminSessionToken(token);
+}
+
+export async function requireAdminSession(request: Request) {
+  if (!(await hasValidAdminSession(request))) {
+    throw new Error("UNAUTHORIZED");
+  }
+}
+
+export async function requireAdminMutation(
+  request: Request,
+  formToken: string | null | undefined,
+  purpose: FormTokenPurpose,
+) {
+  await requireAdminSession(request);
+
+  if (!(await verifyFormToken(formToken, purpose))) {
+    throw new Error("UNAUTHORIZED");
+  }
+}
+
+/** @deprecated Prefer requireAdminSession or requireAdminMutation */
 export async function authorizeAdminRequest(
   request: Request,
   formToken?: string | null,
   purpose?: FormTokenPurpose,
 ) {
-  if (purpose && (await verifyFormToken(formToken, purpose))) {
-    return true;
+  if (!(await hasValidAdminSession(request))) {
+    return false;
   }
 
-  const cookieStore = await cookies();
-  if (await verifyAdminSessionToken(cookieStore.get(ADMIN_COOKIE_NAME)?.value)) {
-    return true;
+  if (purpose) {
+    return verifyFormToken(formToken, purpose);
   }
 
-  const tokenFromHeader = getCookieTokenFromRequest(request);
-  if (await verifyAdminSessionToken(tokenFromHeader)) {
-    return true;
-  }
-
-  return false;
+  return true;
 }
 
 export async function requireAdminRequest(
@@ -48,7 +70,10 @@ export async function requireAdminRequest(
   formToken?: string | null,
   purpose?: FormTokenPurpose,
 ) {
-  if (!(await authorizeAdminRequest(request, formToken, purpose))) {
-    throw new Error("UNAUTHORIZED");
+  if (purpose) {
+    await requireAdminMutation(request, formToken, purpose);
+    return;
   }
+
+  await requireAdminSession(request);
 }

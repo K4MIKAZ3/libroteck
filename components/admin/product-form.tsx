@@ -27,6 +27,11 @@ import {
   type ProductType,
 } from "@/lib/pricing/countries";
 import {
+  BOB_PER_USD,
+  getExchangeRateSummary,
+  pricesFromUsdToForm,
+} from "@/lib/pricing/exchange-rates";
+import {
   getDefaultProductType,
   getProductTypesForStore,
 } from "@/lib/store/product-types";
@@ -75,6 +80,15 @@ export function ProductForm({
     });
     return initial;
   });
+
+  function applyPricesFromUsd(usdValue: string) {
+    const usd = Number(usdValue);
+    if (!usdValue.trim() || Number.isNaN(usd) || usd < 0) {
+      return;
+    }
+
+    setPrices(pricesFromUsdToForm(usd));
+  }
 
   const previewProduct: ProductWithPrices = {
     id: product?.id ?? 0,
@@ -245,10 +259,41 @@ export function ProductForm({
           <ImageUpload value={coverUrl} onChange={setCoverUrl} uploadToken={saveToken} />
 
           <div className="space-y-3">
+            <div className="space-y-2">
+              <Label htmlFor="price-INT">
+                {COUNTRIES.INT.flag} Precio base en dólares (USD)
+              </Label>
+              <Input
+                id="price-INT"
+                type="number"
+                min="0"
+                step="0.01"
+                value={prices.INT}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  setPrices((current) => ({ ...current, INT: value }));
+                  applyPricesFromUsd(value);
+                }}
+                placeholder="Ej. 2.10"
+              />
+              <p className="text-xs leading-relaxed text-[#666]">
+                Al escribir el precio en USD se calculan automáticamente los
+                demás países según el equivalente en su moneda. Bolivia usa la
+                tasa oficial fija Bs {BOB_PER_USD} = US$1.
+              </p>
+              <p className="text-xs text-[#888]">{getExchangeRateSummary()}</p>
+            </div>
+
             <Label>Precios por país</Label>
             <div className="grid gap-3 sm:grid-cols-2">
-              {(Object.entries(COUNTRIES) as [CountryCode, (typeof COUNTRIES)[CountryCode]][]).map(
-                ([code, meta]) => (
+              {(
+                Object.entries(COUNTRIES) as [
+                  CountryCode,
+                  (typeof COUNTRIES)[CountryCode],
+                ][]
+              )
+                .filter(([code]) => code !== "INT")
+                .map(([code, meta]) => (
                   <div key={code} className="space-y-2">
                     <Label htmlFor={`price-${code}`}>
                       {meta.flag} {meta.label} ({meta.currency})
@@ -257,7 +302,7 @@ export function ProductForm({
                       id={`price-${code}`}
                       type="number"
                       min="0"
-                      step="0.01"
+                      step={code === "CO" || code === "AR" ? "1" : "0.01"}
                       value={prices[code]}
                       onChange={(event) =>
                         setPrices((current) => ({
@@ -268,9 +313,18 @@ export function ProductForm({
                       placeholder={`Precio en ${meta.currency}`}
                     />
                   </div>
-                ),
-              )}
+                ))}
             </div>
+            {prices.INT.trim() && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => applyPricesFromUsd(prices.INT)}
+              >
+                Recalcular todos desde USD
+              </Button>
+            )}
           </div>
 
           {error && <p className="text-sm text-red-600">{error}</p>}

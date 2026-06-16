@@ -4,15 +4,18 @@ import { useEffect, useMemo, useState } from "react";
 import { ChevronDown, Sparkles } from "lucide-react";
 import { ComboBuilder } from "@/components/catalog/combo-builder";
 import { ProductCard } from "@/components/catalog/product-card";
-import { ProductFilters } from "@/components/catalog/product-filters";
+import { ProductFilters, type CatalogFilterValue } from "@/components/catalog/product-filters";
 import { ProductSearchBar } from "@/components/catalog/product-search-bar";
 import type { ProductWithPrices } from "@/lib/db/schema";
 import {
   filterProductsBySearch,
   sortProductsForDisplay,
 } from "@/lib/catalog/product-list";
-import type { ProductType } from "@/lib/pricing/countries";
 import type { StoreSlug } from "@/lib/store/context";
+import {
+  filterStreamingCatalogProducts,
+  type StreamingCatalogFilter,
+} from "@/lib/store/streaming-categories";
 
 type CatalogGridProps = {
   products: ProductWithPrices[];
@@ -33,18 +36,27 @@ export function CatalogGrid({
   catalogSubtitle,
   searchPlaceholder,
 }: CatalogGridProps) {
-  const [filter, setFilter] = useState<"all" | ProductType>("all");
+  const [filter, setFilter] = useState<CatalogFilterValue>("all");
   const [query, setQuery] = useState("");
   const [comboOpen, setComboOpen] = useState(false);
 
   const filtered = useMemo(() => {
     const bySearch = filterProductsBySearch(products, query);
     const sorted = sortProductsForDisplay(bySearch);
+
+    if (storeSlug === "streaming") {
+      return filterStreamingCatalogProducts(
+        sorted,
+        filter as StreamingCatalogFilter,
+      );
+    }
+
     if (filter === "all") {
       return sorted;
     }
+
     return sorted.filter((product) => product.type === filter);
-  }, [products, filter, query]);
+  }, [products, filter, query, storeSlug]);
 
   useEffect(() => {
     if (storeSlug !== "streaming") {

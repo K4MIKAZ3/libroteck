@@ -1,6 +1,10 @@
 import type { ProductWithPrices } from "@/lib/db/schema";
 import type { ProductType } from "@/lib/pricing/countries";
 import { PRODUCT_TYPE_LABELS } from "@/lib/pricing/countries";
+import {
+  getStreamingCategoryLabel,
+  isStreamingCatalogProduct,
+} from "@/lib/store/streaming-categories";
 
 const TYPE_PRIORITY: Record<ProductType, number> = {
   bundle: 3,
@@ -35,13 +39,17 @@ export function matchesProductSearch(
   }
 
   const typeLabel = PRODUCT_TYPE_LABELS[product.type as ProductType].toLowerCase();
+  const streamingLabel = isStreamingCatalogProduct(product)
+    ? getStreamingCategoryLabel(product).toLowerCase()
+    : "";
 
   return (
     product.name.toLowerCase().includes(q) ||
     product.slug.toLowerCase().includes(q) ||
     product.description.toLowerCase().includes(q) ||
     product.type.toLowerCase().includes(q) ||
-    typeLabel.includes(q)
+    typeLabel.includes(q) ||
+    streamingLabel.includes(q)
   );
 }
 

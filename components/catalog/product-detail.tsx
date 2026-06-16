@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ProductPriceDisplay } from "@/components/catalog/product-price-display";
 import { CoverImage } from "@/components/catalog/cover-image";
 import Link from "next/link";
-import { ArrowLeft, ShoppingCart, User } from "lucide-react";
+import { ArrowLeft, ShoppingCart, User, Bot, LayoutDashboard } from "lucide-react";
 import { useCart } from "@/components/providers/cart-provider";
 import { useCountry } from "@/components/providers/country-provider";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +18,7 @@ import {
 } from "@/lib/pricing/countries";
 import { HOME_PATH } from "@/lib/routes";
 import type { StoreSlug } from "@/lib/store/context";
+import { getStreamingCatalogCategory } from "@/lib/store/streaming-categories";
 import {
   getStreamingDisplayName,
   getStreamingProductSubtitle,
@@ -32,16 +33,19 @@ export function ProductDetail({
   storeSlug?: StoreSlug;
 }) {
   const isStreaming = storeSlug === "streaming";
+  const streamingCategory = isStreaming
+    ? getStreamingCatalogCategory(product)
+    : null;
   const { country } = useCountry();
   const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
   const price = getPriceForCountry(product.prices, country);
   const displayName =
-    isStreaming && product.type === "subscription"
+    isStreaming && streamingCategory === "streaming"
       ? getStreamingDisplayName(product.name)
       : product.name;
   const typeLabel = isStreaming
-    ? getStreamingProductSubtitle(product.type)
+    ? getStreamingProductSubtitle(product)
     : PRODUCT_TYPE_LABELS[product.type as ProductType];
 
   return (
@@ -71,10 +75,22 @@ export function ProductDetail({
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="secondary">{typeLabel}</Badge>
-              {isStreaming && product.type === "subscription" && (
+              {streamingCategory === "streaming" && (
                 <Badge className="gap-1 bg-[#111] text-white">
                   <User className="size-3" />
                   Perfil individual
+                </Badge>
+              )}
+              {streamingCategory === "panel" && (
+                <Badge className="gap-1 bg-[#075e54] text-white">
+                  <LayoutDashboard className="size-3" />
+                  Panel
+                </Badge>
+              )}
+              {streamingCategory === "ia" && (
+                <Badge className="gap-1 bg-[#6b21a8] text-white">
+                  <Bot className="size-3" />
+                  IA
                 </Badge>
               )}
               {product.isNew && <Badge variant="new">Nuevo</Badge>}
@@ -88,12 +104,12 @@ export function ProductDetail({
           <Card>
             <CardContent className="space-y-4 p-5">
               <p className="leading-relaxed text-[#555]">{product.description}</p>
-              {isStreaming && product.type === "subscription" && (
+              {streamingCategory === "streaming" && (
                 <p className="rounded-xl bg-[var(--surface)] p-3 text-sm text-[#555]">
                   {STREAMING_PROFILE_NOTE}
                 </p>
               )}
-              {isStreaming && (
+              {streamingCategory === "streaming" && (
                 <p className="text-sm text-[#666]">
                   ¿Quieres varios perfiles? Usa{" "}
                   <a

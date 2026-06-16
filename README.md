@@ -5,9 +5,10 @@ Catálogo de cursos y libros con precios por país y checkout por WhatsApp.
 ## Demo en vivo
 
 - **Repositorio:** https://github.com/K4MIKAZ3/libroteck
-- **Tienda:** https://libroteck.vercel.app
-- **Admin:** https://libroteck.vercel.app/admin/login
-- **Contraseña:** `admin123`
+- **Tienda:** https://libroteck.xyz/home
+- **Admin:** https://libroteck.xyz/admin/login
+
+Configura `ADMIN_PASSWORD` y `ADMIN_SECRET` en producción (mínimo 32 caracteres para el secret). No uses contraseñas por defecto en entornos públicos.
 
 ## Inicio rápido
 
@@ -26,7 +27,7 @@ Abre [http://localhost:3000](http://localhost:3000).
 ## Admin
 
 - URL: `/admin/login`
-- Contraseña por defecto: `admin123`
+- Define `ADMIN_PASSWORD` en `.env.local` para desarrollo o guarda la contraseña desde **Admin → Seguridad** en producción.
 
 Desde el panel puedes:
 
@@ -38,8 +39,8 @@ Desde el panel puedes:
 ## Variables de entorno
 
 ```env
-ADMIN_PASSWORD=admin123
-ADMIN_SECRET=una-clave-secreta-larga
+ADMIN_PASSWORD=tu-contraseña-segura
+ADMIN_SECRET=una-clave-secreta-larga-de-al-menos-32-caracteres
 WHATSAPP_NUMBER=5212345678900
 DATABASE_URL=postgresql://...
 BLOB_READ_WRITE_TOKEN=

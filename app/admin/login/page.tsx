@@ -12,6 +12,7 @@ function AdminLoginForm() {
   const searchParams = useSearchParams();
   const nextPath = searchParams.get("next") ?? "/admin/productos";
   const hasError = searchParams.get("error") === "1";
+  const isRateLimited = searchParams.get("error") === "rate";
 
   return (
     <Card className="w-full max-w-md">
@@ -34,6 +35,12 @@ function AdminLoginForm() {
           </div>
           {hasError && (
             <p className="text-sm text-red-600">Contraseña incorrecta</p>
+          )}
+          {isRateLimited && (
+            <p className="text-sm text-red-600">
+              Demasiados intentos fallidos. Espera unos minutos e inténtalo de
+              nuevo.
+            </p>
           )}
           <Button type="submit" className="w-full">
             Entrar

@@ -3,18 +3,45 @@ import { cookies } from "next/headers";
 
 export const ADMIN_COOKIE_NAME = "libroteck_admin";
 const SESSION_DURATION = 60 * 60 * 24 * 7;
+const MIN_SECRET_LENGTH = 32;
+
+function assertProductionSecret() {
+  if (process.env.NODE_ENV !== "production") {
+    return;
+  }
+
+  const secret = process.env.ADMIN_SECRET;
+  if (!secret || secret.length < MIN_SECRET_LENGTH) {
+    throw new Error(
+      "ADMIN_SECRET must be set in production (at least 32 characters).",
+    );
+  }
+}
 
 export function getAdminSecret() {
-  return new TextEncoder().encode(
-    process.env.ADMIN_SECRET ?? "libroteck-dev-secret-change-me",
-  );
+  assertProductionSecret();
+
+  const secret =
+    process.env.ADMIN_SECRET ??
+    (process.env.NODE_ENV === "production"
+      ? ""
+      : "libroteck-dev-secret-change-me");
+
+  if (!secret) {
+    throw new Error("ADMIN_SECRET is required.");
+  }
+
+  return new TextEncoder().encode(secret);
 }
 
 export function getAdminCookieOptions() {
+  const isProduction = process.env.NODE_ENV === "production";
+  const sameSite: "strict" | "lax" = isProduction ? "strict" : "lax";
+
   return {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax" as const,
+    secure: isProduction,
+    sameSite,
     maxAge: SESSION_DURATION,
     path: "/",
   };
@@ -34,8 +61,8 @@ export async function verifyAdminSessionToken(token?: string | null) {
   }
 
   try {
-    await jwtVerify(token, getAdminSecret());
-    return true;
+    const { payload } = await jwtVerify(token, getAdminSecret());
+    return payload.role === "admin";
   } catch {
     return false;
   }

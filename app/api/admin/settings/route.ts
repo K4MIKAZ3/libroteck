@@ -1,34 +1,13 @@
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
-import { ADMIN_COOKIE_NAME, verifyAdminSessionToken } from "@/lib/auth";
-import { createFormToken, verifyFormToken } from "@/lib/auth/form-token";
+import { createFormToken } from "@/lib/auth/form-token";
+import {
+  requireAdminMutation,
+  requireAdminSession,
+} from "@/lib/auth/request";
 import { upsertSettings, updateStoreHeroOffer } from "@/lib/db/queries";
-
-function getCookieToken(request: Request) {
-  const cookieHeader = request.headers.get("cookie");
-  if (!cookieHeader) return null;
-
-  for (const part of cookieHeader.split(";")) {
-    const trimmed = part.trim();
-    if (!trimmed.startsWith(`${ADMIN_COOKIE_NAME}=`)) continue;
-    return trimmed.slice(ADMIN_COOKIE_NAME.length + 1);
-  }
-
-  return null;
-}
-
-async function isAuthorized(
-  request: Request,
-  formToken: string | null | undefined,
-  purpose: "settings" | "password",
-) {
-  if (await verifyFormToken(formToken, purpose)) {
-    return true;
-  }
-
-  const cookieToken = getCookieToken(request);
-  return verifyAdminSessionToken(cookieToken);
-}
+import { toPublicSettings } from "@/lib/security/public-settings";
+import { isSafeImageUrl, isSafePromoLink } from "@/lib/security/urls";
 
 type SettingsInput = {
   whatsappNumber?: string;
@@ -52,32 +31,65 @@ type SettingsInput = {
   _token?: string;
 };
 
+function normalizeHeroOffer(body: {
+  heroOfferServiceName?: string;
+  heroOfferPrice?: string;
+  heroOfferSubtitle?: string;
+  heroOfferBackgroundImageUrl?: string;
+}) {
+  const heroOfferBackgroundImageUrl =
+    body.heroOfferBackgroundImageUrl?.trim() ?? "";
+
+  if (!isSafeImageUrl(heroOfferBackgroundImageUrl)) {
+    return { error: "La imagen del banner debe ser una URL segura permitida" };
+  }
+
+  return {
+    data: {
+      heroOfferServiceName: body.heroOfferServiceName?.trim() ?? "",
+      heroOfferPrice: body.heroOfferPrice?.trim() ?? "",
+      heroOfferSubtitle: body.heroOfferSubtitle?.trim() ?? "",
+      heroOfferBackgroundImageUrl,
+    },
+  };
+}
+
 function normalizeSettings(body: SettingsInput) {
   if (!body.whatsappNumber?.trim() || !body.storeName?.trim()) {
     return null;
   }
 
+  const promoLink = body.promoLink?.trim() ?? "";
+
+  if (!isSafePromoLink(promoLink)) {
+    return { error: "El enlace promocional debe ser http(s) o una ruta interna" };
+  }
+
   return {
-    whatsappNumber: body.whatsappNumber.trim().replace(/\D/g, ""),
-    storeName: body.storeName.trim(),
-    welcomeMessage:
-      body.welcomeMessage?.trim() || "Elige tu país y ordena por WhatsApp",
-    whatsappOrderTemplate: body.whatsappOrderTemplate?.trim() ?? "",
-    promoEnabled: Boolean(body.promoEnabled),
-    promoTitle: body.promoTitle?.trim() ?? "",
-    promoMessage: body.promoMessage?.trim() ?? "",
-    promoLink: body.promoLink?.trim() ?? "",
-    promoButtonLabel: body.promoButtonLabel?.trim() || "Ver promoción",
-    adsEnabled: Boolean(body.adsEnabled),
-    adsenseClientId: body.adsenseClientId?.trim() ?? "",
-    adSlotTop: body.adSlotTop?.trim() ?? "",
-    adSlotLeft: body.adSlotLeft?.trim() ?? "",
-    adSlotRight: body.adSlotRight?.trim() ?? "",
+    data: {
+      whatsappNumber: body.whatsappNumber.trim().replace(/\D/g, ""),
+      storeName: body.storeName.trim(),
+      welcomeMessage:
+        body.welcomeMessage?.trim() || "Elige tu país y ordena por WhatsApp",
+      whatsappOrderTemplate: body.whatsappOrderTemplate?.trim() ?? "",
+      promoEnabled: Boolean(body.promoEnabled),
+      promoTitle: body.promoTitle?.trim() ?? "",
+      promoMessage: body.promoMessage?.trim() ?? "",
+      promoLink,
+      promoButtonLabel: body.promoButtonLabel?.trim() || "Ver promoción",
+      adsEnabled: Boolean(body.adsEnabled),
+      adsenseClientId: body.adsenseClientId?.trim() ?? "",
+      adSlotTop: body.adSlotTop?.trim() ?? "",
+      adSlotLeft: body.adSlotLeft?.trim() ?? "",
+      adSlotRight: body.adSlotRight?.trim() ?? "",
+    },
   };
 }
 
 export async function GET(request: Request) {
-  if (!(await isAuthorized(request, null, "settings"))) {
+  try {
+    await requireAdminSession(request);
+  } catch {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
@@ -89,35 +101,42 @@ export async function PUT(request: Request) {
   try {
     const body = (await request.json()) as SettingsInput;
 
-    if (!(await isAuthorized(request, body._token, "settings"))) {
+    try {
+      await requireAdminMutation(request, body._token, "settings");
+    } catch {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
-    const payload = normalizeSettings(body);
-    if (!payload) {
+    const normalized = normalizeSettings(body);
+    if (!normalized) {
       return NextResponse.json(
         { error: "WhatsApp y nombre de tienda son obligatorios" },
         { status: 400 },
       );
     }
 
-    const settings = await upsertSettings(payload, request);
-    const store = await updateStoreHeroOffer(
-      {
-        heroOfferServiceName: body.heroOfferServiceName ?? "",
-        heroOfferPrice: body.heroOfferPrice ?? "",
-        heroOfferSubtitle: body.heroOfferSubtitle ?? "",
-        heroOfferBackgroundImageUrl: body.heroOfferBackgroundImageUrl ?? "",
-      },
-      request,
-    );
+    if ("error" in normalized) {
+      return NextResponse.json({ error: normalized.error }, { status: 400 });
+    }
+
+    const heroOffer = normalizeHeroOffer(body);
+    if ("error" in heroOffer) {
+      return NextResponse.json({ error: heroOffer.error }, { status: 400 });
+    }
+
+    const settings = await upsertSettings(normalized.data, request);
+    const store = await updateStoreHeroOffer(heroOffer.data, request);
     revalidatePath("/");
     revalidatePath("/home");
     revalidatePath("/admin/configuracion");
     revalidatePath("/carrito");
     revalidatePath("/producto/[slug]", "layout");
 
-    return NextResponse.json({ success: true, settings, store });
+    return NextResponse.json({
+      success: true,
+      settings: toPublicSettings(settings),
+      store,
+    });
   } catch (error) {
     console.error("Failed to save settings", error);
     return NextResponse.json(
@@ -131,11 +150,13 @@ export async function POST(request: Request) {
   const formData = await request.formData();
   const formToken = String(formData.get("_token") ?? "");
 
-  if (!(await isAuthorized(request, formToken, "settings"))) {
+  try {
+    await requireAdminMutation(request, formToken, "settings");
+  } catch {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-  const payload = normalizeSettings({
+  const normalized = normalizeSettings({
     whatsappNumber: String(formData.get("whatsappNumber") ?? ""),
     storeName: String(formData.get("storeName") ?? ""),
     welcomeMessage: String(formData.get("welcomeMessage") ?? ""),
@@ -152,32 +173,43 @@ export async function POST(request: Request) {
     adSlotRight: String(formData.get("adSlotRight") ?? ""),
   });
 
-  if (!payload) {
+  if (!normalized) {
     return NextResponse.json(
       { error: "WhatsApp y nombre de tienda son obligatorios" },
       { status: 400 },
     );
   }
 
+  if ("error" in normalized) {
+    return NextResponse.json({ error: normalized.error }, { status: 400 });
+  }
+
+  const heroOffer = normalizeHeroOffer({
+    heroOfferServiceName: String(formData.get("heroOfferServiceName") ?? ""),
+    heroOfferPrice: String(formData.get("heroOfferPrice") ?? ""),
+    heroOfferSubtitle: String(formData.get("heroOfferSubtitle") ?? ""),
+    heroOfferBackgroundImageUrl: String(
+      formData.get("heroOfferBackgroundImageUrl") ?? "",
+    ),
+  });
+
+  if ("error" in heroOffer) {
+    return NextResponse.json({ error: heroOffer.error }, { status: 400 });
+  }
+
   try {
-    const settings = await upsertSettings(payload, request);
-    const store = await updateStoreHeroOffer(
-      {
-        heroOfferServiceName: String(formData.get("heroOfferServiceName") ?? ""),
-        heroOfferPrice: String(formData.get("heroOfferPrice") ?? ""),
-        heroOfferSubtitle: String(formData.get("heroOfferSubtitle") ?? ""),
-        heroOfferBackgroundImageUrl: String(
-          formData.get("heroOfferBackgroundImageUrl") ?? "",
-        ),
-      },
-      request,
-    );
+    const settings = await upsertSettings(normalized.data, request);
+    const store = await updateStoreHeroOffer(heroOffer.data, request);
     revalidatePath("/");
     revalidatePath("/home");
     revalidatePath("/admin/configuracion");
     revalidatePath("/carrito");
     revalidatePath("/producto/[slug]", "layout");
-    return NextResponse.json({ success: true, settings, store });
+    return NextResponse.json({
+      success: true,
+      settings: toPublicSettings(settings),
+      store,
+    });
   } catch (error) {
     console.error("Failed to save settings", error);
     return NextResponse.json(

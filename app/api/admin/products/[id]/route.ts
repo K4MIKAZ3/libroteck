@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { requireAdminRequest } from "@/lib/auth/request";
 import { deleteProduct, getProductById, updateProduct } from "@/lib/db/queries";
 import type { CountryCode, ProductType } from "@/lib/pricing/countries";
+import { validateProductCoverUrl } from "@/lib/security/product-input";
 import { slugify } from "@/lib/utils";
 
 type ProductInput = {
@@ -49,6 +50,11 @@ export async function PUT(
 
     if (!existing) {
       return NextResponse.json({ error: "Producto no encontrado" }, { status: 404 });
+    }
+
+    const coverError = validateProductCoverUrl(body.coverUrl ?? "");
+    if (coverError) {
+      return NextResponse.json({ error: coverError }, { status: 400 });
     }
 
     const product = await updateProduct(productId, {

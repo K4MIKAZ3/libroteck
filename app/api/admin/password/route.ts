@@ -1,30 +1,13 @@
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
-import { verifyAdminPassword, ADMIN_COOKIE_NAME, verifyAdminSessionToken } from "@/lib/auth";
-import { verifyFormToken } from "@/lib/auth/form-token";
+import {
+  ADMIN_COOKIE_NAME,
+  createAdminSessionToken,
+  getAdminCookieOptions,
+  verifyAdminPassword,
+} from "@/lib/auth";
+import { requireAdminMutation } from "@/lib/auth/request";
 import { updateAdminPassword } from "@/lib/db/queries";
-
-function getCookieToken(request: Request) {
-  const cookieHeader = request.headers.get("cookie");
-  if (!cookieHeader) return null;
-
-  for (const part of cookieHeader.split(";")) {
-    const trimmed = part.trim();
-    if (!trimmed.startsWith(`${ADMIN_COOKIE_NAME}=`)) continue;
-    return trimmed.slice(ADMIN_COOKIE_NAME.length + 1);
-  }
-
-  return null;
-}
-
-async function isAuthorized(request: Request, formToken: string | null | undefined) {
-  if (await verifyFormToken(formToken, "password")) {
-    return true;
-  }
-
-  const cookieToken = getCookieToken(request);
-  return verifyAdminSessionToken(cookieToken);
-}
 
 export async function PUT(request: Request) {
   try {
@@ -35,7 +18,9 @@ export async function PUT(request: Request) {
       _token?: string;
     };
 
-    if (!(await isAuthorized(request, body._token))) {
+    try {
+      await requireAdminMutation(request, body._token, "password");
+    } catch {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
@@ -67,7 +52,10 @@ export async function PUT(request: Request) {
     await updateAdminPassword(newPassword, request);
     revalidatePath("/admin/seguridad");
 
-    return NextResponse.json({ success: true });
+    const token = await createAdminSessionToken();
+    const response = NextResponse.json({ success: true });
+    response.cookies.set(ADMIN_COOKIE_NAME, token, getAdminCookieOptions());
+    return response;
   } catch (error) {
     console.error("Failed to update admin password", error);
     return NextResponse.json(

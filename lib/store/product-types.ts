@@ -1,10 +1,11 @@
 import type { StoreSlug } from "@/lib/store/context";
 import type { ProductType } from "@/lib/pricing/countries";
 import { PRODUCT_TYPE_LABELS } from "@/lib/pricing/countries";
+import { STREAMING_CATALOG_FILTERS } from "@/lib/store/streaming-categories";
 
 export const STORE_PRODUCT_TYPES: Record<StoreSlug, ProductType[]> = {
   libroteck: ["course", "book", "bundle"],
-  streaming: ["subscription", "bundle"],
+  streaming: ["subscription"],
 };
 
 export function getProductTypesForStore(slug: StoreSlug): ProductType[] {
@@ -16,17 +17,16 @@ export function getDefaultProductType(slug: StoreSlug): ProductType {
 }
 
 export function getCatalogFilters(slug: StoreSlug) {
+  if (slug === "streaming") {
+    return STREAMING_CATALOG_FILTERS;
+  }
+
   const types = STORE_PRODUCT_TYPES[slug];
   return [
     { value: "all" as const, label: "Todos" },
     ...types.map((type) => ({
       value: type,
-      label:
-        type === "subscription"
-          ? "Streaming"
-          : type === "bundle" && slug === "streaming"
-            ? "Combos"
-            : PRODUCT_TYPE_LABELS[type],
+      label: PRODUCT_TYPE_LABELS[type],
     })),
   ];
 }

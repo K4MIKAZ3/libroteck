@@ -44,5 +44,5 @@ next-env.d.ts
 /data/
 !.gitkeep
 
-.vercel
-.env*
+/public/uploads/
+

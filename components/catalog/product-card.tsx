@@ -3,7 +3,7 @@
 import { ProductPriceDisplay } from "@/components/catalog/product-price-display";
 import { CoverImage } from "@/components/catalog/cover-image";
 import Link from "next/link";
-import { ShoppingCart, Star, User } from "lucide-react";
+import { ShoppingCart, Star, User, Bot, LayoutDashboard } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,9 +16,11 @@ import {
 } from "@/lib/pricing/countries";
 import type { ProductWithPrices } from "@/lib/db/schema";
 import type { StoreSlug } from "@/lib/store/context";
+import { getStreamingCatalogCategory } from "@/lib/store/streaming-categories";
 import {
   getStreamingDisplayName,
   getStreamingProductSubtitle,
+  getStreamingProductSummary,
 } from "@/lib/store/streaming-labels";
 import { cn } from "@/lib/utils";
 
@@ -30,16 +32,22 @@ export function ProductCard({
   storeSlug?: StoreSlug;
 }) {
   const isStreaming = storeSlug === "streaming";
+  const streamingCategory = isStreaming
+    ? getStreamingCatalogCategory(product)
+    : null;
   const { country } = useCountry();
   const { addItem } = useCart();
   const price = getPriceForCountry(product.prices, country);
   const displayName =
-    isStreaming && product.type === "subscription"
+    isStreaming && streamingCategory === "streaming"
       ? getStreamingDisplayName(product.name)
       : product.name;
   const typeLabel = isStreaming
-    ? getStreamingProductSubtitle(product.type)
+    ? getStreamingProductSubtitle(product)
     : PRODUCT_TYPE_LABELS[product.type as ProductType];
+  const summary = isStreaming
+    ? getStreamingProductSummary(product.description)
+    : product.description.trim();
 
   const handleAdd = () => {
     if (!price) return;
@@ -69,13 +77,31 @@ export function ProductCard({
               Sin portada
             </div>
           )}
-          {isStreaming && product.type === "subscription" && (
+          {streamingCategory === "streaming" && (
             <Badge
               variant="secondary"
               className="absolute left-3 top-3 gap-1 bg-[#111] text-white"
             >
               <User className="size-3" />
               Perfil
+            </Badge>
+          )}
+          {streamingCategory === "panel" && (
+            <Badge
+              variant="secondary"
+              className="absolute left-3 top-3 gap-1 bg-[#075e54] text-white"
+            >
+              <LayoutDashboard className="size-3" />
+              Panel
+            </Badge>
+          )}
+          {streamingCategory === "ia" && (
+            <Badge
+              variant="secondary"
+              className="absolute left-3 top-3 gap-1 bg-[#6b21a8] text-white"
+            >
+              <Bot className="size-3" />
+              IA
             </Badge>
           )}
           {product.isFeatured && (
@@ -92,9 +118,12 @@ export function ProductCard({
               variant="new"
               className={cn(
                 "absolute gap-1",
-                isStreaming && product.type === "subscription"
+                isStreaming && streamingCategory === "streaming"
                   ? "left-3 top-12"
-                  : "left-3 top-3",
+                  : isStreaming &&
+                      (streamingCategory === "panel" || streamingCategory === "ia")
+                    ? "left-3 top-12"
+                    : "left-3 top-3",
               )}
             >
               <Star className="size-3 fill-current" />
@@ -111,7 +140,12 @@ export function ProductCard({
             </h3>
           </Link>
           <p className="mt-1 text-sm text-[#666]">{typeLabel}</p>
-          {isStreaming && product.type === "subscription" && (
+          {summary && (
+            <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-[#888]">
+              {summary}
+            </p>
+          )}
+          {streamingCategory === "streaming" && (
             <p className="mt-1 text-xs text-[#888]">No incluye cuenta completa</p>
           )}
         </div>

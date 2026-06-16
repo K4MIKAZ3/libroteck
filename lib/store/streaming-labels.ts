@@ -1,23 +1,30 @@
 import type { ProductWithPrices } from "@/lib/db/schema";
+import {
+  getStreamingCatalogCategory,
+  isIaProduct,
+  isLegacyComboProduct,
+  isPanelProduct,
+} from "@/lib/store/streaming-categories";
 
 export const STREAMING_PROFILE_LABEL = "Perfil de cuenta";
 export const STREAMING_PROFILE_NOTE =
   "Venta de perfil individual, no cuenta completa. Acceso compartido según las reglas de cada plataforma.";
 
 export function isComboEligibleProduct(product: ProductWithPrices): boolean {
-  if (product.type === "bundle") {
+  if (isLegacyComboProduct(product)) {
     return false;
   }
 
-  const slug = product.slug.toLowerCase();
-  const name = product.name.toLowerCase();
-
-  if (slug.includes("panel") || name.includes("panel")) {
+  if (getStreamingCatalogCategory(product) !== "streaming") {
     return false;
   }
 
-  const excludedSlugs = new Set(["combos", "combos-triples", "cursos"]);
-  if (excludedSlugs.has(slug)) {
+  if (isPanelProduct(product) || isIaProduct(product)) {
+    return false;
+  }
+
+  const excludedSlugs = new Set(["cursos"]);
+  if (excludedSlugs.has(product.slug.toLowerCase())) {
     return false;
   }
 
@@ -28,12 +35,34 @@ export function getStreamingDisplayName(productName: string): string {
   return `Perfil ${productName}`;
 }
 
-export function getStreamingProductSubtitle(type: string): string {
-  if (type === "subscription") {
-    return STREAMING_PROFILE_LABEL;
+export function getStreamingProductSubtitle(
+  product: Pick<ProductWithPrices, "slug" | "name" | "type">,
+): string {
+  const category = getStreamingCatalogCategory(product);
+
+  switch (category) {
+    case "panel":
+      return "Panel de revendedor";
+    case "ia":
+      return "Herramienta de IA";
+    case "streaming":
+      return STREAMING_PROFILE_LABEL;
+    default:
+      return "Servicio digital";
   }
-  if (type === "bundle") {
-    return "Paquete de perfiles";
+}
+
+export function getStreamingProductSummary(description: string): string {
+  const trimmed = description.trim();
+  if (!trimmed) {
+    return "";
   }
-  return "Servicio digital";
+
+  const withoutPrefix = trimmed.replace(
+    /^Perfil individual \(no cuenta completa\)\.\s*/i,
+    "",
+  );
+
+  const firstSentence = withoutPrefix.split(/(?<=[.!?])\s+/)[0]?.trim();
+  return firstSentence || withoutPrefix;
 }

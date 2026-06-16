@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Megaphone, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { isSafePromoLink } from "@/lib/security/urls";
 
 type PromoBannerProps = {
   title: string;
@@ -39,7 +40,10 @@ export function PromoBanner({
     setVisible(false);
   }
 
-  const isExternal = link?.startsWith("http");
+  const safeLink =
+    link?.trim() && isSafePromoLink(link) ? link.trim() : undefined;
+  const isExternal =
+    safeLink?.startsWith("http://") || safeLink?.startsWith("https://");
 
   return (
     <aside
@@ -69,14 +73,14 @@ export function PromoBanner({
           {message}
         </p>
 
-        {link?.trim() && (
+        {safeLink && (
           <Button asChild variant="accent" className="mt-5">
             {isExternal ? (
-              <a href={link} target="_blank" rel="noopener noreferrer">
+              <a href={safeLink} target="_blank" rel="noopener noreferrer">
                 {buttonLabel}
               </a>
             ) : (
-              <Link href={link}>{buttonLabel}</Link>
+              <Link href={safeLink}>{buttonLabel}</Link>
             )}
           </Button>
         )}

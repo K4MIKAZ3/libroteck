@@ -124,19 +124,8 @@ const CATALOG: SeedProduct[] = [
     name: "Panel Telelatino",
     usd: 1,
     type: "subscription",
-    description: "Panel Telelatino para gestión de cuentas.",
-  },
-  {
-    name: "Combos",
-    type: "bundle",
-    description: "Combo de 2 plataformas streaming a precio especial.",
-    isNew: true,
-  },
-  {
-    name: "Combos triples",
-    type: "bundle",
-    description: "Combo de 3 plataformas streaming. Máximo ahorro.",
-    isNew: true,
+    description:
+      "Panel Telelatino para administrar y revender accesos de la plataforma.",
   },
   {
     name: "Cursos",
@@ -258,8 +247,8 @@ async function main() {
         coverUrl: COVER,
         isActive: true,
         isNew: item.isNew ?? false,
-        isFeatured: item.type === "bundle",
-        sortOrder: item.type === "bundle" ? 10 : 0,
+        isFeatured: false,
+        sortOrder: 0,
       })
       .returning();
 

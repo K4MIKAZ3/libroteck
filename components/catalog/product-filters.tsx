@@ -3,8 +3,14 @@
 import { cn } from "@/lib/utils";
 import type { ProductType } from "@/lib/pricing/countries";
 import { getCatalogFilters } from "@/lib/store/product-types";
+import type { StreamingCatalogFilter } from "@/lib/store/streaming-categories";
 import type { StoreSlug } from "@/lib/store/context";
 import { Button } from "@/components/ui/button";
+
+export type CatalogFilterValue =
+  | "all"
+  | ProductType
+  | StreamingCatalogFilter;
 
 export function ProductFilters({
   storeSlug,
@@ -12,8 +18,8 @@ export function ProductFilters({
   onChange,
 }: {
   storeSlug: StoreSlug;
-  value: "all" | ProductType;
-  onChange: (value: "all" | ProductType) => void;
+  value: CatalogFilterValue;
+  onChange: (value: CatalogFilterValue) => void;
 }) {
   const filters = getCatalogFilters(storeSlug);
 
