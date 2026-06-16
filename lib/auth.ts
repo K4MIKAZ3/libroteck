@@ -3,6 +3,7 @@ import { getAdminPasswordHash } from "@/lib/db/queries";
 
 export {
   ADMIN_COOKIE_NAME,
+  clearAdminAuthCookies,
   createAdminSession,
   createAdminSessionToken,
   clearAdminSession,
@@ -10,7 +11,10 @@ export {
   getAdminSecret,
   getHostFromRequest,
   isAdminAuthenticated,
+  readAdminCookieTokens,
   requireAdmin,
+  setAdminAuthCookie,
+  verifyAdminSessionFromCookieHeader,
   verifyAdminSessionToken,
 } from "@/lib/auth/session";
 

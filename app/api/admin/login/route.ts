@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import {
   ADMIN_COOKIE_NAME,
   createAdminSessionToken,
-  getAdminCookieOptions,
   getHostFromRequest,
+  setAdminAuthCookie,
   verifyAdminPassword,
 } from "@/lib/auth";
 import {
@@ -24,11 +24,7 @@ async function createLoginResponse(
   const token = await createAdminSessionToken();
   const destination = nextPath.startsWith("/admin") ? nextPath : "/admin/productos";
   const response = NextResponse.redirect(new URL(destination, request.url));
-  response.cookies.set(
-    ADMIN_COOKIE_NAME,
-    token,
-    getAdminCookieOptions(getHostFromRequest(request)),
-  );
+  setAdminAuthCookie(response.cookies, token, getHostFromRequest(request));
   return response;
 }
 

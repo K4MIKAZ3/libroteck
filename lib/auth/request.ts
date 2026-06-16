@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import {
   ADMIN_COOKIE_NAME,
+  readAdminCookieTokens,
   verifyAdminSessionToken,
 } from "@/lib/auth/session";
 import {
@@ -9,25 +10,24 @@ import {
 } from "@/lib/auth/form-token";
 
 export function getCookieTokenFromRequest(request: Request) {
-  const cookieHeader = request.headers.get("cookie");
-  if (!cookieHeader) return undefined;
-
-  for (const part of cookieHeader.split(";")) {
-    const trimmed = part.trim();
-    if (!trimmed.startsWith(`${ADMIN_COOKIE_NAME}=`)) continue;
-    return trimmed.slice(ADMIN_COOKIE_NAME.length + 1);
-  }
-
-  return undefined;
+  const tokens = readAdminCookieTokens(request.headers.get("cookie"));
+  return tokens[0];
 }
 
 export async function hasValidAdminSession(request: Request) {
   const cookieStore = await cookies();
-  const token =
-    cookieStore.get(ADMIN_COOKIE_NAME)?.value ??
-    getCookieTokenFromRequest(request);
+  const candidates = [
+    cookieStore.get(ADMIN_COOKIE_NAME)?.value,
+    ...readAdminCookieTokens(request.headers.get("cookie")),
+  ].filter((token): token is string => Boolean(token));
 
-  return verifyAdminSessionToken(token);
+  for (const token of candidates) {
+    if (await verifyAdminSessionToken(token)) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 export async function requireAdminSession(request: Request) {
