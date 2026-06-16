@@ -7,10 +7,10 @@ CREATE TABLE IF NOT EXISTS "admin_users" (
   "is_active" boolean DEFAULT true NOT NULL,
   "created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
-
+--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "admin_users_store_username_unique"
   ON "admin_users" ("store_id", "username");
-
+--> statement-breakpoint
 INSERT INTO "admin_users" ("store_id", "username", "password_hash", "role")
 SELECT s."store_id", 'admin', s."admin_password_hash", 'superadmin'
 FROM "settings" s
