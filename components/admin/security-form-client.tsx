@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
-import { AdminNav } from "@/components/admin/admin-nav";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -67,10 +66,7 @@ export function SecurityFormClient({ saveToken }: SecurityFormClientProps) {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-      <AdminNav active="seguridad" />
-
-      <Card className="max-w-2xl">
+    <Card className="max-w-2xl">
         <CardHeader>
           <CardTitle>Cambiar contraseña admin</CardTitle>
         </CardHeader>
@@ -134,6 +130,5 @@ export function SecurityFormClient({ saveToken }: SecurityFormClientProps) {
           </form>
         </CardContent>
       </Card>
-    </div>
   );
 }

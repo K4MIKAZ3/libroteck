@@ -27,13 +27,14 @@ export async function PATCH(
     }
 
     const { id } = await params;
-    const product = await setProductFeatured(Number(id), body.isFeatured);
+    const product = await setProductFeatured(Number(id), body.isFeatured, request);
 
     if (!product) {
       return NextResponse.json({ error: "Producto no encontrado" }, { status: 404 });
     }
 
     revalidatePath("/");
+    revalidatePath("/home");
     revalidatePath("/admin/productos");
     revalidatePath(`/producto/${product.slug}`);
 

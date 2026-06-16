@@ -1,25 +1,23 @@
 import { CatalogGrid } from "@/components/catalog/catalog-grid";
 import { StoreShell } from "@/components/layout/store-shell";
 import { PromoBannerFromSettings } from "@/components/marketing/promo-banner";
-import { getActiveProducts, getSettings } from "@/lib/db/queries";
+import { getActiveProducts } from "@/lib/db/queries";
+import { getStoreContext } from "@/lib/store/context";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [products, settings] = await Promise.all([
-    getActiveProducts(),
-    getSettings(),
-  ]);
+  const { store, settings, slug } = await getStoreContext();
+  const products = await getActiveProducts();
 
-  const welcome =
-    settings?.welcomeMessage ?? "Cursos y libros digitales para mecánicos";
+  const welcome = settings.welcomeMessage;
 
   return (
-    <StoreShell settings={settings}>
+    <StoreShell store={store} settings={settings}>
       <section className="bg-hero-gradient mb-10 grid items-center gap-10 overflow-hidden rounded-[32px] px-6 py-12 text-white shadow-[0_18px_45px_rgba(31,75,255,0.25)] sm:px-10 sm:py-14 lg:grid-cols-[1.1fr_0.9fr]">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#ffd600]">
-            {settings?.storeName ?? "LibroTeck"} Latam
+            {store.heroBadge}
           </p>
           <h1 className="font-heading mt-4 text-3xl font-black leading-tight sm:text-4xl lg:text-5xl">
             {welcome.includes(" ") ? (
@@ -47,9 +45,9 @@ export default async function HomePage() {
               </span>
               <div>
                 <h2 className="text-3xl font-black leading-tight">
-                  Cursos desde $3.99
+                  {store.heroOfferTitle}
                 </h2>
-                <p className="mt-2 font-bold">Packs completos desde $6.00</p>
+                <p className="mt-2 font-bold">{store.heroOfferSubtitle}</p>
               </div>
             </div>
           </div>
@@ -64,7 +62,13 @@ export default async function HomePage() {
         buttonLabel={settings.promoButtonLabel}
       />
 
-      <CatalogGrid products={products} />
+      <CatalogGrid
+        products={products}
+        storeSlug={slug}
+        catalogTitle={store.catalogTitle}
+        catalogSubtitle={store.catalogSubtitle}
+        searchPlaceholder={store.searchPlaceholder}
+      />
     </StoreShell>
   );
 }

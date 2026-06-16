@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { StoreShell } from "@/components/layout/store-shell";
-import { getSettings } from "@/lib/db/queries";
+import { getStoreContext } from "@/lib/store/context";
 import { HOME_PATH } from "@/lib/routes";
 
 export const dynamic = "force-dynamic";
@@ -11,11 +11,11 @@ export const metadata = {
 };
 
 export default async function PrivacyPage() {
-  const settings = await getSettings();
-  const storeName = settings.storeName || "LibroTeck";
+  const { store, settings } = await getStoreContext();
+  const storeName = settings.storeName || `${store.brandPrimary}${store.brandAccent}`;
 
   return (
-    <StoreShell settings={settings}>
+    <StoreShell store={store} settings={settings}>
       <article className="mx-auto max-w-3xl space-y-6 rounded-2xl border border-[#e8ecff] bg-white p-6 sm:p-10">
         <div>
           <h1 className="font-heading text-3xl font-bold text-[#1f4bff]">

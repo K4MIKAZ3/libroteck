@@ -29,7 +29,17 @@ const PAYMENT_METHODS = [
   },
 ] as const;
 
-export function SiteFooter() {
+type SiteFooterProps = {
+  brandPrimary: string;
+  brandAccent: string;
+  tagline: string;
+};
+
+export function SiteFooter({
+  brandPrimary,
+  brandAccent,
+  tagline,
+}: SiteFooterProps) {
   return (
     <footer className="mt-16 bg-[#0b1020] text-white">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
@@ -64,7 +74,8 @@ export function SiteFooter() {
         </div>
 
         <p className="mt-10 text-center text-xs text-[#dbe2ff]/70">
-          © {new Date().getFullYear()} LibroTeck — Cursos y libros digitales
+          © {new Date().getFullYear()} {brandPrimary}
+          {brandAccent} — {tagline}
           {" · "}
           <a
             href="/privacidad"

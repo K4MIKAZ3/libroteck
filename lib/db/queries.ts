@@ -1,24 +1,73 @@
 import bcrypt from "bcryptjs";
-import { asc, desc, eq, max } from "drizzle-orm";
+import { and, asc, desc, eq, max } from "drizzle-orm";
 import { unstable_noStore as noStore } from "next/cache";
 import { sortProductsForDisplay } from "@/lib/catalog/product-list";
 import type { CountryCode, ProductType } from "@/lib/pricing/countries";
 import { getPriceForCountry as resolvePriceForCountry } from "@/lib/pricing/product-price";
+import {
+  getStoreContext,
+  getStoreSlugFromRequest,
+  type StoreSlug,
+} from "@/lib/store/context";
 import { getDb } from "./index";
 import {
   productPrices,
   products,
   settings,
+  stores,
   type ProductWithPrices,
   type Settings,
 } from "./schema";
 
-function defaultSettings(): Omit<Settings, "id"> & { id: number } {
+async function getStoreIdForRequest(request?: Request) {
+  const db = await getDb();
+
+  if (request) {
+    const slug = getStoreSlugFromRequest(request);
+    const store = await db.query.stores.findFirst({
+      where: eq(stores.slug, slug),
+    });
+    if (!store) {
+      throw new Error(`Tienda no encontrada: ${slug}`);
+    }
+    return store.id;
+  }
+
+  const { storeId } = await getStoreContext();
+  return storeId;
+}
+
+async function getSettingsRow(storeId: number) {
+  const db = await getDb();
+  const rows = await db
+    .select()
+    .from(settings)
+    .where(eq(settings.storeId, storeId))
+    .limit(1);
+  return rows[0] ?? null;
+}
+
+export async function getSettings(request?: Request) {
+  noStore();
+  const storeId = await getStoreIdForRequest(request);
+  const row = await getSettingsRow(storeId);
+  if (row) {
+    return row;
+  }
+
+  const slug = request
+    ? getStoreSlugFromRequest(request)
+    : (await getStoreContext()).slug;
+
   return {
-    id: 1,
+    id: storeId,
+    storeId,
     whatsappNumber: process.env.WHATSAPP_NUMBER ?? "5212345678900",
-    storeName: "LibroTeck",
-    welcomeMessage: "Elige tu país y ordena por WhatsApp",
+    storeName: slug === "streaming" ? "XCONDEF" : "LibroTeck",
+    welcomeMessage:
+      slug === "streaming"
+        ? "Cuentas premium de streaming al mejor precio"
+        : "Elige tu país y ordena por WhatsApp",
     adminPasswordHash: null,
     promoEnabled: false,
     promoTitle: "",
@@ -30,49 +79,38 @@ function defaultSettings(): Omit<Settings, "id"> & { id: number } {
     adSlotTop: "",
     adSlotLeft: "",
     adSlotRight: "",
-  };
+  } satisfies Omit<Settings, "id"> & { id: number };
 }
 
-async function getSettingsRow() {
-  const db = await getDb();
-  const rows = await db
-    .select()
-    .from(settings)
-    .orderBy(asc(settings.id))
-    .limit(1);
-  return rows[0] ?? null;
-}
-
-export async function getSettings() {
+export async function getAdminPasswordHash(request?: Request) {
   noStore();
-  const row = await getSettingsRow();
-  return row ?? defaultSettings();
-}
-
-export async function getAdminPasswordHash() {
-  noStore();
-  const row = await getSettingsRow();
+  const storeId = await getStoreIdForRequest(request);
+  const row = await getSettingsRow(storeId);
   return row?.adminPasswordHash ?? null;
 }
 
-export async function upsertSettings(data: {
-  whatsappNumber: string;
-  storeName: string;
-  welcomeMessage: string;
-  promoEnabled?: boolean;
-  promoTitle?: string;
-  promoMessage?: string;
-  promoLink?: string;
-  promoButtonLabel?: string;
-  adsEnabled?: boolean;
-  adsenseClientId?: string;
-  adSlotTop?: string;
-  adSlotLeft?: string;
-  adSlotRight?: string;
-}) {
+export async function upsertSettings(
+  data: {
+    whatsappNumber: string;
+    storeName: string;
+    welcomeMessage: string;
+    promoEnabled?: boolean;
+    promoTitle?: string;
+    promoMessage?: string;
+    promoLink?: string;
+    promoButtonLabel?: string;
+    adsEnabled?: boolean;
+    adsenseClientId?: string;
+    adSlotTop?: string;
+    adSlotLeft?: string;
+    adSlotRight?: string;
+  },
+  request?: Request,
+) {
   noStore();
   const db = await getDb();
-  const existing = await getSettingsRow();
+  const storeId = await getStoreIdForRequest(request);
+  const existing = await getSettingsRow(storeId);
 
   if (existing) {
     const [updated] = await db
@@ -83,15 +121,22 @@ export async function upsertSettings(data: {
     return updated;
   }
 
-  const [created] = await db.insert(settings).values(data).returning();
+  const [created] = await db
+    .insert(settings)
+    .values({ ...data, storeId })
+    .returning();
   return created;
 }
 
-export async function updateAdminPassword(newPassword: string) {
+export async function updateAdminPassword(
+  newPassword: string,
+  request?: Request,
+) {
   noStore();
   const db = await getDb();
+  const storeId = await getStoreIdForRequest(request);
   const hash = await bcrypt.hash(newPassword, 10);
-  const existing = await getSettingsRow();
+  const existing = await getSettingsRow(storeId);
 
   if (existing) {
     const [updated] = await db
@@ -102,28 +147,45 @@ export async function updateAdminPassword(newPassword: string) {
     return updated;
   }
 
+  const slug = request
+    ? getStoreSlugFromRequest(request)
+    : (await getStoreContext()).slug;
+
   const [created] = await db
     .insert(settings)
     .values({
-      ...defaultSettings(),
+      storeId,
+      whatsappNumber: process.env.WHATSAPP_NUMBER ?? "5212345678900",
+      storeName: slug === "streaming" ? "XCONDEF" : "LibroTeck",
+      welcomeMessage:
+        slug === "streaming"
+          ? "Cuentas premium de streaming al mejor precio"
+          : "Elige tu país y ordena por WhatsApp",
       adminPasswordHash: hash,
     })
     .returning();
   return created;
 }
 
-export async function getActiveProducts(): Promise<ProductWithPrices[]> {
+export async function getActiveProducts(
+  request?: Request,
+): Promise<ProductWithPrices[]> {
+  const storeId = await getStoreIdForRequest(request);
   const db = await getDb();
   const rows = await db.query.products.findMany({
-    where: eq(products.isActive, true),
+    where: and(eq(products.storeId, storeId), eq(products.isActive, true)),
     with: { prices: true },
   });
   return sortProductsForDisplay(rows);
 }
 
-export async function getAllProducts(): Promise<ProductWithPrices[]> {
+export async function getAllProducts(
+  request?: Request,
+): Promise<ProductWithPrices[]> {
+  const storeId = await getStoreIdForRequest(request);
   const db = await getDb();
   const rows = await db.query.products.findMany({
+    where: eq(products.storeId, storeId),
     with: { prices: true },
   });
   return sortProductsForDisplay(rows);
@@ -131,20 +193,24 @@ export async function getAllProducts(): Promise<ProductWithPrices[]> {
 
 export async function getProductBySlug(
   slug: string,
+  request?: Request,
 ): Promise<ProductWithPrices | undefined> {
+  const storeId = await getStoreIdForRequest(request);
   const db = await getDb();
   return db.query.products.findFirst({
-    where: eq(products.slug, slug),
+    where: and(eq(products.storeId, storeId), eq(products.slug, slug)),
     with: { prices: true },
   });
 }
 
 export async function getProductById(
   id: number,
+  request?: Request,
 ): Promise<ProductWithPrices | undefined> {
+  const storeId = await getStoreIdForRequest(request);
   const db = await getDb();
   return db.query.products.findFirst({
-    where: eq(products.id, id),
+    where: and(eq(products.storeId, storeId), eq(products.id, id)),
     with: { prices: true },
   });
 }
@@ -156,24 +222,29 @@ export function getPriceForCountry(
   return resolvePriceForCountry(product.prices, countryCode);
 }
 
-export async function createProduct(input: {
-  name: string;
-  slug: string;
-  type: ProductType;
-  description: string;
-  coverUrl: string;
-  isActive: boolean;
-  isNew: boolean;
-  prices: Array<{
-    countryCode: CountryCode;
-    currency: string;
-    amount: number;
-  }>;
-}) {
+export async function createProduct(
+  input: {
+    name: string;
+    slug: string;
+    type: ProductType;
+    description: string;
+    coverUrl: string;
+    isActive: boolean;
+    isNew: boolean;
+    prices: Array<{
+      countryCode: CountryCode;
+      currency: string;
+      amount: number;
+    }>;
+  },
+  request?: Request,
+) {
+  const storeId = await getStoreIdForRequest(request);
   const db = await getDb();
   const [product] = await db
     .insert(products)
     .values({
+      storeId,
       name: input.name,
       slug: input.slug,
       type: input.type,
@@ -195,7 +266,7 @@ export async function createProduct(input: {
     );
   }
 
-  return getProductById(product.id);
+  return getProductById(product.id, request);
 }
 
 export async function updateProduct(
@@ -214,7 +285,9 @@ export async function updateProduct(
       amount: number;
     }>;
   },
+  request?: Request,
 ) {
+  const storeId = await getStoreIdForRequest(request);
   const db = await getDb();
   await db
     .update(products)
@@ -227,7 +300,7 @@ export async function updateProduct(
       isActive: input.isActive,
       isNew: input.isNew,
     })
-    .where(eq(products.id, id));
+    .where(and(eq(products.id, id), eq(products.storeId, storeId)));
 
   await db.delete(productPrices).where(eq(productPrices.productId, id));
 
@@ -242,19 +315,24 @@ export async function updateProduct(
     );
   }
 
-  return getProductById(id);
+  return getProductById(id, request);
 }
 
-export async function deleteProduct(id: number) {
+export async function deleteProduct(id: number, request?: Request) {
+  const storeId = await getStoreIdForRequest(request);
   const db = await getDb();
-  await db.delete(products).where(eq(products.id, id));
+  await db
+    .delete(products)
+    .where(and(eq(products.id, id), eq(products.storeId, storeId)));
 }
 
 export async function setProductFeatured(
   id: number,
   isFeatured: boolean,
+  request?: Request,
 ) {
   noStore();
+  const storeId = await getStoreIdForRequest(request);
   const db = await getDb();
 
   let sortOrder = 0;
@@ -262,30 +340,31 @@ export async function setProductFeatured(
     const [row] = await db
       .select({ value: max(products.sortOrder) })
       .from(products)
-      .where(eq(products.isFeatured, true));
+      .where(and(eq(products.storeId, storeId), eq(products.isFeatured, true)));
     sortOrder = (row?.value ?? 0) + 1;
   }
 
   const [updated] = await db
     .update(products)
     .set({ isFeatured, sortOrder })
-    .where(eq(products.id, id))
+    .where(and(eq(products.id, id), eq(products.storeId, storeId)))
     .returning();
 
   return updated ?? null;
 }
 
-export async function featureAllBundles() {
+export async function featureAllBundles(request?: Request) {
   noStore();
+  const storeId = await getStoreIdForRequest(request);
   const db = await getDb();
-  const bundles = await db
+  const bundleList = await db
     .select()
     .from(products)
-    .where(eq(products.type, "bundle"))
+    .where(and(eq(products.storeId, storeId), eq(products.type, "bundle")))
     .orderBy(desc(products.createdAt));
 
-  let order = bundles.length;
-  for (const bundle of bundles) {
+  let order = bundleList.length;
+  for (const bundle of bundleList) {
     await db
       .update(products)
       .set({ isFeatured: true, sortOrder: order })
@@ -293,5 +372,13 @@ export async function featureAllBundles() {
     order--;
   }
 
-  return bundles.length;
+  return bundleList.length;
+}
+
+export async function getCurrentStoreSlug(request?: Request): Promise<StoreSlug> {
+  if (request) {
+    return getStoreSlugFromRequest(request);
+  }
+  const { slug } = await getStoreContext();
+  return slug;
 }

@@ -1,4 +1,4 @@
-import { AdminNav } from "@/components/admin/admin-nav";
+import { AdminPageShell } from "@/components/admin/admin-page-shell";
 import { AdminProductsList } from "@/components/admin/admin-products-list";
 import { createFormToken } from "@/lib/auth/form-token";
 import { getAllProducts } from "@/lib/db/queries";
@@ -13,13 +13,12 @@ export default async function AdminProductsPage() {
   ]);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-      <AdminNav />
+    <AdminPageShell active="productos">
       <AdminProductsList
         products={products}
         deleteToken={actionToken}
         actionToken={actionToken}
       />
-    </div>
+    </AdminPageShell>
   );
 }

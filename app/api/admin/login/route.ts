@@ -7,7 +7,7 @@ import {
 import { verifyAdminPassword } from "@/lib/auth";
 
 async function createLoginResponse(request: Request, password: string, nextPath: string) {
-  if (!(await verifyAdminPassword(password))) {
+  if (!(await verifyAdminPassword(password, request))) {
     return null;
   }
 

@@ -19,8 +19,9 @@ export async function POST(
   const { id } = await params;
 
   try {
-    await deleteProduct(Number(id));
+    await deleteProduct(Number(id), request);
     revalidatePath("/");
+    revalidatePath("/home");
     revalidatePath("/admin/productos");
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -1,6 +1,6 @@
 export type CountryCode = "MX" | "CO" | "AR" | "PE" | "BO" | "INT";
 
-export type ProductType = "course" | "book" | "bundle";
+export type ProductType = "course" | "book" | "bundle" | "subscription";
 
 export const COUNTRIES: Record<
   CountryCode,
@@ -18,16 +18,25 @@ export const PRODUCT_TYPE_LABELS: Record<ProductType, string> = {
   course: "Curso",
   book: "Libro",
   bundle: "Paquete",
+  subscription: "Cuenta streaming",
 };
 
 export const DEFAULT_COUNTRY: CountryCode = "MX";
 
 /** Precio de oferta por tipo de producto y país */
 export const SALE_AMOUNTS: Record<
-  "course" | "bundle",
+  "course" | "bundle" | "subscription",
   Record<CountryCode, number>
 > = {
   course: {
+    INT: 3.99,
+    MX: 69,
+    CO: 15900,
+    AR: 3990,
+    PE: 15,
+    BO: 28,
+  },
+  subscription: {
     INT: 3.99,
     MX: 69,
     CO: 15900,
@@ -47,7 +56,7 @@ export const SALE_AMOUNTS: Record<
 
 /** Precio anterior (tachado) por tier y país */
 export const COMPARE_AT_AMOUNTS: Record<
-  "course" | "bundle" | "mega",
+  "course" | "bundle" | "mega" | "subscription",
   Record<CountryCode, number>
 > = {
   course: {
@@ -74,6 +83,14 @@ export const COMPARE_AT_AMOUNTS: Record<
     PE: 249,
     BO: 552,
   },
+  subscription: {
+    INT: 34.99,
+    MX: 599,
+    CO: 109000,
+    AR: 59000,
+    PE: 99,
+    BO: 69,
+  },
 };
 
 /** Packs con precio mega (antes del descuento a $6) */
@@ -89,6 +106,9 @@ export function getCompareAtAmount(
 ): number | null {
   if (type === "course") {
     return COMPARE_AT_AMOUNTS.course[country];
+  }
+  if (type === "subscription") {
+    return COMPARE_AT_AMOUNTS.subscription[country];
   }
   if (type === "bundle") {
     const tier = slug && MEGA_BUNDLE_SLUGS.has(slug) ? "mega" : "bundle";

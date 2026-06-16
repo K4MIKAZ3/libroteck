@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import { ProductDetail } from "@/components/catalog/product-detail";
 import { StoreShell } from "@/components/layout/store-shell";
-import { getProductBySlug, getSettings } from "@/lib/db/queries";
+import { getProductBySlug } from "@/lib/db/queries";
+import { getStoreContext } from "@/lib/store/context";
 
 export const dynamic = "force-dynamic";
 
@@ -26,9 +27,9 @@ export default async function ProductPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [product, settings] = await Promise.all([
+  const [product, { store, settings }] = await Promise.all([
     getProductBySlug(slug),
-    getSettings(),
+    getStoreContext(),
   ]);
 
   if (!product || !product.isActive) {
@@ -36,7 +37,7 @@ export default async function ProductPage({
   }
 
   return (
-    <StoreShell settings={settings}>
+    <StoreShell store={store} settings={settings}>
       <ProductDetail product={product} />
     </StoreShell>
   );

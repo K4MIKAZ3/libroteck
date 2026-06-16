@@ -22,9 +22,15 @@ import { Textarea } from "@/components/ui/textarea";
 import type { ProductWithPrices } from "@/lib/db/schema";
 import {
   COUNTRIES,
+  PRODUCT_TYPE_LABELS,
   type CountryCode,
   type ProductType,
 } from "@/lib/pricing/countries";
+import {
+  getDefaultProductType,
+  getProductTypesForStore,
+} from "@/lib/store/product-types";
+import type { StoreSlug } from "@/lib/store/context";
 import { slugify } from "@/lib/utils";
 
 type PriceForm = Record<CountryCode, string>;
@@ -41,17 +47,22 @@ const emptyPrices = (): PriceForm => ({
 export function ProductForm({
   product,
   saveToken,
+  storeSlug,
+  storeId,
 }: {
   product?: ProductWithPrices;
   saveToken: string;
+  storeSlug: StoreSlug;
+  storeId: number;
 }) {
   const router = useRouter();
+  const productTypes = getProductTypesForStore(storeSlug);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [name, setName] = useState(product?.name ?? "");
   const [slug, setSlug] = useState(product?.slug ?? "");
   const [type, setType] = useState<ProductType>(
-    (product?.type as ProductType) ?? "course",
+    (product?.type as ProductType) ?? getDefaultProductType(storeSlug),
   );
   const [description, setDescription] = useState(product?.description ?? "");
   const [coverUrl, setCoverUrl] = useState(product?.coverUrl ?? "");
@@ -67,6 +78,7 @@ export function ProductForm({
 
   const previewProduct: ProductWithPrices = {
     id: product?.id ?? 0,
+    storeId: product?.storeId ?? storeId,
     name: name || "Nombre del producto",
     slug: slug || "preview",
     type,
@@ -181,9 +193,11 @@ export function ProductForm({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="course">Curso</SelectItem>
-                  <SelectItem value="book">Libro</SelectItem>
-                  <SelectItem value="bundle">Paquete</SelectItem>
+                  {productTypes.map((productType) => (
+                    <SelectItem key={productType} value={productType}>
+                      {PRODUCT_TYPE_LABELS[productType]}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

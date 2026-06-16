@@ -57,14 +57,14 @@ export async function PUT(request: Request) {
       );
     }
 
-    if (!(await verifyAdminPassword(currentPassword))) {
+    if (!(await verifyAdminPassword(currentPassword, request))) {
       return NextResponse.json(
         { error: "La contraseña actual no es correcta" },
         { status: 400 },
       );
     }
 
-    await updateAdminPassword(newPassword);
+    await updateAdminPassword(newPassword, request);
     revalidatePath("/admin/seguridad");
 
     return NextResponse.json({ success: true });

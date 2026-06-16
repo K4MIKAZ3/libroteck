@@ -45,7 +45,7 @@ export async function PUT(
 
     const { id } = await params;
     const productId = Number(id);
-    const existing = await getProductById(productId);
+    const existing = await getProductById(productId, request);
 
     if (!existing) {
       return NextResponse.json({ error: "Producto no encontrado" }, { status: 404 });
@@ -60,13 +60,14 @@ export async function PUT(
       isActive: body.isActive,
       isNew: body.isNew,
       prices: body.prices,
-    });
+    }, request);
 
     if (!product) {
       return NextResponse.json({ error: "Producto no encontrado" }, { status: 404 });
     }
 
     revalidatePath("/");
+    revalidatePath("/home");
     revalidatePath("/admin/productos");
     revalidatePath(`/producto/${product.slug}`);
 
@@ -94,15 +95,16 @@ export async function DELETE(
     }
 
     const { id } = await params;
-    const existing = await getProductById(Number(id));
+    const existing = await getProductById(Number(id), request);
 
     if (!existing) {
       return NextResponse.json({ error: "Producto no encontrado" }, { status: 404 });
     }
 
-    await deleteProduct(Number(id));
+    await deleteProduct(Number(id), request);
 
     revalidatePath("/");
+    revalidatePath("/home");
     revalidatePath("/admin/productos");
 
     return NextResponse.json({ success: true });

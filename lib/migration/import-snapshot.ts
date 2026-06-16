@@ -1,6 +1,6 @@
-import { sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import type { getDb } from "@/lib/db/index";
-import { productPrices, products, settings } from "@/lib/db/schema";
+import { productPrices, products, settings, stores } from "@/lib/db/schema";
 
 export type Snapshot = {
   products: (typeof products.$inferSelect)[];
@@ -16,20 +16,29 @@ export async function importSnapshot(
     sql`TRUNCATE product_prices, products, settings RESTART IDENTITY CASCADE`,
   );
 
+  const libroteckStore = await db.query.stores.findFirst({
+    where: eq(stores.slug, "libroteck"),
+  });
+  const storeId = libroteckStore?.id ?? 1;
+
   if (snapshot.settings.length > 0) {
     await db.insert(settings).values(
-      snapshot.settings.map(({ id: _id, ...row }) => row),
+      snapshot.settings.map(({ id: _id, ...row }) => ({
+        ...row,
+        storeId,
+      })),
     );
   }
 
   const productIdMap = new Map<number, number>();
 
   for (const product of snapshot.products) {
-    const { id: oldId, createdAt, ...row } = product;
+    const { id: oldId, createdAt, storeId: _storeId, ...row } = product;
     const [inserted] = await db
       .insert(products)
       .values({
         ...row,
+        storeId,
         createdAt: new Date(createdAt),
       })
       .returning({ id: products.id });

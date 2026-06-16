@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
-import { AdminNav } from "@/components/admin/admin-nav";
+import { AdminPageShell } from "@/components/admin/admin-page-shell";
 import { ProductForm } from "@/components/admin/product-form";
 import { createFormToken } from "@/lib/auth/form-token";
 import { getProductById } from "@/lib/db/queries";
+import { getStoreContext } from "@/lib/store/context";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -13,7 +14,8 @@ export default async function EditProductPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [product, saveToken] = await Promise.all([
+  const [{ storeId, slug }, product, saveToken] = await Promise.all([
+    getStoreContext(),
     getProductById(Number(id)),
     createFormToken("products"),
   ]);
@@ -23,9 +25,13 @@ export default async function EditProductPage({
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-      <AdminNav />
-      <ProductForm product={product} saveToken={saveToken} />
-    </div>
+    <AdminPageShell active="productos">
+      <ProductForm
+        product={product}
+        saveToken={saveToken}
+        storeSlug={slug}
+        storeId={storeId}
+      />
+    </AdminPageShell>
   );
 }

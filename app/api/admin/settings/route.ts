@@ -95,8 +95,9 @@ export async function PUT(request: Request) {
       );
     }
 
-    const settings = await upsertSettings(payload);
+    const settings = await upsertSettings(payload, request);
     revalidatePath("/");
+    revalidatePath("/home");
     revalidatePath("/admin/configuracion");
     revalidatePath("/carrito");
     revalidatePath("/producto/[slug]", "layout");
@@ -143,8 +144,9 @@ export async function POST(request: Request) {
   }
 
   try {
-    const settings = await upsertSettings(payload);
+    const settings = await upsertSettings(payload, request);
     revalidatePath("/");
+    revalidatePath("/home");
     revalidatePath("/admin/configuracion");
     revalidatePath("/carrito");
     revalidatePath("/producto/[slug]", "layout");

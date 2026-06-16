@@ -19,7 +19,11 @@ async function main() {
   for (const product of allProducts) {
     const type = product.type as ProductType;
     const saleType =
-      type === "bundle" ? "bundle" : type === "course" ? "course" : null;
+      type === "bundle"
+        ? "bundle"
+        : type === "course" || type === "subscription"
+          ? type
+          : null;
 
     for (const price of product.prices) {
       const country = price.countryCode as CountryCode;

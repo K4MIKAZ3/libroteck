@@ -1,17 +1,24 @@
-import { AdminNav } from "@/components/admin/admin-nav";
+import { AdminPageShell } from "@/components/admin/admin-page-shell";
 import { ProductForm } from "@/components/admin/product-form";
 import { createFormToken } from "@/lib/auth/form-token";
+import { getStoreContext } from "@/lib/store/context";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function NewProductPage() {
-  const saveToken = await createFormToken("products");
+  const [{ slug, storeId }, saveToken] = await Promise.all([
+    getStoreContext(),
+    createFormToken("products"),
+  ]);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-      <AdminNav />
-      <ProductForm saveToken={saveToken} />
-    </div>
+    <AdminPageShell active="productos">
+      <ProductForm
+        saveToken={saveToken}
+        storeSlug={slug}
+        storeId={storeId}
+      />
+    </AdminPageShell>
   );
 }

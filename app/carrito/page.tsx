@@ -3,7 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { CartView } from "@/components/cart/cart-view";
 import { StoreShell } from "@/components/layout/store-shell";
 import { Button } from "@/components/ui/button";
-import { getSettings } from "@/lib/db/queries";
+import { getStoreContext } from "@/lib/store/context";
 import { HOME_PATH } from "@/lib/routes";
 
 export const dynamic = "force-dynamic";
@@ -13,10 +13,10 @@ export const metadata = {
 };
 
 export default async function CartPage() {
-  const settings = await getSettings();
+  const { store, settings } = await getStoreContext();
 
   return (
-    <StoreShell settings={settings}>
+    <StoreShell store={store} settings={settings}>
       <Button asChild variant="ghost" className="mb-6">
         <Link href={HOME_PATH}>
           <ArrowLeft className="size-4" />

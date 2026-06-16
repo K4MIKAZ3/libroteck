@@ -7,7 +7,7 @@ import {
   resolveAdsenseClientId,
   shouldLoadAdsenseScript,
 } from "@/lib/ads/client-id";
-import { getSettings } from "@/lib/db/queries";
+import { getStoreContext } from "@/lib/store/context";
 import "./globals.css";
 
 const inter = Inter({
@@ -26,17 +26,24 @@ const literata = Literata({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getSettings();
+  const { store, settings, slug } = await getStoreContext();
   const clientId = resolveAdsenseClientId(settings);
+  const brand = `${store.brandPrimary}${store.brandAccent}`;
+  const isStreaming = slug === "streaming";
 
   return {
     title: {
-      default: "LibroTeck — Cursos y libros digitales",
-      template: "%s | LibroTeck",
+      default: isStreaming
+        ? `${brand} — Cuentas premium de streaming`
+        : `${brand} — Cursos y libros digitales`,
+      template: `%s | ${brand}`,
     },
-    description:
-      "Catálogo de cursos y libros digitales con precios por país. Ordena fácilmente por WhatsApp.",
-    metadataBase: new URL("https://libroteck.xyz"),
+    description: isStreaming
+      ? "Cuentas premium de streaming con precios por país. Ordena fácilmente por WhatsApp."
+      : "Catálogo de cursos y libros digitales con precios por país. Ordena fácilmente por WhatsApp.",
+    metadataBase: new URL(
+      isStreaming ? "https://streaming.libroteck.xyz" : "https://libroteck.xyz",
+    ),
     ...(process.env.GOOGLE_SITE_VERIFICATION
       ? {
           verification: {
@@ -59,7 +66,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const settings = await getSettings();
+  const { settings } = await getStoreContext();
   const clientId = resolveAdsenseClientId(settings);
   const loadAdsense = shouldLoadAdsenseScript(settings);
 

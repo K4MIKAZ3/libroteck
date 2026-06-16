@@ -10,8 +10,23 @@ import {
   sortProductsForDisplay,
 } from "@/lib/catalog/product-list";
 import type { ProductType } from "@/lib/pricing/countries";
+import type { StoreSlug } from "@/lib/store/context";
 
-export function CatalogGrid({ products }: { products: ProductWithPrices[] }) {
+type CatalogGridProps = {
+  products: ProductWithPrices[];
+  storeSlug: StoreSlug;
+  catalogTitle: string;
+  catalogSubtitle: string;
+  searchPlaceholder: string;
+};
+
+export function CatalogGrid({
+  products,
+  storeSlug,
+  catalogTitle,
+  catalogSubtitle,
+  searchPlaceholder,
+}: CatalogGridProps) {
   const [filter, setFilter] = useState<"all" | ProductType>("all");
   const [query, setQuery] = useState("");
 
@@ -28,19 +43,17 @@ export function CatalogGrid({ products }: { products: ProductWithPrices[] }) {
     <div className="space-y-8">
       <div className="text-center">
         <h2 className="font-heading text-3xl font-black text-[#0b1020] sm:text-4xl">
-          Catálogo destacado
+          {catalogTitle}
         </h2>
-        <p className="mt-2 text-lg text-[#555]">
-          Elige tu próximo curso o pack y empieza a aprender hoy.
-        </p>
+        <p className="mt-2 text-lg text-[#555]">{catalogSubtitle}</p>
       </div>
 
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <ProductFilters value={filter} onChange={setFilter} />
+        <ProductFilters storeSlug={storeSlug} value={filter} onChange={setFilter} />
         <ProductSearchBar
           value={query}
           onChange={setQuery}
-          placeholder="Buscar cursos, packs o libros…"
+          placeholder={searchPlaceholder}
         />
       </div>
 

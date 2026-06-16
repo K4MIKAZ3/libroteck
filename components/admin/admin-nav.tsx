@@ -3,9 +3,13 @@ import { Lock, Plus, Settings, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { HOME_PATH } from "@/lib/routes";
+import type { StoreSlug } from "@/lib/store/context";
 
 type AdminNavProps = {
   active?: "productos" | "configuracion" | "seguridad";
+  brandPrimary: string;
+  brandAccent: string;
+  storeSlug: StoreSlug;
 };
 
 const links = [
@@ -14,16 +18,22 @@ const links = [
   { href: "/admin/seguridad", label: "Seguridad", icon: Lock, key: "seguridad" as const },
 ];
 
-export function AdminNav({ active = "productos" }: AdminNavProps) {
+export function AdminNav({
+  active = "productos",
+  brandPrimary,
+  brandAccent,
+  storeSlug,
+}: AdminNavProps) {
   return (
     <div className="mb-8 space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <Link href="/admin/productos" className="text-2xl font-bold text-[#1E3A5F]">
-            LibroTeck Admin
+            {brandPrimary}
+            <span className="text-[#C8956C]">{brandAccent}</span> Admin
           </Link>
           <p className="text-sm text-[#1A1A2E]/60">
-            Panel de administración
+            Panel {storeSlug === "streaming" ? "XCONDEF" : "LibroTeck"}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">

@@ -40,9 +40,10 @@ export async function POST(request: Request) {
       isActive: body.isActive,
       isNew: body.isNew,
       prices: body.prices,
-    });
+    }, request);
 
     revalidatePath("/");
+    revalidatePath("/home");
     revalidatePath("/admin/productos");
 
     return NextResponse.json(product);

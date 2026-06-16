@@ -4,6 +4,7 @@ import { PRODUCT_TYPE_LABELS } from "@/lib/pricing/countries";
 
 const TYPE_PRIORITY: Record<ProductType, number> = {
   bundle: 3,
+  subscription: 3,
   course: 2,
   book: 1,
 };

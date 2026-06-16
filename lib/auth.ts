@@ -13,8 +13,8 @@ export {
   verifyAdminSessionToken,
 } from "@/lib/auth/session";
 
-export async function verifyAdminPassword(password: string) {
-  const hash = await getAdminPasswordHash();
+export async function verifyAdminPassword(password: string, request?: Request) {
+  const hash = await getAdminPasswordHash(request);
   if (hash) {
     return bcrypt.compare(password, hash);
   }

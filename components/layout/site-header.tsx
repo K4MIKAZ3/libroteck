@@ -7,7 +7,12 @@ import { useCart } from "@/components/providers/cart-provider";
 import { Button } from "@/components/ui/button";
 import { HOME_PATH } from "@/lib/routes";
 
-export function SiteHeader() {
+type SiteHeaderProps = {
+  brandPrimary: string;
+  brandAccent: string;
+};
+
+export function SiteHeader({ brandPrimary, brandAccent }: SiteHeaderProps) {
   const { itemCount } = useCart();
 
   return (
@@ -15,7 +20,8 @@ export function SiteHeader() {
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
         <Link href={HOME_PATH} className="group flex items-center gap-1">
           <span className="font-heading text-2xl font-black tracking-wide text-white">
-            Libro<span className="text-[#ffd600]">Teck</span>
+            {brandPrimary}
+            <span className="text-[#ffd600]">{brandAccent}</span>
           </span>
         </Link>
 

@@ -1,3 +1,4 @@
+import { AdminPageShell } from "@/components/admin/admin-page-shell";
 import { createFormToken } from "@/lib/auth/form-token";
 import { getSettings } from "@/lib/db/queries";
 import { SettingsFormClient } from "@/components/admin/settings-form-client";
@@ -12,6 +13,8 @@ export default async function AdminSettingsPage() {
   ]);
 
   return (
-    <SettingsFormClient initialSettings={settings} saveToken={saveToken} />
+    <AdminPageShell active="configuracion">
+      <SettingsFormClient initialSettings={settings} saveToken={saveToken} />
+    </AdminPageShell>
   );
 }
