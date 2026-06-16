@@ -55,7 +55,7 @@ export function ProductDetail({
 
       <div className="grid gap-8 lg:grid-cols-2">
         <Card className="overflow-hidden">
-          <div className="relative aspect-[3/4] bg-[#f4f6fb]">
+          <div className="relative aspect-[3/4] bg-[#faf6f6]">
             {product.coverUrl && (
               <CoverImage
                 src={product.coverUrl}
@@ -79,7 +79,7 @@ export function ProductDetail({
               )}
               {product.isNew && <Badge variant="new">Nuevo</Badge>}
             </div>
-            <h1 className="font-heading mt-4 text-3xl font-black text-[#0b1020] sm:text-4xl">
+            <h1 className="font-heading mt-4 text-3xl font-black text-[#1c0a0a] sm:text-4xl">
               {displayName}
             </h1>
             <ProductPriceDisplay price={price} size="lg" className="mt-4" />
@@ -89,7 +89,7 @@ export function ProductDetail({
             <CardContent className="space-y-4 p-5">
               <p className="leading-relaxed text-[#555]">{product.description}</p>
               {isStreaming && product.type === "subscription" && (
-                <p className="rounded-xl bg-[#f4f6fb] p-3 text-sm text-[#555]">
+                <p className="rounded-xl bg-[#faf6f6] p-3 text-sm text-[#555]">
                   {STREAMING_PROFILE_NOTE}
                 </p>
               )}
@@ -98,7 +98,7 @@ export function ProductDetail({
                   ¿Quieres varios perfiles? Usa{" "}
                   <a
                     href="/home#arma-tu-combo"
-                    className="font-semibold text-[#1f4bff] underline-offset-2 hover:underline"
+                    className="font-semibold text-[#dc2626] underline-offset-2 hover:underline"
                   >
                     Arma tu combo
                   </a>{" "}
@@ -109,7 +109,7 @@ export function ProductDetail({
                 El pago se completa por WhatsApp de forma externa.
               </p>
               <div className="flex flex-wrap items-center gap-3">
-                <div className="flex items-center rounded-full border border-[#e8ecff] bg-white">
+                <div className="flex items-center rounded-full border border-[#f5d0d0] bg-white">
                   <Button
                     variant="ghost"
                     size="icon"

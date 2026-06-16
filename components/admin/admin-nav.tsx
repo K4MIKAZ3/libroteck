@@ -28,7 +28,7 @@ export function AdminNav({
     <div className="mb-8 space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <Link href="/admin/productos" className="text-2xl font-bold text-[#1E3A5F]">
+          <Link href="/admin/productos" className="text-2xl font-bold text-[#991b1b]">
             {brandPrimary}
             <span className="text-[#C8956C]">{brandAccent}</span> Admin
           </Link>
@@ -60,8 +60,8 @@ export function AdminNav({
             className={cn(
               "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
               active === key
-                ? "bg-[#1E3A5F] text-white"
-                : "text-[#1A1A2E]/70 hover:bg-[#FAF7F2] hover:text-[#1E3A5F]",
+                ? "bg-[#991b1b] text-white"
+                : "text-[#1A1A2E]/70 hover:bg-[#FAF7F2] hover:text-[#991b1b]",
             )}
           >
             <Icon className="size-4" />

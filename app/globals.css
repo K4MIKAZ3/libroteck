@@ -1,15 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f4f6fb;
-  --foreground: #0b1020;
-  --primary: #2a4494;
-  --primary-dark: #121a2e;
+  --background: #faf6f6;
+  --foreground: #1c0a0a;
+  --primary: #dc2626;
+  --primary-dark: #1c0a0a;
+  --primary-hover: #991b1b;
   --accent: #ffd600;
   --accent-orange: #ff7b00;
-  --border: #e0e4ef;
+  --border: #f5d0d0;
   --muted: #555555;
-  --muted-light: #e8ecf5;
+  --muted-light: #fde8e8;
   --whatsapp: #25d366;
 }
 
@@ -39,16 +40,16 @@ body {
 }
 
 .bg-header-gradient {
-  background: linear-gradient(135deg, #121a2e, #2a4494);
+  background: linear-gradient(135deg, #1c0a0a, #b91c1c);
 }
 
 .bg-hero-gradient {
   background:
-    linear-gradient(135deg, rgba(18, 26, 46, 0.98), rgba(42, 68, 148, 0.62)),
+    linear-gradient(135deg, rgba(28, 10, 10, 0.98), rgba(185, 28, 28, 0.62)),
     radial-gradient(circle at top right, rgba(255, 214, 0, 0.28) 0%, transparent 28%),
-    linear-gradient(135deg, #121a2e, #243b7a);
+    linear-gradient(135deg, #1c0a0a, #991b1b);
 }
 
 .bg-offer-gradient {
-  background: linear-gradient(135deg, #121a2e, #2a4494);
+  background: linear-gradient(135deg, #1c0a0a, #b91c1c);
 }

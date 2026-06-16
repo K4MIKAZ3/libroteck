@@ -31,7 +31,7 @@ export function CartView({
     return (
       <Card>
         <CardContent className="flex flex-col items-center gap-4 py-16 text-center">
-          <p className="text-lg font-bold text-[#0b1020]">Tu carrito está vacío</p>
+          <p className="text-lg font-bold text-[#1c0a0a]">Tu carrito está vacío</p>
           <p className="text-sm text-[#666]">
             Explora el catálogo y añade cursos o libros.
           </p>
@@ -66,7 +66,7 @@ export function CartView({
         {items.map((item) => (
           <Card key={item.productId}>
             <CardContent className="flex gap-4 p-4">
-              <div className="relative size-24 shrink-0 overflow-hidden rounded-xl bg-[#f4f6fb]">
+              <div className="relative size-24 shrink-0 overflow-hidden rounded-xl bg-[#faf6f6]">
                 {item.coverUrl && (
                   <CoverImage
                     src={item.coverUrl}
@@ -78,11 +78,11 @@ export function CartView({
               <div className="flex flex-1 flex-col justify-between gap-3">
                 <div>
                   {item.isCombo ? (
-                    <p className="font-semibold text-[#0b1020]">{item.name}</p>
+                    <p className="font-semibold text-[#1c0a0a]">{item.name}</p>
                   ) : (
                     <Link
                       href={`/producto/${item.slug}`}
-                      className="font-semibold text-[#0b1020] hover:text-[#1f4bff]"
+                      className="font-semibold text-[#1c0a0a] hover:text-[#dc2626]"
                     >
                       {item.name}
                     </Link>
@@ -131,7 +131,7 @@ export function CartView({
                     </div>
                   )}
                   <div className="flex items-center gap-3">
-                    <p className="font-black text-[#1f4bff]">
+                    <p className="font-black text-[#dc2626]">
                       {formatPrice(item.unitPrice * item.quantity, item.currency)}
                     </p>
                     <Button
@@ -154,7 +154,7 @@ export function CartView({
         <CardContent className="space-y-4 p-5">
           <div className="flex items-center justify-between">
             <span className="text-[#666]">Total</span>
-            <span className="text-2xl font-black text-[#1f4bff]">
+            <span className="text-2xl font-black text-[#dc2626]">
               {formatPrice(total, currency)}
             </span>
           </div>

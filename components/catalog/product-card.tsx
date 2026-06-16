@@ -57,7 +57,7 @@ export function ProductCard({
   return (
     <Card className="group overflow-hidden transition-all duration-300 hover:-translate-y-2.5 hover:shadow-[0_18px_45px_rgba(0,0,0,0.18)]">
       <Link href={`/producto/${product.slug}`} className="block">
-        <div className="relative aspect-[3/4] overflow-hidden bg-[#f4f6fb]">
+        <div className="relative aspect-[3/4] overflow-hidden bg-[#faf6f6]">
           {product.coverUrl ? (
             <CoverImage
               src={product.coverUrl}
@@ -65,7 +65,7 @@ export function ProductCard({
               className="transition-transform duration-300 group-hover:scale-105"
             />
           ) : (
-            <div className="flex h-full items-center justify-center text-[#0b1020]/30">
+            <div className="flex h-full items-center justify-center text-[#1c0a0a]/30">
               Sin portada
             </div>
           )}
@@ -106,7 +106,7 @@ export function ProductCard({
       <CardContent className="space-y-3 p-5">
         <div>
           <Link href={`/producto/${product.slug}`}>
-            <h3 className="line-clamp-2 text-lg font-bold text-[#0b1020] transition-colors hover:text-[#2a4494]">
+            <h3 className="line-clamp-2 text-lg font-bold text-[#1c0a0a] transition-colors hover:text-[#dc2626]">
               {displayName}
             </h3>
           </Link>

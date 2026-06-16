@@ -60,8 +60,8 @@ export function CountryProvider({ children }: { children: React.ReactNode }) {
 
   if (!ready) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f4f6fb]">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#1f4bff] border-t-transparent" />
+      <div className="flex min-h-screen items-center justify-center bg-[#faf6f6]">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#dc2626] border-t-transparent" />
       </div>
     );
   }

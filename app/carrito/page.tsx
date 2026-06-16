@@ -23,7 +23,7 @@ export default async function CartPage() {
           Seguir comprando
         </Link>
       </Button>
-      <h1 className="font-heading mb-8 text-3xl font-black text-[#0b1020]">
+      <h1 className="font-heading mb-8 text-3xl font-black text-[#1c0a0a]">
         Tu carrito
       </h1>
       <CartView

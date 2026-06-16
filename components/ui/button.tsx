@@ -4,19 +4,19 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-bold transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-[#2a4494]/30",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-bold transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-[#dc2626]/30",
   {
     variants: {
       variant: {
         default:
-          "bg-[#2a4494] text-white hover:bg-[#121a2e] shadow-sm",
+          "bg-[#dc2626] text-white hover:bg-[#1c0a0a] shadow-sm",
         accent:
           "bg-[#ffd600] text-[#111] hover:bg-white shadow-[0_8px_20px_rgba(255,214,0,0.3)] hover:-translate-y-0.5",
         secondary:
-          "bg-[#2a4494]/10 text-[#2a4494] hover:bg-[#2a4494]/20 border border-[#e0e4ef]",
+          "bg-[#dc2626]/10 text-[#dc2626] hover:bg-[#dc2626]/20 border border-[#f5d0d0]",
         outline:
-          "border border-[#e0e4ef] bg-white hover:bg-[#f4f6fb] text-[#0b1020]",
-        ghost: "hover:bg-[#f4f6fb] text-[#0b1020] rounded-lg",
+          "border border-[#f5d0d0] bg-white hover:bg-[#faf6f6] text-[#1c0a0a]",
+        ghost: "hover:bg-[#faf6f6] text-[#1c0a0a] rounded-lg",
         whatsapp: "bg-[#25D366] text-white hover:bg-[#1fb855] font-semibold",
         destructive: "bg-red-600 text-white hover:bg-red-700 rounded-lg",
       },

@@ -82,7 +82,7 @@ export default async function RootLayout({
         )}
       </head>
       <body
-        className={`${inter.variable} ${jakarta.variable} ${literata.variable} min-h-full bg-[#f4f6fb] font-[family-name:var(--font-inter)] text-[#0b1020] antialiased`}
+        className={`${inter.variable} ${jakarta.variable} ${literata.variable} min-h-full bg-[#faf6f6] font-[family-name:var(--font-inter)] text-[#1c0a0a] antialiased`}
       >
         <AppProviders>
           {children}

@@ -116,14 +116,14 @@ export function ComboBuilder({ products, onMinimize }: ComboBuilderProps) {
   }
 
   return (
-    <section className="rounded-[32px] border border-[#e0e4ef] bg-white p-6 shadow-[0_12px_40px_rgba(18,26,46,0.06)] sm:p-8">
+    <section className="rounded-[32px] border border-[#f5d0d0] bg-white p-6 shadow-[0_12px_40px_rgba(18,26,46,0.06)] sm:p-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <Badge className="mb-3 gap-1 bg-[#ffd600] text-[#111] hover:bg-[#ffd600]">
             <Sparkles className="size-3" />
             Arma tu combo
           </Badge>
-          <h2 className="font-heading text-2xl font-black text-[#0b1020] sm:text-3xl">
+          <h2 className="font-heading text-2xl font-black text-[#1c0a0a] sm:text-3xl">
             Crea tu combo de perfiles
           </h2>
           <p className="mt-2 max-w-2xl text-[#555]">
@@ -137,7 +137,7 @@ export function ComboBuilder({ products, onMinimize }: ComboBuilderProps) {
             {COMBO_DISCOUNT_RULES.map((rule) => (
               <span
                 key={rule.count}
-                className="rounded-full bg-[#f4f6fb] px-3 py-1 text-xs font-bold text-[#2a4494]"
+                className="rounded-full bg-[#faf6f6] px-3 py-1 text-xs font-bold text-[#dc2626]"
               >
                 {rule.count} perfiles → {rule.percent}% OFF
               </span>
@@ -177,20 +177,20 @@ export function ComboBuilder({ products, onMinimize }: ComboBuilderProps) {
                 className={cn(
                   "flex items-center justify-between gap-3 rounded-2xl border p-4 text-left transition-all",
                   isSelected
-                    ? "border-[#2a4494] bg-[#e8ecf5] shadow-sm"
-                    : "border-[#e0e4ef] bg-white hover:border-[#2a4494]/40",
+                    ? "border-[#dc2626] bg-[#fde8e8] shadow-sm"
+                    : "border-[#f5d0d0] bg-white hover:border-[#dc2626]/40",
                   isDisabled && "cursor-not-allowed opacity-50",
                 )}
               >
                 <div className="min-w-0">
-                  <p className="truncate font-semibold text-[#0b1020]">
+                  <p className="truncate font-semibold text-[#1c0a0a]">
                     {getStreamingDisplayName(product.name)}
                   </p>
                   <p className="text-xs text-[#666]">Perfil individual</p>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   {price && (
-                    <span className="text-sm font-bold text-[#2a4494]">
+                    <span className="text-sm font-bold text-[#dc2626]">
                       {formatPrice(price.amount, price.currency)}
                     </span>
                   )}
@@ -198,7 +198,7 @@ export function ComboBuilder({ products, onMinimize }: ComboBuilderProps) {
                     className={cn(
                       "flex size-6 items-center justify-center rounded-full border",
                       isSelected
-                        ? "border-[#2a4494] bg-[#2a4494] text-white"
+                        ? "border-[#dc2626] bg-[#dc2626] text-white"
                         : "border-[#c8d0e4] bg-white",
                     )}
                   >
@@ -210,10 +210,10 @@ export function ComboBuilder({ products, onMinimize }: ComboBuilderProps) {
           })}
         </div>
 
-        <Card className="h-fit border-[#e0e4ef] lg:sticky lg:top-28">
+        <Card className="h-fit border-[#f5d0d0] lg:sticky lg:top-28">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-lg">
-              <Package className="size-5 text-[#2a4494]" />
+              <Package className="size-5 text-[#dc2626]" />
               Tu combo
             </CardTitle>
           </CardHeader>
@@ -242,7 +242,7 @@ export function ComboBuilder({ products, onMinimize }: ComboBuilderProps) {
             )}
 
             {combo ? (
-              <div className="space-y-1 rounded-2xl bg-[#f4f6fb] p-4">
+              <div className="space-y-1 rounded-2xl bg-[#faf6f6] p-4">
                 <div className="flex justify-between text-sm text-[#666]">
                   <span>Subtotal</span>
                   <span>{formatPrice(combo.subtotal, combo.currency)}</span>
@@ -251,7 +251,7 @@ export function ComboBuilder({ products, onMinimize }: ComboBuilderProps) {
                   <span>Descuento ({combo.discountPercent}%)</span>
                   <span>−{formatPrice(combo.discountAmount, combo.currency)}</span>
                 </div>
-                <div className="flex justify-between border-t border-[#e0e4ef] pt-2 text-lg font-black text-[#2a4494]">
+                <div className="flex justify-between border-t border-[#f5d0d0] pt-2 text-lg font-black text-[#dc2626]">
                   <span>Total combo</span>
                   <span>{formatPrice(combo.total, combo.currency)}</span>
                 </div>

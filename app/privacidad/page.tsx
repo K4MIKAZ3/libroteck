@@ -16,18 +16,18 @@ export default async function PrivacyPage() {
 
   return (
     <StoreShell store={store} settings={settings} storeSlug={slug}>
-      <article className="mx-auto max-w-3xl space-y-6 rounded-2xl border border-[#e8ecff] bg-white p-6 sm:p-10">
+      <article className="mx-auto max-w-3xl space-y-6 rounded-2xl border border-[#f5d0d0] bg-white p-6 sm:p-10">
         <div>
-          <h1 className="font-heading text-3xl font-bold text-[#1f4bff]">
+          <h1 className="font-heading text-3xl font-bold text-[#dc2626]">
             Política de privacidad
           </h1>
-          <p className="mt-2 text-sm text-[#0b1020]/60">
+          <p className="mt-2 text-sm text-[#1c0a0a]/60">
             Última actualización: {new Date().toLocaleDateString("es-ES")}
           </p>
         </div>
 
-        <section className="space-y-3 text-[#0b1020]/80">
-          <h2 className="text-lg font-semibold text-[#1f4bff]">
+        <section className="space-y-3 text-[#1c0a0a]/80">
+          <h2 className="text-lg font-semibold text-[#dc2626]">
             1. Responsable
           </h2>
           <p>
@@ -36,8 +36,8 @@ export default async function PrivacyPage() {
           </p>
         </section>
 
-        <section className="space-y-3 text-[#0b1020]/80">
-          <h2 className="text-lg font-semibold text-[#1f4bff]">
+        <section className="space-y-3 text-[#1c0a0a]/80">
+          <h2 className="text-lg font-semibold text-[#dc2626]">
             2. Datos que recopilamos
           </h2>
           <p>
@@ -47,8 +47,8 @@ export default async function PrivacyPage() {
           </p>
         </section>
 
-        <section className="space-y-3 text-[#0b1020]/80">
-          <h2 className="text-lg font-semibold text-[#1f4bff]">
+        <section className="space-y-3 text-[#1c0a0a]/80">
+          <h2 className="text-lg font-semibold text-[#dc2626]">
             3. Cookies y publicidad
           </h2>
           <p>
@@ -62,7 +62,7 @@ export default async function PrivacyPage() {
               href="https://adssettings.google.com/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#1f4bff] underline"
+              className="text-[#dc2626] underline"
             >
               Configuración de anuncios de Google
             </a>
@@ -70,8 +70,8 @@ export default async function PrivacyPage() {
           </p>
         </section>
 
-        <section className="space-y-3 text-[#0b1020]/80">
-          <h2 className="text-lg font-semibold text-[#1f4bff]">
+        <section className="space-y-3 text-[#1c0a0a]/80">
+          <h2 className="text-lg font-semibold text-[#dc2626]">
             4. Terceros
           </h2>
           <p>
@@ -81,7 +81,7 @@ export default async function PrivacyPage() {
               href="https://policies.google.com/privacy"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#1f4bff] underline"
+              className="text-[#dc2626] underline"
             >
               política de privacidad de Google
             </a>
@@ -89,8 +89,8 @@ export default async function PrivacyPage() {
           </p>
         </section>
 
-        <section className="space-y-3 text-[#0b1020]/80">
-          <h2 className="text-lg font-semibold text-[#1f4bff]">5. Contacto</h2>
+        <section className="space-y-3 text-[#1c0a0a]/80">
+          <h2 className="text-lg font-semibold text-[#dc2626]">5. Contacto</h2>
           <p>
             Para consultas sobre privacidad, contáctanos por WhatsApp desde el
             sitio.
@@ -99,7 +99,7 @@ export default async function PrivacyPage() {
 
         <Link
           href={HOME_PATH}
-          className="inline-block text-sm font-medium text-[#1f4bff] underline-offset-2 hover:underline"
+          className="inline-block text-sm font-medium text-[#dc2626] underline-offset-2 hover:underline"
         >
           Volver al catálogo
         </Link>

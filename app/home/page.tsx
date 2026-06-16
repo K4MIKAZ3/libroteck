@@ -17,7 +17,7 @@ export default async function HomePage() {
 
   return (
     <StoreShell store={store} settings={settings} storeSlug={slug}>
-      <section className="bg-hero-gradient mb-10 grid items-center gap-10 overflow-hidden rounded-[32px] px-6 py-12 text-white shadow-[0_18px_45px_rgba(18,26,46,0.22)] sm:px-10 sm:py-14 lg:grid-cols-[1.1fr_0.9fr]">
+      <section className="bg-hero-gradient mb-10 grid items-center gap-10 overflow-hidden rounded-[32px] px-6 py-12 text-white shadow-[0_18px_45px_rgba(28,10,10,0.22)] sm:px-10 sm:py-14 lg:grid-cols-[1.1fr_0.9fr]">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#ffd600]">
             {store.heroBadge}
@@ -34,7 +34,7 @@ export default async function HomePage() {
               <span className="text-[#ffd600]">{welcome}</span>
             )}
           </h1>
-          <p className="mt-5 max-w-xl text-lg leading-relaxed text-[#eef2ff]">
+          <p className="mt-5 max-w-xl text-lg leading-relaxed text-[#fde8e8]">
             {isStreaming
               ? "Perfiles individuales de streaming — no cuentas completas. Arma tu combo y ahorra hasta 40%."
               : "Elige tu país, revisa los precios en tu moneda y ordena por WhatsApp en un solo clic."}

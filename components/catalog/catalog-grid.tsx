@@ -91,7 +91,7 @@ export function CatalogGrid({
   return (
     <div className="space-y-8">
       <div className="text-center">
-        <h2 className="font-heading text-3xl font-black text-[#0b1020] sm:text-4xl">
+        <h2 className="font-heading text-3xl font-black text-[#1c0a0a] sm:text-4xl">
           {catalogTitle}
         </h2>
         <p className="mt-2 text-lg text-[#555]">{catalogSubtitle}</p>
@@ -107,7 +107,7 @@ export function CatalogGrid({
       </div>
 
       {filtered.length === 0 ? (
-        <p className="rounded-3xl border border-dashed border-[#e0e4ef] bg-white p-12 text-center text-[#666]">
+        <p className="rounded-3xl border border-dashed border-[#f5d0d0] bg-white p-12 text-center text-[#666]">
           {query.trim()
             ? "No hay resultados para tu búsqueda."
             : "No hay productos en esta categoría."}
@@ -131,14 +131,14 @@ export function CatalogGrid({
             <button
               type="button"
               onClick={handleOpenCombo}
-              className="flex w-full items-center justify-between gap-4 rounded-[28px] border border-[#e0e4ef] bg-white p-5 text-left shadow-[0_8px_28px_rgba(18,26,46,0.06)] transition hover:border-[#2a4494]/30 hover:shadow-[0_12px_32px_rgba(18,26,46,0.08)] sm:p-6"
+              className="flex w-full items-center justify-between gap-4 rounded-[28px] border border-[#f5d0d0] bg-white p-5 text-left shadow-[0_8px_28px_rgba(18,26,46,0.06)] transition hover:border-[#dc2626]/30 hover:shadow-[0_12px_32px_rgba(18,26,46,0.08)] sm:p-6"
             >
               <div className="flex items-center gap-4">
                 <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[#ffd600] text-[#111]">
                   <Sparkles className="size-5" />
                 </span>
                 <div>
-                  <p className="font-heading text-lg font-black text-[#0b1020] sm:text-xl">
+                  <p className="font-heading text-lg font-black text-[#1c0a0a] sm:text-xl">
                     Arma tu combo
                   </p>
                   <p className="mt-1 text-sm text-[#666]">
@@ -146,7 +146,7 @@ export function CatalogGrid({
                   </p>
                 </div>
               </div>
-              <span className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[#2a4494] px-4 py-2 text-sm font-bold text-white">
+              <span className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[#dc2626] px-4 py-2 text-sm font-bold text-white">
                 Abrir
                 <ChevronDown className="size-4" />
               </span>

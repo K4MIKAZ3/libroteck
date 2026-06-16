@@ -189,7 +189,7 @@ export function HeroOfferEditor({
   return (
     <div className="rounded-xl border border-[#E8E0D5] bg-[#FAF7F2]/60 p-4 space-y-4">
       <div>
-        <p className="font-medium text-[#1E3A5F]">
+        <p className="font-medium text-[#991b1b]">
           Tarjeta amarilla del banner (oferta destacada)
         </p>
         <p className="mt-1 text-xs text-[#1A1A2E]/60">
@@ -256,7 +256,7 @@ export function HeroOfferEditor({
         <p className="text-xs font-medium uppercase tracking-wide text-[#1A1A2E]/50">
           Título que verá el cliente
         </p>
-        <p className="mt-1 text-lg font-black text-[#0b1020]">{titlePreview}</p>
+        <p className="mt-1 text-lg font-black text-[#1c0a0a]">{titlePreview}</p>
       </div>
 
       <div className="space-y-2">
