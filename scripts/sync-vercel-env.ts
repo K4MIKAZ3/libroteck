@@ -14,6 +14,7 @@ const PRODUCTION_ONLY = new Set([
 
 const FALLBACK: Record<string, string> = {
   ADSENSE_CLIENT_ID: "ca-pub-2874159185263006",
+  GOOGLE_SITE_VERIFICATION: "cc_kj_ZBrn4TG1spcaj4fCBw7pMUsImOGodvMOsj7c4",
 };
 
 function parseEnvFile(filePath: string) {
