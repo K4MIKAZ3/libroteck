@@ -1,10 +1,27 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies, headers } from "next/headers";
 import { isAdminRole, type AdminRole } from "@/lib/auth/roles";
+import {
+  getStoreSlugFromRequest,
+  resolveStoreSlugFromHost,
+  type StoreSlug,
+} from "@/lib/store/context";
 
 export const ADMIN_COOKIE_NAME = "libroteck_admin";
 const SESSION_DURATION = 60 * 60 * 24 * 7;
 const MIN_SECRET_LENGTH = 32;
+
+export function getAdminCookieName(storeSlug: StoreSlug) {
+  return `${ADMIN_COOKIE_NAME}_${storeSlug}`;
+}
+
+export function getAllAdminCookieNames(): string[] {
+  return [
+    ADMIN_COOKIE_NAME,
+    getAdminCookieName("libroteck"),
+    getAdminCookieName("streaming"),
+  ];
+}
 
 export type AdminSessionPayload = {
   userId: number;
@@ -110,23 +127,30 @@ export function clearAdminAuthCookies(
   cookieStore: WritableCookies,
   host?: string | null,
 ) {
-  cookieStore.set(ADMIN_COOKIE_NAME, "", {
-    ...getAdminCookieOptions(host),
-    maxAge: 0,
-  });
-  cookieStore.set(ADMIN_COOKIE_NAME, "", {
-    ...getHostOnlyCookieOptions(),
-    maxAge: 0,
-  });
+  for (const cookieName of getAllAdminCookieNames()) {
+    cookieStore.set(cookieName, "", {
+      ...getAdminCookieOptions(host),
+      maxAge: 0,
+    });
+    cookieStore.set(cookieName, "", {
+      ...getHostOnlyCookieOptions(),
+      maxAge: 0,
+    });
+  }
 }
 
 export function setAdminAuthCookie(
   cookieStore: WritableCookies,
   token: string,
+  storeSlug: StoreSlug,
   host?: string | null,
 ) {
   clearAdminAuthCookies(cookieStore, host);
-  cookieStore.set(ADMIN_COOKIE_NAME, token, getAdminCookieOptions(host));
+  cookieStore.set(
+    getAdminCookieName(storeSlug),
+    token,
+    getAdminCookieOptions(host),
+  );
 }
 
 export async function createAdminSessionToken(user: AdminSessionPayload) {
@@ -186,40 +210,96 @@ export async function parseAdminSessionToken(
   }
 }
 
-export function readAdminCookieTokens(
+export function readCookieValues(
   cookieHeader: string | null | undefined,
+  cookieName: string,
 ): string[] {
   if (!cookieHeader) {
     return [];
   }
 
-  const tokens: string[] = [];
+  const values: string[] = [];
+  const prefix = `${cookieName}=`;
 
   for (const part of cookieHeader.split(";")) {
     const trimmed = part.trim();
-    if (!trimmed.startsWith(`${ADMIN_COOKIE_NAME}=`)) {
+    if (!trimmed.startsWith(prefix)) {
       continue;
     }
 
-    const value = trimmed.slice(ADMIN_COOKIE_NAME.length + 1);
+    const value = trimmed.slice(prefix.length);
     if (value) {
-      tokens.push(value);
+      values.push(value);
     }
   }
+
+  return values;
+}
+
+export function readAdminCookieTokens(
+  cookieHeader: string | null | undefined,
+): string[] {
+  return readCookieValues(cookieHeader, ADMIN_COOKIE_NAME);
+}
+
+async function resolveStoreIdForSlug(storeSlug: StoreSlug) {
+  const { getDb } = await import("@/lib/db/index");
+  const { stores } = await import("@/lib/db/schema");
+  const { eq } = await import("drizzle-orm");
+  const db = await getDb();
+  const store = await db.query.stores.findFirst({
+    where: eq(stores.slug, storeSlug),
+  });
+
+  if (!store) {
+    throw new Error(`Tienda no encontrada: ${storeSlug}`);
+  }
+
+  return store.id;
+}
+
+async function readSessionTokensForStore(
+  storeSlug: StoreSlug,
+  cookieHeader?: string | null,
+  cookieStoreValue?: string | null,
+) {
+  const tokens = [
+    cookieStoreValue,
+    ...readCookieValues(cookieHeader, getAdminCookieName(storeSlug)),
+    ...readAdminCookieTokens(cookieHeader),
+  ].filter((token): token is string => Boolean(token));
 
   return tokens;
 }
 
-export async function verifyAdminSessionFromCookieHeader(
-  cookieHeader: string | null | undefined,
+export async function getAdminSessionForStore(
+  storeSlug: StoreSlug,
+  cookieHeader?: string | null,
+  cookieStoreValue?: string | null,
 ) {
-  for (const token of readAdminCookieTokens(cookieHeader)) {
-    if (await parseAdminSessionToken(token)) {
-      return true;
+  const storeId = await resolveStoreIdForSlug(storeSlug);
+  const tokens = await readSessionTokensForStore(
+    storeSlug,
+    cookieHeader,
+    cookieStoreValue,
+  );
+
+  for (const token of tokens) {
+    const session = await parseAdminSessionToken(token);
+    if (session?.storeId === storeId) {
+      return session;
     }
   }
 
-  return false;
+  return null;
+}
+
+export async function verifyAdminSessionFromCookieHeader(
+  cookieHeader: string | null | undefined,
+  storeSlug: StoreSlug,
+) {
+  const session = await getAdminSessionForStore(storeSlug, cookieHeader);
+  return Boolean(session);
 }
 
 export async function verifyAdminSessionToken(token?: string | null) {
@@ -228,9 +308,14 @@ export async function verifyAdminSessionToken(token?: string | null) {
 
 export async function getAdminSessionFromCookieHeader(
   cookieHeader: string | null | undefined,
+  storeSlug?: StoreSlug,
 ) {
-  for (const token of readAdminCookieTokens(cookieHeader)) {
-    const session = await parseAdminSessionToken(token);
+  if (storeSlug) {
+    return getAdminSessionForStore(storeSlug, cookieHeader);
+  }
+
+  for (const slug of ["libroteck", "streaming"] as const) {
+    const session = await getAdminSessionForStore(slug, cookieHeader);
     if (session) {
       return session;
     }
@@ -242,26 +327,24 @@ export async function getAdminSessionFromCookieHeader(
 export async function getAdminSession() {
   const cookieStore = await cookies();
   const headerStore = await headers();
-  const tokens = [
-    cookieStore.get(ADMIN_COOKIE_NAME)?.value,
-    ...readAdminCookieTokens(headerStore.get("cookie")),
-  ].filter((token): token is string => Boolean(token));
+  const storeSlug = resolveStoreSlugFromHost(headerStore.get("host") ?? "");
 
-  for (const token of tokens) {
-    const session = await parseAdminSessionToken(token);
-    if (session) {
-      return session;
-    }
-  }
-
-  return null;
+  return getAdminSessionForStore(
+    storeSlug,
+    headerStore.get("cookie"),
+    cookieStore.get(getAdminCookieName(storeSlug))?.value ??
+      cookieStore.get(ADMIN_COOKIE_NAME)?.value,
+  );
 }
 
 export async function createAdminSession(user: AdminSessionPayload) {
   const token = await createAdminSessionToken(user);
   const cookieStore = await cookies();
-  const host = (await headers()).get("host");
-  setAdminAuthCookie(cookieStore, token, host);
+  const headerStore = await headers();
+  const host = headerStore.get("host");
+  const { getStoreSlug } = await import("@/lib/store/context");
+  const storeSlug = await getStoreSlug();
+  setAdminAuthCookie(cookieStore, token, storeSlug, host);
   return token;
 }
 

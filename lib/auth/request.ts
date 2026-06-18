@@ -10,34 +10,34 @@ import {
 } from "@/lib/auth/form-token";
 import {
   ADMIN_COOKIE_NAME,
+  getAdminCookieName,
   getAdminSession,
-  getAdminSessionFromCookieHeader,
-  parseAdminSessionToken,
-  readAdminCookieTokens,
+  getAdminSessionForStore,
+  readCookieValues,
   type AdminSessionPayload,
 } from "@/lib/auth/session";
 import { getStoreIdForRequest } from "@/lib/db/admin-users";
+import { getStoreSlugFromRequest } from "@/lib/store/context";
 
 export function getCookieTokenFromRequest(request: Request) {
-  const tokens = readAdminCookieTokens(request.headers.get("cookie"));
-  return tokens[0];
+  const storeSlug = getStoreSlugFromRequest(request);
+  const values = [
+    ...readCookieValues(request.headers.get("cookie"), getAdminCookieName(storeSlug)),
+    ...readCookieValues(request.headers.get("cookie"), ADMIN_COOKIE_NAME),
+  ];
+  return values[0];
 }
 
 export async function getAdminSessionFromRequest(request: Request) {
+  const storeSlug = getStoreSlugFromRequest(request);
   const cookieStore = await cookies();
-  const candidates = [
-    cookieStore.get(ADMIN_COOKIE_NAME)?.value,
-    ...readAdminCookieTokens(request.headers.get("cookie")),
-  ].filter((token): token is string => Boolean(token));
 
-  for (const token of candidates) {
-    const session = await parseAdminSessionToken(token);
-    if (session) {
-      return session;
-    }
-  }
-
-  return getAdminSessionFromCookieHeader(request.headers.get("cookie"));
+  return getAdminSessionForStore(
+    storeSlug,
+    request.headers.get("cookie"),
+    cookieStore.get(getAdminCookieName(storeSlug))?.value ??
+      cookieStore.get(ADMIN_COOKIE_NAME)?.value,
+  );
 }
 
 async function assertSessionStore(

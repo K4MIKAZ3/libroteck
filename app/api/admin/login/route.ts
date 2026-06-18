@@ -5,6 +5,7 @@ import {
   setAdminAuthCookie,
   verifyAdminLogin,
 } from "@/lib/auth";
+import { getStoreSlugFromRequest } from "@/lib/store/context";
 import {
   checkLoginRateLimit,
   clearLoginFailures,
@@ -25,7 +26,13 @@ async function createLoginResponse(
   const token = await createAdminSessionToken(session);
   const destination = nextPath.startsWith("/admin") ? nextPath : "/admin/productos";
   const response = NextResponse.redirect(new URL(destination, request.url));
-  setAdminAuthCookie(response.cookies, token, getHostFromRequest(request));
+  const storeSlug = getStoreSlugFromRequest(request);
+  setAdminAuthCookie(
+    response.cookies,
+    token,
+    storeSlug,
+    getHostFromRequest(request),
+  );
   return response;
 }
 

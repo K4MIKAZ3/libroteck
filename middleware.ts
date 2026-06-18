@@ -1,22 +1,26 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import {
-  verifyAdminSessionFromCookieHeader,
-} from "@/lib/auth/session";
+import { verifyAdminSessionFromCookieHeader } from "@/lib/auth/session";
 import { resolveStoreSlugFromHost } from "@/lib/store/context";
-
-async function hasAdminSession(request: NextRequest) {
-  return verifyAdminSessionFromCookieHeader(request.headers.get("cookie"));
-}
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  const host = request.headers.get("host") ?? "";
+  const storeSlug = resolveStoreSlugFromHost(host);
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-store-slug", storeSlug);
 
   if (
     (pathname.startsWith("/admin") && !pathname.startsWith("/admin/login")) ||
     (pathname.startsWith("/api/admin") && !pathname.startsWith("/api/admin/login"))
   ) {
-    if (!(await hasAdminSession(request))) {
+    if (
+      !(await verifyAdminSessionFromCookieHeader(
+        request.headers.get("cookie"),
+        storeSlug,
+      ))
+    ) {
       if (pathname.startsWith("/api/")) {
         return NextResponse.json({ error: "No autorizado" }, { status: 401 });
       }
@@ -26,11 +30,6 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
   }
-
-  const host = request.headers.get("host") ?? "";
-  const storeSlug = resolveStoreSlugFromHost(host);
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("x-store-slug", storeSlug);
 
   return NextResponse.next({
     request: {

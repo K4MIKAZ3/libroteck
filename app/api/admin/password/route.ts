@@ -9,6 +9,7 @@ import {
 import { requireAdminSession } from "@/lib/auth/request";
 import { updateAdminUserPassword } from "@/lib/db/admin-users";
 import { updateAdminPassword } from "@/lib/db/queries";
+import { getStoreSlugFromRequest } from "@/lib/store/context";
 
 export async function PUT(request: Request) {
   try {
@@ -82,6 +83,7 @@ export async function PUT(request: Request) {
       setAdminAuthCookie(
         response.cookies,
         token,
+        getStoreSlugFromRequest(request),
         getHostFromRequest(request),
       );
     }
