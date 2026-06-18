@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Literata, Plus_Jakarta_Sans } from "next/font/google";
+import { headers } from "next/headers";
 import { Analytics } from "@vercel/analytics/next";
 import { FloatingCartButton } from "@/components/cart/floating-cart-button";
 import { AppProviders } from "@/components/providers/app-providers";
@@ -7,6 +8,7 @@ import {
   resolveAdsenseClientId,
   shouldLoadAdsenseScript,
 } from "@/lib/ads/client-id";
+import { isAdsEligiblePath } from "@/lib/ads/eligibility";
 import { getStoreContext } from "@/lib/store/context";
 import "./globals.css";
 
@@ -27,6 +29,9 @@ const literata = Literata({
 
 export async function generateMetadata(): Promise<Metadata> {
   const { store, settings, slug } = await getStoreContext();
+  const requestHeaders = await headers();
+  const pathname = requestHeaders.get("x-pathname") ?? "/";
+  const adsEligible = isAdsEligiblePath(pathname);
   const clientId = resolveAdsenseClientId(settings);
   const brand = `${store.brandPrimary}${store.brandAccent}`;
   const isStreaming = slug === "streaming";
@@ -51,7 +56,7 @@ export async function generateMetadata(): Promise<Metadata> {
           },
         }
       : {}),
-    ...(clientId
+    ...(clientId && adsEligible && settings.adsEnabled
       ? {
           other: {
             "google-adsense-account": clientId,
@@ -67,8 +72,11 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const { settings, slug } = await getStoreContext();
+  const requestHeaders = await headers();
+  const adsEligible = requestHeaders.get("x-ads-eligible") === "1";
   const clientId = resolveAdsenseClientId(settings);
-  const loadAdsense = shouldLoadAdsenseScript(settings);
+  const loadAdsense =
+    adsEligible && shouldLoadAdsenseScript(settings);
 
   return (
     <html lang="es" className="h-full" data-store={slug}>

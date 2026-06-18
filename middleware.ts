@@ -1,5 +1,6 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { isAdsEligiblePath } from "@/lib/ads/eligibility";
 import { verifyAdminSessionFromCookieHeader } from "@/lib/auth/session";
 import { resolveStoreSlugFromHost } from "@/lib/store/context";
 
@@ -10,6 +11,11 @@ export async function middleware(request: NextRequest) {
   const storeSlug = resolveStoreSlugFromHost(host);
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-store-slug", storeSlug);
+  requestHeaders.set("x-pathname", pathname);
+  requestHeaders.set(
+    "x-ads-eligible",
+    isAdsEligiblePath(pathname) ? "1" : "0",
+  );
 
   if (
     (pathname.startsWith("/admin") && !pathname.startsWith("/admin/login")) ||

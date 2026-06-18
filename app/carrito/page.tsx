@@ -16,7 +16,7 @@ export default async function CartPage() {
   const { store, settings, slug } = await getStoreContext();
 
   return (
-    <StoreShell store={store} settings={settings} storeSlug={slug}>
+    <StoreShell store={store} settings={settings} storeSlug={slug} showAds={false}>
       <Button asChild variant="ghost" className="mb-6">
         <Link href={HOME_PATH}>
           <ArrowLeft className="size-4" />

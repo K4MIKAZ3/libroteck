@@ -22,6 +22,10 @@ export function adsenseClientIdToPubId(clientId: string) {
 export function shouldLoadAdsenseScript(
   settings?: Pick<Settings, "adsEnabled" | "adsenseClientId"> | null,
 ) {
+  if (!settings?.adsEnabled) {
+    return false;
+  }
+
   const clientId = resolveAdsenseClientId(settings);
   return isValidAdsenseClientId(clientId);
 }

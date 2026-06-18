@@ -11,15 +11,17 @@ export function StoreShell({
   store,
   settings,
   storeSlug,
+  showAds = true,
   children,
 }: {
   store: Store;
   settings: Settings;
   storeSlug: StoreSlug;
+  showAds?: boolean;
   children: React.ReactNode;
 }) {
   const ads = getAdConfig(settings);
-  const showUnits = shouldShowAdUnits(settings);
+  const showUnits = showAds && shouldShowAdUnits(settings);
 
   return (
     <div className="min-h-screen">

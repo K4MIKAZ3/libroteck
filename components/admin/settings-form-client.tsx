@@ -426,6 +426,11 @@ export function SettingsFormClient({
                   ))}
                 </ul>
                 <p className="mt-3 text-[#1A1A2E]/55">
+                  Los anuncios solo se muestran en el catálogo, fichas de producto
+                  y la página de privacidad. No aparecen en el panel admin, el
+                  carrito ni otras pantallas de navegación.
+                </p>
+                <p className="mt-3 text-[#1A1A2E]/55">
                   En AdSense crea 3 unidades: una horizontal (arriba) y dos
                   verticales (laterales). Copia el ca-pub y cada data-ad-slot aquí.
                   También necesitas la pagina{" "}
