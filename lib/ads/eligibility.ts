@@ -1,4 +1,4 @@
-const CONTENT_PATHS = ["/home", "/privacidad"] as const;
+const CONTENT_PATHS = ["/home", "/privacidad", "/sobre-nosotros"] as const;
 
 export function isAdsEligiblePath(pathname: string): boolean {
   if (!pathname || pathname === "/") {

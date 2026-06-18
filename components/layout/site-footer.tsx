@@ -55,6 +55,13 @@ export function SiteFooter({
           {brandAccent} — {tagline}
           {" · "}
           <a
+            href="/sobre-nosotros"
+            className="text-[#ffd600] underline-offset-2 hover:underline"
+          >
+            Sobre nosotros
+          </a>
+          {" · "}
+          <a
             href="/privacidad"
             className="text-[#ffd600] underline-offset-2 hover:underline"
           >
