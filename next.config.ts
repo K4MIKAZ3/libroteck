@@ -1,5 +1,12 @@
 import type { NextConfig } from "next";
 
+const inboxHubFrameSrc = [
+  "https://inbox-hub-tau.vercel.app",
+  "https://*.vercel.app",
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+].join(" ");
+
 const securityHeaders = [
   {
     key: "X-Frame-Options",
@@ -34,7 +41,8 @@ const securityHeaders = [
       "img-src 'self' data: blob: https:",
       "font-src 'self' data:",
       "connect-src 'self' https:",
-      "frame-src 'self' https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.google.com",
+      // Inbox Hub chat iframe + AdSense frames
+      `frame-src 'self' ${inboxHubFrameSrc} https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.google.com`,
     ].join("; "),
   },
 ];
