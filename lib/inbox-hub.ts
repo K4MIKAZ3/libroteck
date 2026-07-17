@@ -23,6 +23,7 @@ export function buildInboxHubWidgetSrc(
   const params = new URLSearchParams({
     embed: "1",
     siteKey,
+    theme: storeSlug,
   });
   if (options?.product?.trim()) {
     params.set("product", options.product.trim());

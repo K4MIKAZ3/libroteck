@@ -77,7 +77,7 @@ export function InboxHubChat({ baseSrc }: Props) {
               src={iframeSrc}
               title="Chat para ordenar en línea"
               allow="clipboard-write"
-              className="h-full w-full flex-1 border-0 bg-[#0f1419]"
+              className="h-full w-full flex-1 border-0 bg-transparent"
               onLoad={() => {
                 iframeRef.current?.contentWindow?.postMessage(
                   {
