@@ -30,6 +30,7 @@ export default async function CartPage() {
         whatsappNumber={settings?.whatsappNumber ?? "5212345678900"}
         storeName={settings?.storeName}
         whatsappOrderTemplate={settings?.whatsappOrderTemplate}
+        onlineCheckoutEnabled={Boolean(process.env.NEXT_PUBLIC_INBOX_HUB_URL)}
       />
     </StoreShell>
   );

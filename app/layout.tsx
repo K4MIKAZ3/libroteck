@@ -98,7 +98,7 @@ export default async function RootLayout({
         <AppProviders>
           {children}
           <FloatingCartButton />
-          {inboxHubSrc ? <InboxHubChat src={inboxHubSrc} /> : null}
+          {inboxHubSrc ? <InboxHubChat baseSrc={inboxHubSrc} /> : null}
         </AppProviders>
         <Analytics />
       </body>

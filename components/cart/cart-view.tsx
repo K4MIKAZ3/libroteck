@@ -2,11 +2,12 @@
 
 import { CoverImage } from "@/components/catalog/cover-image";
 import Link from "next/link";
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { MessageCircle, Minus, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useCart } from "@/components/providers/cart-provider";
 import { useCountry } from "@/components/providers/country-provider";
+import { useInboxHub } from "@/components/providers/inbox-hub-provider";
 import {
   formatPrice,
   PRODUCT_TYPE_LABELS,
@@ -19,13 +20,16 @@ export function CartView({
   whatsappNumber,
   storeName = "LibroTeck",
   whatsappOrderTemplate,
+  onlineCheckoutEnabled = false,
 }: {
   whatsappNumber: string;
   storeName?: string;
   whatsappOrderTemplate?: string;
+  onlineCheckoutEnabled?: boolean;
 }) {
   const { items, total, updateQuantity, removeItem, clearCart } = useCart();
   const { country, currency } = useCountry();
+  const inboxHub = useInboxHub();
 
   if (items.length === 0) {
     return (
@@ -59,6 +63,18 @@ export function CartView({
     whatsappOrderTemplate,
   );
   const whatsappUrl = buildWhatsAppUrl(whatsappNumber, message);
+  const productSummary = items
+    .map((item) =>
+      item.quantity > 1 ? `${item.name} x${item.quantity}` : item.name,
+    )
+    .join(", ");
+
+  function orderOnline() {
+    inboxHub.openWithOrder({
+      productSummary: productSummary.slice(0, 180),
+      message,
+    });
+  }
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
@@ -158,13 +174,33 @@ export function CartView({
               {formatPrice(total, currency)}
             </span>
           </div>
-          <Button variant="whatsapp" size="lg" className="w-full" asChild>
-            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-              Ordenar por WhatsApp
-            </a>
-          </Button>
+
+          <div className="space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[#666]">
+              Cómo quieres pagar
+            </p>
+            {onlineCheckoutEnabled && (
+              <Button
+                size="lg"
+                className="w-full"
+                type="button"
+                onClick={orderOnline}
+              >
+                <MessageCircle className="size-5" />
+                Ordenar en línea
+              </Button>
+            )}
+            <Button variant="whatsapp" size="lg" className="w-full" asChild>
+              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+                Ordenar por WhatsApp
+              </a>
+            </Button>
+          </div>
+
           <p className="text-center text-xs text-[#666]">
-            El pago se completa por WhatsApp de forma externa.
+            {onlineCheckoutEnabled
+              ? "En línea: te atendemos por chat para validar el pago. WhatsApp: mismo pedido por mensaje."
+              : "El pago se completa por WhatsApp de forma externa."}
           </p>
           <Button variant="ghost" className="w-full" onClick={clearCart}>
             Vaciar carrito
