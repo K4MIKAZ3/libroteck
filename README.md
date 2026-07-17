@@ -44,10 +44,12 @@ ADMIN_SECRET=una-clave-secreta-larga-de-al-menos-32-caracteres
 WHATSAPP_NUMBER=5212345678900
 DATABASE_URL=postgresql://...
 BLOB_READ_WRITE_TOKEN=
+NEXT_PUBLIC_INBOX_HUB_URL=https://tu-inbox-hub.vercel.app
 ```
 
 - `DATABASE_URL`: **obligatoria**. Neon Postgres (local y producción).
 - `BLOB_READ_WRITE_TOKEN`: opcional. Si no está, las imágenes se guardan en `public/uploads/`.
+- `NEXT_PUBLIC_INBOX_HUB_URL`: URL pública de [Inbox Hub](https://github.com/K4MIKAZ3/Inbox-Hub). Si falta, el chat no se muestra. Elige automáticamente la `site_key` según el host (`libroteck.xyz` vs `streaming.libroteck.xyz`).
 
 ## Base de datos (Neon Postgres)
 

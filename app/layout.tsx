@@ -3,12 +3,14 @@ import { Inter, Literata, Plus_Jakarta_Sans } from "next/font/google";
 import { headers } from "next/headers";
 import { Analytics } from "@vercel/analytics/next";
 import { FloatingCartButton } from "@/components/cart/floating-cart-button";
+import { InboxHubChat } from "@/components/inbox-hub/chat-widget";
 import { AppProviders } from "@/components/providers/app-providers";
 import {
   resolveAdsenseClientId,
   shouldLoadAdsenseScript,
 } from "@/lib/ads/client-id";
 import { isAdsEligiblePath } from "@/lib/ads/eligibility";
+import { buildInboxHubWidgetSrc } from "@/lib/inbox-hub";
 import { getStoreContext } from "@/lib/store/context";
 import "./globals.css";
 
@@ -77,6 +79,7 @@ export default async function RootLayout({
   const clientId = resolveAdsenseClientId(settings);
   const loadAdsense =
     adsEligible && shouldLoadAdsenseScript(settings);
+  const inboxHubSrc = buildInboxHubWidgetSrc(slug);
 
   return (
     <html lang="es" className="h-full" data-store={slug}>
@@ -95,6 +98,7 @@ export default async function RootLayout({
         <AppProviders>
           {children}
           <FloatingCartButton />
+          {inboxHubSrc ? <InboxHubChat src={inboxHubSrc} /> : null}
         </AppProviders>
         <Analytics />
       </body>
