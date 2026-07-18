@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const inboxHubFrameSrc = [
+  "https://inboxhub.vcprojects.xyz",
   "https://inbox-hub-tau.vercel.app",
   "https://*.vercel.app",
   "http://localhost:3000",
