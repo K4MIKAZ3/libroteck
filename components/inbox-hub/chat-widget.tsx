@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
@@ -13,7 +13,7 @@ type Props = {
 };
 
 export function InboxHubChat({ baseSrc }: Props) {
-  const { open, order, openGuide, close } = useInboxHub();
+  const { open, mode, order, openMenu, openChat, close } = useInboxHub();
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [enabled, setEnabled] = useState(false);
 
@@ -22,15 +22,20 @@ export function InboxHubChat({ baseSrc }: Props) {
   }, []);
 
   const iframeSrc = useMemo(() => {
-    if (!order) return null;
-    const url = new URL(baseSrc);
-    url.searchParams.set("product", order.productSummary.slice(0, 180));
-    url.searchParams.set("awaitOrder", "1");
-    return url.toString();
-  }, [baseSrc, order]);
+    if (mode === "order" && order) {
+      const url = new URL(baseSrc);
+      url.searchParams.set("product", order.productSummary.slice(0, 180));
+      url.searchParams.set("awaitOrder", "1");
+      return url.toString();
+    }
+    if (mode === "chat") {
+      return baseSrc;
+    }
+    return null;
+  }, [baseSrc, mode, order]);
 
   useEffect(() => {
-    if (!open || !order || !iframeSrc) return;
+    if (!open || mode !== "order" || !order || !iframeSrc) return;
 
     const payload = {
       type: "inbox-hub-order" as const,
@@ -50,7 +55,7 @@ export function InboxHubChat({ baseSrc }: Props) {
       window.clearTimeout(t2);
       window.clearTimeout(t3);
     };
-  }, [open, order, iframeSrc]);
+  }, [open, mode, order, iframeSrc]);
 
   if (!enabled) return null;
 
@@ -59,7 +64,13 @@ export function InboxHubChat({ baseSrc }: Props) {
       {open && (
         <div className="flex h-[min(560px,calc(100vh-8rem))] w-[min(380px,calc(100vw-1.5rem))] flex-col overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[0_12px_40px_rgba(0,0,0,0.28)]">
           <div className="flex items-center justify-between gap-2 border-b border-black/10 bg-[var(--primary)] px-3 py-2.5 text-white">
-            <p className="text-sm font-semibold">Ordenar en línea</p>
+            <p className="text-sm font-semibold">
+              {mode === "chat"
+                ? "Chat en línea"
+                : mode === "order"
+                  ? "Ordenar en línea"
+                  : "¿Qué deseas hacer?"}
+            </p>
             <button
               type="button"
               onClick={close}
@@ -70,15 +81,45 @@ export function InboxHubChat({ baseSrc }: Props) {
             </button>
           </div>
 
-          {order && iframeSrc ? (
+          {mode === "choice" ? (
+            <div className="flex flex-1 flex-col justify-center gap-4 p-5 text-[var(--foreground)]">
+              <div className="space-y-2 text-center">
+                <p className="font-heading text-lg font-black">
+                  Elige una opción
+                </p>
+                <p className="text-sm text-[#666]">
+                  Puedes chatear sin elegir productos, o comprar y llevar tu
+                  pedido al carrito.
+                </p>
+              </div>
+              <div className="flex flex-col gap-2">
+                <Button type="button" onClick={openChat} className="w-full gap-2">
+                  <MessageCircle className="size-4" />
+                  Solo chatear
+                </Button>
+                <Button asChild variant="outline" className="w-full gap-2">
+                  <Link href={HOME_PATH} onClick={close}>
+                    <ShoppingCart className="size-4" />
+                    Quiero comprar
+                  </Link>
+                </Button>
+                <Button asChild variant="ghost" className="w-full">
+                  <Link href="/carrito" onClick={close}>
+                    Ir al carrito
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          ) : iframeSrc ? (
             <iframe
               ref={iframeRef}
               key={iframeSrc}
               src={iframeSrc}
-              title="Chat para ordenar en línea"
+              title={mode === "chat" ? "Chat en línea" : "Chat para ordenar"}
               allow="clipboard-write"
               className="h-full w-full flex-1 border-0 bg-transparent"
               onLoad={() => {
+                if (mode !== "order" || !order) return;
                 iframeRef.current?.contentWindow?.postMessage(
                   {
                     type: "inbox-hub-order",
@@ -89,41 +130,13 @@ export function InboxHubChat({ baseSrc }: Props) {
                 );
               }}
             />
-          ) : (
-            <div className="flex flex-1 flex-col justify-center gap-4 p-5 text-[var(--foreground)]">
-              <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-[var(--primary)]/10 text-[var(--primary)]">
-                <ShoppingCart className="size-6" />
-              </div>
-              <div className="space-y-2 text-center">
-                <p className="font-heading text-lg font-black">
-                  Primero elige tus productos
-                </p>
-                <p className="text-sm text-[#666]">
-                  Selecciona el producto que quieres, añádelo al carrito y en el
-                  carrito elige <strong>Ordenar en línea</strong> para pagar con
-                  ayuda del chat (o WhatsApp si lo prefieres).
-                </p>
-              </div>
-              <div className="flex flex-col gap-2">
-                <Button asChild>
-                  <Link href={HOME_PATH} onClick={close}>
-                    Ver catálogo
-                  </Link>
-                </Button>
-                <Button asChild variant="outline">
-                  <Link href="/carrito" onClick={close}>
-                    Ir al carrito
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          )}
+          ) : null}
         </div>
       )}
 
       <button
         type="button"
-        onClick={() => (open ? close() : openGuide())}
+        onClick={() => (open ? close() : openMenu())}
         aria-expanded={open}
         className="inline-flex items-center gap-2 rounded-full bg-[var(--primary)] px-4 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-[var(--primary-dark)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary)]"
       >

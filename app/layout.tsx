@@ -12,6 +12,10 @@ import {
 import { isAdsEligiblePath } from "@/lib/ads/eligibility";
 import { buildInboxHubWidgetSrc } from "@/lib/inbox-hub";
 import { getStoreContext } from "@/lib/store/context";
+import {
+  getStoreBaseUrl,
+  isSubscriptionStore,
+} from "@/lib/store/profiles";
 import "./globals.css";
 
 const inter = Inter({
@@ -36,21 +40,36 @@ export async function generateMetadata(): Promise<Metadata> {
   const adsEligible = isAdsEligiblePath(pathname);
   const clientId = resolveAdsenseClientId(settings);
   const brand = `${store.brandPrimary}${store.brandAccent}`;
-  const isStreaming = slug === "streaming";
+  const isSubscription = isSubscriptionStore(slug);
+
+  const brandIcons = {
+    icon: [
+      {
+        url: `/brands/${slug}/favicon-32.png`,
+        sizes: "32x32",
+        type: "image/png",
+      },
+      {
+        url: `/brands/${slug}/icon.png`,
+        sizes: "512x512",
+        type: "image/png",
+      },
+    ],
+    apple: `/brands/${slug}/apple-touch-icon.png`,
+  };
 
   return {
     title: {
-      default: isStreaming
+      default: isSubscription
         ? `${brand} — Cuentas premium de streaming`
         : `${brand} — Cursos y libros digitales`,
       template: `%s | ${brand}`,
     },
-    description: isStreaming
+    description: isSubscription
       ? "Cuentas premium de streaming con precios por país. Ordena fácilmente por WhatsApp."
       : "Catálogo de cursos y libros digitales con precios por país. Ordena fácilmente por WhatsApp.",
-    metadataBase: new URL(
-      isStreaming ? "https://streaming.libroteck.xyz" : "https://libroteck.xyz",
-    ),
+    metadataBase: new URL(getStoreBaseUrl(slug)),
+    icons: brandIcons,
     ...(process.env.GOOGLE_SITE_VERIFICATION
       ? {
           verification: {
